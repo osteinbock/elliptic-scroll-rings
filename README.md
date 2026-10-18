@@ -1,7 +1,7 @@
 # Elliptic scroll rings
 
 Simulation and analysis code for the manuscript *Axis-switching oscillations of elliptic
-scroll rings in excitable media* (O. Steinbock, in preparation for *Chaos*).
+scroll rings in excitable media* (O. Steinbock, in preparation).
 
 Initially planar, elliptic scroll rings in three-dimensional excitable media perform the
 axis-switching oscillation known from elliptic vortex rings: while the ring drifts along its
