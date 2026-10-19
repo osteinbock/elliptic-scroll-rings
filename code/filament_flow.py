@@ -91,7 +91,11 @@ def ellipse(Ax, Ay, n=192):
 
 def run(Ax, Ay, alpha, beta, T, dt=None, n=192, every=0.25, eta=0.0, alpha2=0.0, beta2=0.0, coeff_of_R=None, local=None, X0=None):
     """coeff_of_R: optional f(Rbar) -> (alpha, beta), Rbar = length / 2 pi, applied
-    uniformly along the loop (ring-size-dependent rather than local coefficients)."""
+    uniformly along the loop (ring-size-dependent rather than local coefficients).
+    dt: fixed step; the default is chosen once from the initial curve and the initial
+    coefficients and is NOT adapted as a ring shrinks or as coeff_of_R/local raise the
+    coefficients, so pass a checked dt in those cases. Outputs closer than dt apart are
+    recorded once per step. The run stops if the curve becomes non-finite."""
     """Integrating-factor RK4: the stiff -eta d^4/ds^4 part (with the current mean
     spacing) is integrated exactly in Fourier space, the rest explicitly."""
     X = ellipse(Ax, Ay, n) if X0 is None else X0.copy()
@@ -106,9 +110,15 @@ def run(Ax, Ay, alpha, beta, T, dt=None, n=192, every=0.25, eta=0.0, alpha2=0.0,
     out, t, nxt = [], 0.0, 0.0
     while t <= T + 1e-9:
         if t >= nxt - 1e-12:
+            if not np.all(np.isfinite(X)):
+                print(f"filament_flow.run: non-finite curve at t = {t:.4g}; stopped (reduce dt or check coefficients)")
+                break
             c = X.mean(0)
             th = np.arctan2(X[:, 1] - c[1], X[:, 0] - c[0])
-            out.append(dict(t=t, hx=np.ptp(X[:, 0]) / 2, hy=np.ptp(X[:, 1]) / 2, z=c[2],
+            sg = np.linalg.norm(np.diff(np.r_[X, X[:1]], axis=0), axis=1)
+            wq = sg + np.r_[sg[-1], sg[:-1]]                          # arc-length weights
+            Rm = (wq * np.hypot(X[:, 0] - c[0], X[:, 1] - c[1])).sum() / wq.sum()
+            out.append(dict(t=t, Rm=Rm, hx=np.ptp(X[:, 0]) / 2, hy=np.ptp(X[:, 1]) / 2, z=c[2],
                             h2c=2 * np.mean((X[:, 2] - c[2]) * np.cos(2 * th)),
                             length=np.linalg.norm(np.diff(np.r_[X, X[:1]], axis=0), axis=1).sum(),
                             **modes(X)))

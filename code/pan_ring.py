@@ -17,6 +17,7 @@ d = E.table(rows)
 for s, ls in frames.items():
     for i, l in enumerate(ls):
         d[f"snap_{s:g}_{i}"] = l
-np.savez(out, **d, gf=gf, Ax=Ax, Ay=Ay, Lxy=Lxy, Lz=Lz, dx=DX)
+np.savez(out, **d, gf=gf, Ax=Ax, Ay=Ay, Lxy=Lxy, Lz=Lz, dx=DX, dt=M.dt(DX), ustar=M.ustar, vstar=M.vstar,
+         mode=MODE, amp=AMP, every_t=1.0, T=T)
 ok = np.isfinite(d["Rm"])
 print(f"DONE {out}: R {d['Rm'][ok][min(20, ok.sum()-1)]:.2f} -> {d['Rm'][ok][-1]:.2f} at t={d['t'][ok][-1]:.0f}")

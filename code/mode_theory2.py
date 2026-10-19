@@ -4,7 +4,8 @@ For X_t = alpha(K) K N + beta(K) K B, a radial deformation r_m changes |K| while
 vertical deformation zeta_m only tilts N and B. Linearizing around a ring of radius R:
     R^2 dr/dt   = -alpha_eff (m^2-1) r - beta m^2 zeta
     R^2 dzeta/dt =  beta_eff (m^2-1) r - alpha m^2 zeta
-with alpha_eff = d(alpha K)/dK, beta_eff = d(beta K)/dK. For alpha = 0:
+with alpha_eff = d(alpha K)/dK, beta_eff = d(beta K)/dK. For alpha = alpha_eff = 0 (note that
+alpha(1/R) = 0 alone does not make alpha_eff vanish):
     omega_m = m sqrt(m^2-1) sqrt(beta beta_eff) / R^2
     |zeta_m| / |r_m| = sqrt((m^2-1)/m^2) sqrt(beta_eff / beta)
 This script (1) checks both statements against the full nonlinear filament solver with a
@@ -24,14 +25,32 @@ def fit_mode(t, r, z, omega0):
         return np.r_[A * e * np.cos(w * (t - t[0]) + p) + cr - r,
                      B * e * np.sin(w * (t - t[0]) + p + d) + cz - z]
     best = None
+    lo = [-np.inf, -np.inf, -np.inf, 0.2 * omega0, -np.inf, -np.inf, -np.inf, -np.inf]
+    hi = [np.inf, np.inf, np.inf, 5.0 * omega0, np.inf, np.inf, np.inf, np.inf]
     for p0 in np.linspace(0, 2 * np.pi, 8, endpoint=False):
         q0 = [np.ptp(r) / 2, np.ptp(z) / 2, 0.01, omega0, p0, 0.0, np.mean(r), np.mean(z)]
-        s = least_squares(res, q0)
+        s = least_squares(res, q0, bounds=(lo, hi))
         if best is None or s.cost < best.cost:
             best = s
     A, B, g, w, p, d, cr, cz = best.x
-    return dict(A=abs(A), B=abs(B), ratio=abs(B / A), gamma=g, omega=abs(w), dphase=(d + np.pi) % (2 * np.pi) - np.pi,
-                rms=np.sqrt(np.mean(best.fun ** 2)))
+    # canonical form A, B > 0 (w > 0 by the bounds): cos(x + pi) = -cos x flips A with p -> p + pi,
+    # which also flips the sine of z; a negative B is absorbed by d -> d + pi
+    if A < 0:
+        A, p, B = -A, p + np.pi, -B
+    if B < 0:
+        B, d = -B, d + np.pi
+    # standard errors from the Jacobian (descriptive: residuals are serially correlated)
+    J = best.jac
+    dof = max(1, len(best.fun) - len(best.x))
+    try:
+        cov = np.linalg.inv(J.T @ J) * (2 * best.cost / dof)
+        err = np.sqrt(np.clip(np.diag(cov), 0, None))
+    except np.linalg.LinAlgError:
+        err = np.full(len(best.x), np.nan)
+    return dict(A=A, B=B, ratio=B / A, gamma=g, omega=w, dphase=(d + np.pi) % (2 * np.pi) - np.pi,
+                rms=np.sqrt(np.mean(best.fun ** 2)), success=bool(best.success), status=int(best.status),
+                at_bound=bool(np.isclose(w, lo[3]) or np.isclose(w, hi[3])),
+                gamma_err=err[2], omega_err=err[3], dphase_err=err[5])
 
 
 def solver_check(R=4.85, beta0=-1.76, slope=0.0, m=2, amp=0.02, T=None):

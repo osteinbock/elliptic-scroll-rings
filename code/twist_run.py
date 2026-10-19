@@ -127,8 +127,10 @@ def main():
         theta = twist_sample(u, P, L, dx, Tt, U, V)
         nw_t = np.round((theta[-1] - theta[0]) / (2 * np.pi))     # integer phase winding
         nw_p = np.round((psi[-1] - psi[0]) / (2 * np.pi))
-        w = deriv_periodic(theta, L, 2 * np.pi * nw_t)
-        tau = deriv_periodic(psi, L, 2 * np.pi * nw_p)
+        # theta and psi are angles in the closed frame, which turns by -chi s / L relative to
+        # the parallel-transport (Bishop) frame; add that connection to get twist and torsion
+        w = deriv_periodic(theta, L, 2 * np.pi * nw_t) - chi / L
+        tau = deriv_periodic(psi, L, 2 * np.pi * nw_p) - chi / L
         c = P.mean(0)
         th = np.arctan2(P[:, 1] - c[1], P[:, 0] - c[0])
         h2c = 2 * np.mean((P[:, 2] - c[2]) * np.cos(2 * th))

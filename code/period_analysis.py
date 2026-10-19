@@ -19,15 +19,17 @@ import matplotlib.pyplot as plt
 import ellipse_compare as C
 import filament_flow as F
 
-# file, a, b, label, spiral rotation period (for smoothing), rigid?
+EPS_MAX = 0.36          # largest relative ellipticity of amplitude_factor's grid
+
+# file, a, b, label, spiral rotation period (for smoothing; from param_probe.py), rigid?
 RUNS = [
     ("ellP_a1.1_b0.15_12x7.5.npz", 1.1, 0.15, "a=1.1 b=0.15", 4.13, True),
-    ("ellB_a1.1_b0.16_12x7.5.npz", 1.1, 0.16, "a=1.1 b=0.16", 4.28, True),
+    ("ellB_a1.1_b0.16_12x7.5.npz", 1.1, 0.16, "a=1.1 b=0.16", 4.318, True),
     ("ell_a1.1_b0.17_8x5.npz",     1.1, 0.17, "a=1.1 b=0.17 (8x5)", 4.44, True),
     ("ell_a1.1_b0.17_12x7.5.npz",  1.1, 0.17, "a=1.1 b=0.17 (12x7.5)", 4.44, True),
-    ("ellB_a1.1_b0.18_12x7.5.npz", 1.1, 0.18, "a=1.1 b=0.18", 4.70, True),
+    ("ellB_a1.1_b0.18_12x7.5.npz", 1.1, 0.18, "a=1.1 b=0.18", 4.750, True),
     ("ellP_a0.8_b0.05_12x7.5.npz", 0.8, 0.05, "a=0.8 b=0.05", 3.39, True),
-    ("ell_b0.09_8x5.npz",          0.8, 0.09, "a=0.8 b=0.09 (meander)", 4.12, False),
+    ("ell_b0.09_8x5.npz",          0.8, 0.09, "a=0.8 b=0.09 (meander)", 4.130, False),
 ]
 
 
@@ -48,11 +50,18 @@ def amplitude_factor(eps_grid=np.linspace(0.02, 0.36, 9)):
     return out
 
 
+def single_closed(d):
+    """Frames whose filament is one closed curve (all frames for files without the flag)."""
+    g = d["ncurves"] == 1
+    return g & (d["closed"] == 1) if "closed" in d.files else g
+
+
 def intervals(path, period):
     d = np.load(path)
     ok = np.isfinite(d["hx"]) & np.isfinite(d["length"])
     t = d["t"][ok]
-    hx, hy, L, z = (C.smooth(t, d[k][ok], period) for k in ("hx", "hy", "length", "z"))
+    good = single_closed(d)[ok]                 # other frames are bridged by the smoothing
+    hx, hy, L, z = (C.smooth(t, np.where(good, d[k][ok], np.nan), period) for k in ("hx", "hy", "length", "z"))
     R = L / (2 * np.pi)
     x = C.crossings(t, hx - hy)
     rows = []
@@ -65,9 +74,10 @@ def intervals(path, period):
         beta = np.polyfit(s, z[m], 1)[0]
         alpha = -0.5 * np.polyfit(t[m], R[m] ** 2, 1)[0]
         eps = np.max(np.abs(hx[m] - hy[m]) / (hx[m] + hy[m]))
-        # skip intervals near collapse, with tiny amplitude, or after the ring broke up
         nc = d["ncurves"][ok][m]
-        if Rb < 3.2 or eps < 0.04 or np.mean(nc > 1) > 0.2:
+        # skip intervals near collapse, with tiny amplitude, beyond the range of the
+        # finite-amplitude factor (eps <= 0.36), or after the ring broke up
+        if Rb < 3.2 or eps < 0.04 or eps > EPS_MAX or np.mean(nc > 1) > 0.2:
             continue
         rows.append(dict(t0=t0, t1=t1, Th=t1 - t0, R=Rb, beta=beta, alpha=alpha, eps=eps))
     return rows

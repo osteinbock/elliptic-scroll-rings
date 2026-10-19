@@ -75,11 +75,12 @@ def initial_ring(shape, dx, Ax, Ay, z0, slab=1.5, wake=4.0, flip=False, mode=0, 
 
 
 def measure(lines, Lxy):
-    """Ellipse diagnostics of the longest closed curve: centre, in-plane half
+    """Ellipse diagnostics of the longest curve (by arc length; closed = 1 if it closes): centre, in-plane half
     extents along x and y, and the cos(2 theta) / sin(2 theta) parts of z."""
     if not lines:
         return None
-    p = max(lines, key=len)
+    arc = lambda l: np.linalg.norm(np.diff(l, axis=0), axis=1).sum()
+    p = max(lines, key=arc)                       # longest curve by arc length; see 'closed'
     seg = np.linalg.norm(np.diff(p, axis=0), axis=1)
     w = np.r_[seg, 0] + np.r_[0, seg]                    # arc-length weights
     c = (p * w[:, None]).sum(0) / w.sum()
@@ -91,7 +92,7 @@ def measure(lines, Lxy):
     out = dict(cx=c[0], cy=c[1], zc=c[2],
                hx=(p[:, 0].max() - p[:, 0].min()) / 2, hy=(p[:, 1].max() - p[:, 1].min()) / 2,
                Rm=(w * rho).sum() / w.sum(), h2c=h2c, h2s=h2s,
-               length=seg.sum(), npts=len(p), ncurves=len(lines))
+               length=seg.sum(), npts=len(p), ncurves=len(lines), closed=float(B.is_closed(p)))
     # Fourier modes in the polar angle (angle-weighted): radius and height
     dth = np.abs(np.diff(np.unwrap(th)))
     wt = np.r_[dth, 0] + np.r_[0, dth]
@@ -139,9 +140,16 @@ def run(a, b, eps, Ax, Ay, Lxy, Lz, dx, T, every_t=0.5, flip=False, verbose=True
                 if verbose:
                     print(f"t={t:7.1f}  no filament")
                 if t > (20 if model else 5):
-                    rows.append(dict(t=t))
+                    # end of the run: distinguish a diverged field from a vanished filament
+                    finite = bool(np.isfinite(u).all() and np.isfinite(v).all())
+                    rows.append(dict(t=t, end=1.0 if finite else 2.0))   # 1: no filament, 2: non-finite field
+                    if verbose:
+                        print("end of run:", "filament vanished (ring collapsed or left the domain)" if finite
+                              else "non-finite field (numerical instability)")
                     break
                 continue
+            # physical height uses the offset BEFORE this frame's roll (zc is the pre-roll centre)
+            m["z"] = m["zc"] + zoff
             # recentre the ring in z (roll the fields) so it never hits the seam
             k = int(round((Lz / 2 - m["zc"]) / dx))
             if k:
@@ -149,7 +157,7 @@ def run(a, b, eps, Ax, Ay, Lxy, Lz, dx, T, every_t=0.5, flip=False, verbose=True
                 un = np.empty_like(u); vn = np.empty_like(v)
                 zoff -= k * dx
                 lines = [l + np.array([0, 0, k * dx]) for l in lines]
-            m["z"] = m["zc"] + zoff
+            m["zfix"] = 1.0                         # marks output written after the z fix
             m["t"] = t
             pc = (int(round(m["cx"] / dx)) % shape[0], int(round(m["cy"] / dx)) % shape[1],
                   int(round((m["zc"] + k * dx) / dx)) % shape[2])
@@ -167,7 +175,7 @@ def run(a, b, eps, Ax, Ay, Lxy, Lz, dx, T, every_t=0.5, flip=False, verbose=True
 
 def table(rows):
     keys = ["t", "hx", "hy", "Rm", "z", "zc", "cx", "cy", "h2c", "h2s", "length", "ncurves",
-            "r1c", "r1s", "z1c", "z1s", "r2c", "r2s", "z2c", "z2s", "r3c", "r3s", "z3c", "z3s"]
+            "r1c", "r1s", "z1c", "z1s", "r2c", "r2s", "z2c", "z2s", "r3c", "r3s", "z3c", "z3s", "zfix", "closed", "end"]
     return {k: np.array([r.get(k, np.nan) for r in rows]) for k in keys}
 
 

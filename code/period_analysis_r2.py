@@ -24,11 +24,10 @@ def intervals_r2(path, period):
     d = np.load(path)
     ok = np.isfinite(d["r2c"]) & np.isfinite(d["length"])
     t = d["t"][ok]
-    r2 = d["r2c"][ok]
-    r2 = np.where(np.abs(r2 - median_filter(r2, 9, mode="nearest")) > 0.5, np.nan, r2)   # wrong-curve frames
-    g = np.isfinite(r2)
-    r2 = np.interp(t, t[g], r2[g])
-    r2, L, z = (C.smooth(t, y, period) for y in (r2, d["length"][ok], d["z"][ok]))
+    good = PA.single_closed(d)[ok]
+    r2 = np.where(good, d["r2c"][ok], np.nan)
+    r2 = np.where(np.abs(r2 - median_filter(np.nan_to_num(r2, nan=np.nanmedian(r2)), 9, mode="nearest")) > 0.5, np.nan, r2)   # wrong-curve frames
+    r2, L, z = (C.smooth(t, y, period) for y in (r2, np.where(good, d["length"][ok], np.nan), np.where(good, d["z"][ok], np.nan)))
     R = L / (2 * np.pi)
     x = C.crossings(t, r2)
     rows = []
@@ -42,7 +41,7 @@ def intervals_r2(path, period):
         alpha = -0.5 * np.polyfit(t[m], R[m] ** 2, 1)[0]
         eps = np.max(np.abs(r2[m]) / R[m])
         nc = d["ncurves"][ok][m]
-        if Rb < 3.2 or eps < 0.04 or np.mean(nc > 1) > 0.2:
+        if Rb < 3.2 or eps < 0.04 or eps > PA.EPS_MAX or np.mean(nc > 1) > 0.2:
             continue
         rows.append(dict(t0=t0, t1=t1, Th=t1 - t0, R=Rb, beta=beta, alpha=alpha, eps=eps))
     return rows

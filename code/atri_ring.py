@@ -1,5 +1,6 @@
 """Atri Ca2+ scroll ring (um, s) (circle or ellipse) in a periodic box.
-    python atri_ring.py P_uM nstar Ax Ay Lxy Lz T out.npz [snaps...]"""
+    ATRI_DX=3.0 ATRI_CSTAR=0.52 python atri_ring.py P_uM nstar Ax Ay Lxy Lz T out.npz [snaps...]
+(the paper uses ATRI_DX = 3 and ATRI_CSTAR = 0.52 at P = 0.1; see runs_v2.sh)"""
 import os
 import sys
 import numpy as np
@@ -16,6 +17,7 @@ d = E.table(rows)
 for s, ls in frames.items():
     for i, l in enumerate(ls):
         d[f"snap_{s:g}_{i}"] = l
-np.savez(out, **d, gf=gf, Ax=Ax, Ay=Ay, Lxy=Lxy, Lz=Lz, dx=DX)
+np.savez(out, **d, gf=gf, P=gf, Ax=Ax, Ay=Ay, Lxy=Lxy, Lz=Lz, dx=DX, dt=M.dt(DX), cstar=M.cstar,
+         nstar=M.nstar, every_t=2.0, T=T)   # gf: legacy name of P
 ok = np.isfinite(d["Rm"])
 print(f"DONE {out}: R {d['Rm'][ok][min(20, ok.sum()-1)]:.2f} -> {d['Rm'][ok][-1]:.2f} at t={d['t'][ok][-1]:.0f}")

@@ -20,7 +20,6 @@ import time
 
 import numpy as np
 import numba as nb
-import plotly.graph_objects as go
 
 
 # ---------------------------------------------------------------- simulation
@@ -106,12 +105,46 @@ def face_points(f, g, n):
 
 def find_filaments(u, v, a, b, dx):
     """Return a list of polylines (arrays of xyz in space units)."""
-    return find_curves(u - 0.5, v - (a / 2 - b), dx)
+    return find_curves(u - 0.5, v - (a / 2 - b), dx, stitch_tol=2.0)
 
 
-def find_curves(f, g, dx):
-    """Oriented polylines along the intersection of f = 0 and g = 0 (any box shape)."""
-    return chain_faces([face_points(f, g, n) for n in range(3)], f.shape, dx)
+def find_curves(f, g, dx, stitch_tol=None):
+    """Oriented polylines along the intersection of f = 0 and g = 0 (any box shape).
+    With stitch_tol (in grid cells), pieces broken by a single missed face crossing are
+    joined (see stitch)."""
+    lines = chain_faces([face_points(f, g, n) for n in range(3)], f.shape, dx)
+    return stitch(lines, stitch_tol * dx) if stitch_tol else lines
+
+
+def is_closed(p, tol=1e-9):
+    return len(p) > 3 and np.linalg.norm(p[0] - p[-1]) <= tol
+
+
+def stitch(lines, tol):
+    """Join oriented open polylines whose end lies within tol of another's start (or of
+    its own start, which closes it). A face crossing missed by the root finder breaks a
+    filament into such pieces, with a gap of about one grid cell."""
+    closed = [l for l in lines if is_closed(l)]
+    open_ = [l for l in lines if not is_closed(l)]
+    changed = True
+    while changed and open_:
+        changed = False
+        for i, a in enumerate(open_):
+            # own start first (closing), then the nearest other start
+            if len(a) > 3 and np.linalg.norm(a[-1] - a[0]) < tol:
+                closed.append(np.vstack([a, a[:1]]))
+                open_.pop(i); changed = True
+                break
+            dist = [(np.linalg.norm(a[-1] - b[0]), j) for j, b in enumerate(open_) if j != i]
+            if dist:
+                dmin, j = min(dist)
+                if dmin < tol:
+                    b = open_[j]
+                    joined = np.vstack([a, b])
+                    open_ = [l for k, l in enumerate(open_) if k not in (i, j)] + [joined]
+                    changed = True
+                    break
+    return closed + open_
 
 
 def chain_faces(per_axis, shape, dx):
@@ -213,6 +246,7 @@ def surface_mesh(u, dx, level=0.5, sxy=None, sz=None):
 
 
 def render_html(verts, faces, lines, L, path, title):
+    import plotly.graph_objects as go          # only needed for interactive renderings
     traces = [go.Mesh3d(
         x=np.round(verts[:, 0], 2), y=np.round(verts[:, 1], 2), z=np.round(verts[:, 2], 2),
         i=faces[:, 0], j=faces[:, 1], k=faces[:, 2],

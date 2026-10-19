@@ -10,11 +10,11 @@ import ellipse_compare as C
 PERIOD = {0.8: 36.9, 0.825: 34.3, 0.85: 32.0, 0.9: 28.2, 0.95: 25.3, 0.775: 40.0}
 
 
-def windows(path, tstart=None):
+def windows(path, tstart=None, single=False):
     d = np.load(path)
     gf = float(d["gf"])
     per = PERIOD[round(gf, 3)]
-    ok = np.isfinite(d["Rm"]) & (d["ncurves"] >= 1) & (d["Rm"] > 2)
+    ok = np.isfinite(d["Rm"]) & ((d["ncurves"] == 1) if single else (d["ncurves"] >= 1)) & (d["Rm"] > 2)
     t, R, z = d["t"][ok], d["Rm"][ok], d["z"][ok]
     Rs, zs = C.smooth(t, R, per), C.smooth(t, z, per)
     out = []

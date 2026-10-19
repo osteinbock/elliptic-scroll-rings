@@ -17,11 +17,13 @@ FILES = sorted(glob.glob("circ_R0_*.npz")) + ["circ_a1.1_b0.17.npz", "circ_a1.1_
 
 def windows(path):
     d = np.load(path)
-    from scipy.ndimage import median_filter
-    ok = np.isfinite(d["Rm"]) & (d["ncurves"] >= 1)
+    # frames without a single closed filament are nan after mask_frames.py and are dropped here;
+    # (an earlier median filter, |R - median| < 0.4, also removed valid frames of small rings,
+    # whose radius wobbles by about 0.5 with the rotation of the spiral tip)
+    ok = np.isfinite(d["Rm"]) & (d["ncurves"] == 1)
+    if "masked" not in d.files:
+        raise RuntimeError(f"{path}: run mask_frames.py first")
     t, Rraw, zraw = d["t"][ok], d["Rm"][ok], d["z"][ok]
-    good = np.abs(Rraw - median_filter(Rraw, 25, mode="nearest")) < 0.4    # drop wrong-curve frames
-    t, Rraw, zraw = t[good], Rraw[good], zraw[good]
     R = C.smooth(t, Rraw, PERIOD)
     z = C.smooth(t, zraw, PERIOD)
     out = []

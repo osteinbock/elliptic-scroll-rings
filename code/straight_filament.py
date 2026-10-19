@@ -62,6 +62,15 @@ def filament_profile(u, v, a, b, dx, prev):
     return prof
 
 
+def helical_parts(prof, k, z):
+    """Coefficients A, B of prof(z) = c + A e^{ikz} + B e^{-ikz} (complex least squares).
+    With all layers present this equals the Fourier projections mean(prof e^{-ikz}) and
+    mean(prof e^{ikz}); with missing layers it keeps the constant centre out of A and B."""
+    M = np.c_[np.ones_like(z), np.exp(1j * k * z), np.exp(-1j * k * z)]
+    c = np.linalg.lstsq(M, prof.astype(complex), rcond=None)[0]
+    return c[1], c[2]
+
+
 def main():
     shift = 0.0
     if "--shift" in sys.argv:
@@ -98,9 +107,7 @@ def main():
         if ok.sum() < 0.8 * Nz:
             continue
         prev = np.where(ok, prof, prev)
-        ph = np.exp(-1j * k * (zz[ok] + 0.5 * dx))
-        uk = np.mean(prof[ok] * ph)
-        ukm = np.mean(prof[ok] * np.conj(ph))
+        uk, ukm = helical_parts(prof[ok], k, zz[ok] + 0.5 * dx)
         rows.append((n * dt, prof[ok].mean(), 2 * uk, ok.sum(), 2 * ukm, prof.copy()))
         if len(rows) % 50 == 0:
             print(f"t={n*dt:6.1f}  |u_k|={abs(2*uk):.3f}  arg={np.angle(uk):+.2f}  layers={ok.sum()}  [{time.time()-t0:.0f}s]",

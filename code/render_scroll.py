@@ -41,7 +41,7 @@ def render(u, lines, dx, azim=45.0, elev=24.0, size=(700, 560), extent=None, dep
     depth = np.linalg.norm(L)
     half = depth / 2 if tmax is None else min(depth / 2, tmax)
     ts = np.arange(-half, half, depth_step)   # march only where content can be
-    us = gaussian_filter(u.astype(np.float32), 0.7)
+    us = gaussian_filter(u.astype(np.float32), 0.7)   # light smoothing (0.7 cells) of the shell only
     gx, gy, gz = np.gradient(us, dx)
     # filament: distance field and height color
     pts = np.concatenate([l for l in lines if len(l) > 5])
@@ -55,8 +55,8 @@ def render(u, lines, dx, azim=45.0, elev=24.0, size=(700, 560), extent=None, dep
     for t in ts:
         p = base + t * fwd
         q = p.reshape(-1, 3)
-        idx = (q / dx).T
-        inside = np.all((q >= 0) & (q <= L - dx), axis=1)
+        idx = (q / dx - 0.5).T                # fields are cell-centred at (i + 1/2) dx
+        inside = np.all((q >= 0.5 * dx) & (q <= L - 0.5 * dx), axis=1)
         if crop is not None:
             inside &= np.all((q >= crop[0]) & (q <= crop[1]), axis=1)
         if not inside.any():

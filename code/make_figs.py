@@ -21,7 +21,9 @@ from scipy.ndimage import median_filter
 import ellipse_compare as C
 import filament_flow as F
 
-OUT = "chaos_paper/figures"
+import os
+OUT = os.environ.get("FIG_OUT", "chaos_paper/figures")   # output directory (created if missing)
+os.makedirs(OUT, exist_ok=True)
 W1, W2 = 3.37, 6.69
 INK, MUTED, GRID = "#1f1f1e", "#6b6a63", "#e4e3dd"
 BLUE, ORANGE, AQUA, YELLOW, MAGENTA = "#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"
@@ -57,7 +59,7 @@ def grid(ax):
 
 def smooth_run(path, period, keys):
     d = np.load(path)
-    ok = np.isfinite(d["hx"])
+    ok = np.isfinite(d["hx"]) & (d["ncurves"] == 1)     # single closed filaments (mask_frames.py)
     t = d["t"][ok]
     return t, {k: C.smooth(t, d[k][ok], period) for k in keys}, d
 
@@ -332,10 +334,31 @@ def theory_crossings(alpha, beta, xmax):
     return [x[i] - a[i] * (x[i + 1] - x[i]) / (a[i + 1] - a[i]) for i in range(len(a) - 1) if a[i] * a[i + 1] < 0]
 
 
+def fit_shrink_drift(path, period, t0=6.0, Rmin=3.6):
+    """Constant alpha = -1/2 dR^2/dt and beta = dz/d(int dt/R) of a shrinking ring, fitted from t0
+    while Rbar = L/2pi > Rmin (single closed filaments, period-averaged); also returns the
+    period-averaged half-widths at t0."""
+    d = np.load(path)
+    ok = np.isfinite(d["hx"]) & (d["ncurves"] == 1)
+    t = d["t"][ok]
+    R = C.smooth(t, d["length"][ok], period) / (2 * np.pi)
+    z = C.smooth(t, d["z"][ok], period)
+    m = (t >= t0) & np.isfinite(R) & np.isfinite(z)
+    m &= np.cumsum(m & ~(R > Rmin)) == 0                 # stop at the first R <= Rmin
+    alpha = -0.5 * np.polyfit(t[m], R[m] ** 2, 1)[0]
+    s = np.concatenate([[0], np.cumsum(0.5 * (1 / R[m][1:] + 1 / R[m][:-1]) * np.diff(t[m]))])
+    beta = np.polyfit(s, z[m], 1)[0]
+    i = np.argmin(abs(t - t0))
+    hx, hy = (C.smooth(t, d[k][ok], period)[i] for k in ("hx", "hy"))
+    return alpha, beta, hx, hy
+
+
 def fig3():
     P, t0 = 4.13, 6.0
     t, S, d = smooth_run("ellP_a1.1_b0.15_12x7.5.npz", P, ("hx", "hy", "h2c", "length"))
-    r = F.run(10.76, 6.73, 0.566, -1.484, t[-1] - t0, n=64, dt=0.01)
+    al15, be15, hx0, hy0 = fit_shrink_drift("ellP_a1.1_b0.15_12x7.5.npz", P, t0)
+    print(f"fig3: a=1.1 b=0.15 alpha={al15:.3f} beta={be15:.3f} start {hx0:.2f} x {hy0:.2f}")
+    r = F.run(hx0, hy0, al15, be15, t[-1] - t0, n=64, dt=0.01)
     tm, M = model_until_valid(r, t0, 3.6)
     fig = plt.figure(figsize=(W1, 3.8))
     gs = fig.add_gridspec(3, 1, height_ratios=[1, 1, 1.15], hspace=0.45)
@@ -351,8 +374,10 @@ def fig3():
     a1.set(ylabel="saddle ampl.", xlabel="time", xlim=(0, 92), yticks=[-1, 0, 1])
     a1.legend(loc="lower right")
     # (c) axis switches vs ln(R0/R)
-    cases = [("ellP_a1.1_b0.15_12x7.5.npz", 4.13, 0.566, -1.484, BLUE, r"$a=1.1,\ b=0.15$"),
-             ("ellP_a0.8_b0.05_12x7.5.npz", 3.39, 1.362, -1.024, ORANGE, r"$a=0.8,\ b=0.05$")]
+    al05, be05, _, _ = fit_shrink_drift("ellP_a0.8_b0.05_12x7.5.npz", 3.39, t0)
+    print(f"fig3: a=0.8 b=0.05 alpha={al05:.3f} beta={be05:.3f} |beta|/alpha={abs(be05) / al05:.3f}")
+    cases = [("ellP_a1.1_b0.15_12x7.5.npz", 4.13, al15, be15, BLUE, r"$a=1.1,\ b=0.15$"),
+             ("ellP_a0.8_b0.05_12x7.5.npz", 3.39, al05, be05, ORANGE, r"$a=0.8,\ b=0.05$")]
     from matplotlib.lines import Line2D
     for path, Pp, al, be, col, nm in cases:
         tt, SS, _ = smooth_run(path, Pp, ("hx", "hy", "length"))
@@ -391,10 +416,8 @@ def fig4():
     cm = lambda x: plt.get_cmap("Greys")(0.35 + 0.65 * x)    # encodes R0, distinct from the time map
     for i, (f, R0) in enumerate(files):
         d = np.load(f)
-        ok = np.isfinite(d["Rm"])
+        ok = np.isfinite(d["Rm"]) & (d["ncurves"] == 1)    # single closed filaments (mask_frames.py)
         t, R = d["t"][ok], d["Rm"][ok]
-        g = np.abs(R - median_filter(R, 25, mode="nearest")) < 0.4
-        t, R = t[g], R[g]
         Rs = C.smooth(t, R, 4.44)
         m = (t <= 200) & np.isfinite(Rs)
         ax[0].plot(t[m], Rs[m], color=cm(i / (len(files) - 1)), lw=1.1)
@@ -406,7 +429,7 @@ def fig4():
     # (the Lz = 14 runs circH_* are excluded: that box height produced spurious ring growth)
     import alpha_stationarity as A
     pts = [A.windows(f) for f in VALID_CIRCLES + LARGE_CIRCLES]
-    big = A.windows("sf2/circXXL_R0_38.npz")
+    big = A.windows("sf2/circXXL_R0_38_snaps.npz")   # same simulation as circXXL_R0_38.npz
     pts.append(big[big[:, 0] <= 145])        # later windows are affected by the buckling instability
     pts = np.concatenate([p for p in pts if len(p)])
     sc = ax[1].scatter(pts[:, 1], pts[:, 2], c=pts[:, 0], cmap="viridis", s=9, vmin=0, vmax=300, lw=0)
@@ -433,12 +456,16 @@ def fig5():
             ("a=1.1 b=0.17 (8x5)", ORANGE, r"$b=0.17$, small"),
             ("a=1.1 b=0.17 (12x7.5)", YELLOW, r"$b=0.17$, large"), ("a=1.1 b=0.18", MAGENTA, r"$b=0.18$"),
             ("a=0.8 b=0.09 (meander)", MUTED, "meandering")]
+    rigid = [float(r["Th"]) / float(r["T2"]) for r in rows
+             if r["rigid"] == "True" and float(r["a"]) == 1.1 and 0.15 <= float(r["b"]) <= 0.17]
+    q = np.mean(rigid)                                   # mean ratio, rigid spirals b = 0.15-0.17
     fig, ax = plt.subplots(figsize=(W1, 2.75))
-    lim = [0, 45]
+    top = max(max(float(r["Th"]) for r in rows), max(float(r["T2"]) for r in rows))
+    lim = [0, 5 * np.ceil(1.05 * top / 5)]
     ax.plot(lim, lim, color=MUTED, lw=0.9)
-    ax.plot(lim, [1.33 * v for v in lim], color=INK, lw=0.9, ls="--")
-    ax.text(44.5, 38.6, "1 : 1", fontsize=8, color=MUTED, ha="right", va="top")
-    ax.text(31.5, 43.2, "1.33 : 1", fontsize=8, color=INK, ha="right")
+    ax.plot(lim, [q * v for v in lim], color=INK, lw=0.9, ls="--")
+    ax.text(0.99 * lim[1], 0.86 * lim[1], "1 : 1", fontsize=8, color=MUTED, ha="right", va="top")
+    ax.text(0.70 * lim[1], 0.96 * lim[1], f"{q:.2f} : 1", fontsize=8, color=INK, ha="right")
     for run, col, nm in sets:
         rr = [r for r in rows if r["run"] == run]
         ax.scatter([float(r["T2"]) for r in rr], [float(r["Th"]) for r in rr], s=18,
@@ -566,7 +593,7 @@ def fig7():
 
 
 if __name__ == "__main__":
-    which = [x if x == "M" else int(x) for x in sys.argv[1:]] or ["M", 1, 2, 3, 4, 5, 6, 7]
+    which = [x if x == "M" else int(x) for x in sys.argv[1:]] or [1, 2, 3, 4, 5, 6]   # paper figures; "M" and 7 are drafts not in the paper
     for n in which:
         globals()[f"fig{n}" if str(n) != "M" else "figM"]()
         print(f"wrote {OUT}/fig{n}.pdf")

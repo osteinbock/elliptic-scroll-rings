@@ -2,9 +2,10 @@
 (modeR_m{2,3}_a{0.08,0.15}.npz, Barkley a=1.1 b=0.17 eps=0.02).
 
 beta_eff(m) = omega_m Rbar^2 / (m sqrt(m^2-1)) is the binormal coefficient the mode
-'sees'; beta_drift = Rbar dz/dt is the one the circular translation sees. With
-constant or local beta(K), beta_eff is the same for m = 2 and 3 (omega3/omega2 = 2.449
-at equal R); an m-dependent beta_eff points to a dispersive higher-order binormal term.
+'sees' (for a local law with alpha = alpha_eff = 0 it equals sqrt(beta d(beta K)/dK), see
+mode_theory2.py); beta_drift = Rbar dz/dt is the one the circular translation sees. For
+such a local law this quantity is the same for m = 2 and 3 (omega3/omega2 = 2.449 at equal
+R); an m-dependent value points to a dispersive higher-order binormal term.
 """
 import numpy as np
 import ellipse_compare as C

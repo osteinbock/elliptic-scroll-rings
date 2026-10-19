@@ -15,21 +15,64 @@ import filament_flow as F
 C1, C2, INK, MUTED = "#2a78d6", "#eb6834", "#1f1f1e", "#6b6a63"
 
 
-def smooth(t, y, period):
-    """Moving average over one rotation period (removes the tip-circle wobble)."""
-    dt = np.median(np.diff(t))
+def smooth(t, y, period, maxgap=None):
+    """Moving average over one rotation period (removes the tip-circle wobble).
+
+    The samples are first interpolated onto a uniform time grid, so that deleted frames
+    do not shorten the window; gaps longer than maxgap (default period / 2) are left
+    undefined, and any window touching them returns nan. For gap-free uniform samples
+    this is the plain boxcar."""
+    t, y = np.asarray(t, float), np.asarray(y, float)
+    good = np.isfinite(y)
+    out = np.full(len(t), np.nan)
+    if good.sum() < 2:
+        return out
+    tg, yg = t[good], y[good]
+    dt = np.median(np.diff(tg))
+    maxgap = period / 2 if maxgap is None else maxgap
+    n = int(round((tg[-1] - tg[0]) / dt)) + 1
+    tu = tg[0] + dt * np.arange(n)
+    yu = np.interp(tu, tg, yg)
+    j = np.clip(np.searchsorted(tg, tu), 1, len(tg) - 1)
+    yu[(tg[j] - tg[j - 1]) > maxgap + 1e-9] = np.nan          # inside a long gap
     w = max(1, int(round(period / dt)))
-    k = np.ones(w) / w
-    ys = np.convolve(y, k, mode="same")
+    if w > n:
+        return out
+    ys = np.convolve(yu, np.ones(w) / w, mode="same")       # nan spreads over the window
     half = w // 2
     ys[:half] = np.nan
-    ys[len(ys) - half:] = np.nan
-    return ys
+    ys[n - half:] = np.nan
+    # back to the original sample times (nearest uniform sample, exact for uniform input)
+    k = np.clip(np.rint((t - tg[0]) / dt).astype(int), 0, n - 1)
+    out = ys[k]
+    out[(t < tg[0]) | (t > tg[-1])] = np.nan
+    return out
 
 
 def crossings(t, e):
-    return [t[i] - e[i] * (t[i + 1] - t[i]) / (e[i + 1] - e[i])
-            for i in range(len(e) - 1) if np.isfinite(e[i]) and np.isfinite(e[i + 1]) and e[i] * e[i + 1] < 0]
+    """Times where e changes sign (linear interpolation). A run of exact zeros between
+    opposite signs counts once, at the middle of the run; a touch of zero does not count."""
+    t, e = np.asarray(t, float), np.asarray(e, float)
+    out = []
+    i, n = 0, len(e)
+    while i < n - 1:
+        if not (np.isfinite(e[i]) and np.isfinite(e[i + 1])) or e[i] == 0:
+            i += 1
+            continue
+        if e[i] * e[i + 1] < 0:
+            out.append(t[i] - e[i] * (t[i + 1] - t[i]) / (e[i + 1] - e[i]))
+            i += 1
+            continue
+        if e[i + 1] == 0:
+            j = i + 1
+            while j < n and e[j] == 0:
+                j += 1
+            if j < n and np.isfinite(e[j]) and e[i] * e[j] < 0:
+                out.append(0.5 * (t[i + 1] + t[j - 1]))
+            i = j
+            continue
+        i += 1
+    return out
 
 
 def main():

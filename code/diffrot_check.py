@@ -28,7 +28,9 @@ for i, t in enumerate(times):
     n = np.bincount(b, minlength=NB)
     ok = n > 0
     RHO[i, ok] = np.bincount(b, rho, NB)[ok] / n[ok]
-    Z[i, ok] = np.bincount(b, p[:, 2] - c[2], NB)[ok] / n[ok]
+    # absolute height: relative to the centroid, the in-phase vertical wobble of an untwisted
+    # ring would cancel (the slow drift is removed by the one-period average below)
+    Z[i, ok] = np.bincount(b, p[:, 2], NB)[ok] / n[ok]
 # fill rare empty bins by interpolation in theta
 for A in (RHO, Z):
     for i in range(len(times)):

@@ -45,7 +45,7 @@ def straight():
 
 def tilt():
     d = np.load("tilt_m1.npz")
-    ok = np.isfinite(d["Rm"]) & np.isfinite(d["z1s"])
+    ok = np.isfinite(d["Rm"]) & np.isfinite(d["z1s"]) & (d["ncurves"] == 1)
     t = d["t"][ok]
     S = {k: C.smooth(t, d[k][ok], PERIOD) for k in ("Rm", "cy", "cx", "z", "z1s", "z1c")}
     m = (t >= 8) & np.isfinite(S["Rm"])
@@ -66,14 +66,11 @@ def large_modes():
     out = []
     for m, f in ((2, "modeL_m2.npz"), (3, "modeL_m3.npz")):
         d = np.load(f)
-        ok = np.isfinite(d["Rm"]) & np.isfinite(d[f"r{m}c"])
+        # frames without a single closed filament are nan (mask_frames.py); an earlier median
+        # filter (|y - median| > 0.4) also removed valid frames of the wobbling radius
+        ok = np.isfinite(d["Rm"]) & np.isfinite(d[f"r{m}c"]) & (d["ncurves"] == 1)
         t = d["t"][ok]
-        sig = {}
-        for key in (f"r{m}c", f"z{m}c", "Rm", "z"):
-            y = d[key][ok]
-            y = np.where(np.abs(y - median_filter(y, 15, mode="nearest")) > 0.4, np.nan, y)
-            g = np.isfinite(y)
-            sig[key] = np.interp(t, t[g], C.smooth(t[g], y[g], PERIOD))
+        sig = {key: C.smooth(t, d[key][ok], PERIOD) for key in (f"r{m}c", f"z{m}c", "Rm", "z")}
         R_all = sig["Rm"]
         for tc in np.arange(15, t[-1] - 15, 10.0):
             Rloc = np.nanmean(R_all[np.abs(t - tc) < 5])

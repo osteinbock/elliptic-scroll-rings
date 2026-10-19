@@ -75,6 +75,8 @@ class Model:
                  c_exc=0.9, n_wake=0.05, slab=40.0, wake=120.0):
         self.mu, self.beta = mu_of_P(P), beta
         self.cstar, self.nstar = cstar, nstar
+        if nstar is None:
+            raise ValueError("nstar (filament threshold of the slow variable) must be given")
         self.dt_fixed = dt
         self.c0, self.n0 = rest(self.mu, beta)
         self.c_exc, self.n_wake, self.slab, self.wake = c_exc, n_wake, slab, wake
@@ -98,4 +100,4 @@ class Model:
         return u, v
 
     def find(self, u, v, dx):
-        return B.find_curves(u - self.cstar, v - self.nstar, dx)
+        return B.find_curves(u - self.cstar, v - self.nstar, dx, stitch_tol=2.0)

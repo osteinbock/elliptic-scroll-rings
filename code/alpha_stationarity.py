@@ -23,13 +23,16 @@ COLS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]
 
 def windows(path):
     d = np.load(path)
-    ok = np.isfinite(d["Rm"]) & (d["ncurves"] >= 1)
+    if "masked" not in d.files:
+        raise RuntimeError(f"{path}: run mask_frames.py first")
+    ok = np.isfinite(d["Rm"]) & (d["ncurves"] == 1)       # single closed filaments only
     t, R, z = d["t"][ok], d["Rm"][ok], d["z"][ok]
-    good = np.abs(R - median_filter(R, 25, mode="nearest")) < 0.4
-    t, R, z = t[good], R[good], z[good]
+    # average over one rotation period (the radius wobbles by about 0.5 with the tip); an
+    # earlier median filter, |R - median| < 0.4, discarded about 60% of the valid frames
+    R, z = C.smooth(t, R, 4.44), C.smooth(t, z, 4.44)
     out = []
     for t0 in np.arange(10, t[-1] - WIN + 1e-9, STEP):
-        m = (t >= t0) & (t < t0 + WIN)
+        m = (t >= t0) & (t < t0 + WIN) & np.isfinite(R) & np.isfinite(z)
         if m.sum() < 30 or R[m].min() < 1.5:
             continue
         out.append((t0 + WIN / 2, 1 / R[m].mean(), -0.5 * np.polyfit(t[m], R[m] ** 2, 1)[0],

@@ -1,4 +1,9 @@
-"""Test of the curvature-dependent-drift explanation for the slow axis-switching oscillation.
+"""SUPERSEDED (not used for any figure): under the two-coupling theory of mode_theory2.py
+the frequency-implied coefficient is sqrt(beta beta_eff), so the ratio below should be
+sqrt(1 + K beta'/beta); 1 + K beta'/beta is the radial-to-vertical coupling ratio. Kept
+for the record only.
+
+Test of the curvature-dependent-drift explanation for the slow axis-switching oscillation.
 
 y = beta_eff / beta_drift, where beta_eff is the binormal coefficient implied by the
 observed oscillation (half-cycles: beta_eff = pi R^2 / (2 sqrt3 T_half); fixed-radius

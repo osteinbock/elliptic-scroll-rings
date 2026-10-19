@@ -83,6 +83,8 @@ class Model:
                  u_exc=0.95, v_wake=0.8, slab=4.0, wake=12.0):
         self.gf, self.eps_mid = gf, eps_mid
         self.ustar, self.vstar = ustar, vstar
+        if vstar is None:
+            raise ValueError("vstar (filament threshold of the slow variable) must be given")
         self.dt_fixed = dt
         self.u_exc, self.v_wake, self.slab, self.wake = u_exc, v_wake, slab, wake
 
@@ -112,4 +114,4 @@ class Model:
         return u, v
 
     def find(self, u, v, dx):
-        return B.find_curves(u - self.ustar, v - self.vstar, dx)
+        return B.find_curves(u - self.ustar, v - self.vstar, dx, stitch_tol=2.0)

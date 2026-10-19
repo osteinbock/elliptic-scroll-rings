@@ -75,6 +75,8 @@ class Model:
         self.u0 = rest_state(f, q)
         self.ustar = ustar
         self.vstar = vstar
+        if vstar is None:
+            raise ValueError("vstar (filament threshold of v) must be given")
         self.dt_fixed = dt
         self.u_exc, self.v_wake, self.slab, self.wake = u_exc, v_wake, slab, wake
 
@@ -101,4 +103,4 @@ class Model:
         return u, v
 
     def find(self, u, v, dx):
-        return B.find_curves(u - self.ustar, v - self.vstar, dx)
+        return B.find_curves(u - self.ustar, v - self.vstar, dx, stitch_tol=2.0)
