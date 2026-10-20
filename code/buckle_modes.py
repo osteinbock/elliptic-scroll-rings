@@ -1,4 +1,6 @@
-"""Buckling mode analysis of the R0 = 38 scroll ring (sf2/circXXL_R0_38_snaps.npz).
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Buckling mode analysis of the R0 = 38 scroll ring (sf2/circXXL_R0_38_snaps.npz).
 
 For each filament snapshot: radial and vertical deviations from the mean circle, binned in the
 polar angle, and their Fourier spectra |r_m|, |z_m|. Reports the dominant m, the growth of the

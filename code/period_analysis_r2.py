@@ -27,6 +27,7 @@ def intervals_r2(path, period):
     good = PA.single_closed(d)[ok]
     r2 = np.where(good, d["r2c"][ok], np.nan)
     r2 = np.where(np.abs(r2 - median_filter(np.nan_to_num(r2, nan=np.nanmedian(r2)), 9, mode="nearest")) > 0.5, np.nan, r2)   # wrong-curve frames
+    r2raw = r2.copy()
     r2, L, z = (C.smooth(t, y, period) for y in (r2, np.where(good, d["length"][ok], np.nan), np.where(good, d["z"][ok], np.nan)))
     R = L / (2 * np.pi)
     x = C.crossings(t, r2)
@@ -41,9 +42,10 @@ def intervals_r2(path, period):
         alpha = -0.5 * np.polyfit(t[m], R[m] ** 2, 1)[0]
         eps = np.max(np.abs(r2[m]) / R[m])
         nc = d["ncurves"][ok][m]
-        if Rb < 3.2 or eps < 0.04 or eps > PA.EPS_MAX or np.mean(nc > 1) > 0.2:
+        gap = C.max_gap(t[good & np.isfinite(r2raw)], t0, t1)
+        if Rb < 3.2 or eps < 0.04 or eps > PA.EPS_MAX or np.mean(nc > 1) > 0.2 or gap > period / 2:
             continue
-        rows.append(dict(t0=t0, t1=t1, Th=t1 - t0, R=Rb, beta=beta, alpha=alpha, eps=eps))
+        rows.append(dict(t0=t0, t1=t1, Th=t1 - t0, R=Rb, beta=beta, alpha=alpha, eps=eps, max_gap=gap))
     return rows
 
 
@@ -79,7 +81,7 @@ if __name__ == "__main__":
         print(f"[{meth}] {allp} half-cycles; rigid b=0.15-0.17: n={len(rig)} mean {rig.mean():.3f} sd {rig.std(ddof=1):.3f} "
               f"range {rig.min():.2f}-{rig.max():.2f}; b=0.18: {np.round(b18, 2).tolist()}; meander: n={len(mea)} "
               f"mean {mea.mean():.3f} sd {mea.std(ddof=1):.3f}")
-    keys = ["run", "a", "b", "rigid", "t0", "t1", "Th", "R", "beta", "alpha", "eps", "T0", "T1", "T2"]
+    keys = ["run", "a", "b", "rigid", "t0", "t1", "Th", "R", "beta", "alpha", "eps", "T0", "T1", "T2", "max_gap"]
     with open("period_table_r2.csv", "w") as fh:
         fh.write(",".join(keys) + "\n")
         for r in out["r2"]:

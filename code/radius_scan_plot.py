@@ -1,4 +1,6 @@
-"""Circular scroll rings (Barkley a=1.1 b=0.17 eps=0.02, periodic boxes with Lz >= 16):
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Circular scroll rings (Barkley a=1.1 b=0.17 eps=0.02, periodic boxes with Lz >= 16):
 ring radius vs time for different initial radii. Rings converge to a stable radius R*
 from both sides; rings formed below an unstable radius collapse."""
 import numpy as np

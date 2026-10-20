@@ -50,17 +50,25 @@ def analyze(m, amp, t1, smooth=1):
 
 
 if __name__ == "__main__":
-    rows = []
+    rows, rejected = [], 0
     for m in (2, 3):
         for amp in (0.08, 0.15):
             r = analyze(m, amp, T1[m])
-            rows.append([r[k] for k in ("m", "amp", "R", "omega", "ratio", "W", "Q", "bz", "br", "bdrift", "gamma", "rms")])
+            if not r["ok"]:                       # optimizer failure or frequency at its bound
+                rejected += 1
+                print(f"m={m} amp={amp}: fit REJECTED (ok={r['ok']})")
+                continue
+            rows.append([r[k] for k in ("m", "amp", "R", "omega", "ratio", "W", "Q", "bz", "br", "bdrift", "gamma", "rms")]
+                        + [quad_dev(r["dphase"]), float(r["ok"])])
             print(f"m={m} amp={amp}: R={r['R']:.2f} omega={r['omega']:.4f} |z|/|r|={r['ratio']:.3f} "
                   f"(const-beta {np.sqrt((m*m-1)/m**2):.3f})  -> beta_zeta={r['bz']:.3f} beta_r={r['br']:.3f}  "
                   f"beta_drift={r['bdrift']:.3f}  gamma={r['gamma']:.4f}  off quadrature {quad_dev(r['dphase']):.1f} deg  "
                   f"fit ok={r['ok']} rms={r['rms']:.3f}")
     rows = np.array(rows)
+    # columns: m, amp, R, omega, |z|/|r|, W, Q, beta_zeta, beta_r, beta_drift, gamma, rms,
+    #          departure from quadrature (deg), fit ok
     np.save("mode_decompose.npy", rows)
+    print(f"{len(rows)} fits kept, {rejected} rejected")
     print()
     for m in (2, 3):
         rr = rows[rows[:, 0] == m]

@@ -1,4 +1,6 @@
-"""Plot both RD elliptic rings against the filament model (eta = 0 and best eta)."""
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Plot both RD elliptic rings against the filament model (eta = 0 and best eta)."""
 import sys
 import numpy as np
 import matplotlib

@@ -75,32 +75,63 @@ def face_points(f, g, n):
     F = [f[tuple(corner(dp, dq))] for dp, dq in ((0, 0), (1, 0), (0, 1), (1, 1))]
     G = [g[tuple(corner(dp, dq))] for dp, dq in ((0, 0), (1, 0), (0, 1), (1, 1))]
     Fs, Gs = np.stack(F), np.stack(G)
+    # exact zeros count as tiny positive values (symbolic perturbation): an intersection that
+    # lies exactly on a grid plane is then found once, on one face, instead of not at all
+    tf = 1e-12 * max(np.abs(Fs).max(), 1e-300)
+    tg = 1e-12 * max(np.abs(Gs).max(), 1e-300)
+    Fs = np.where(Fs == 0, tf, Fs)
+    Gs = np.where(Gs == 0, tg, Gs)
     cand = ((Fs.min(0) < 0) & (Fs.max(0) > 0) & (Gs.min(0) < 0) & (Gs.max(0) > 0))
     idx = np.argwhere(cand)
     if len(idx) == 0:
         return np.empty((0, 3), int), np.empty((0, 3)), np.empty(0)
-    f00, f10, f01, f11 = (F_[cand] for F_ in F)
-    g00, g10, g01, g11 = (G_[cand] for G_ in G)
-    s = np.full(len(idx), 0.5)
-    t = np.full(len(idx), 0.5)
-    for _ in range(25):
+    f00, f10, f01, f11 = (Fs[c][cand] for c in range(4))
+    g00, g10, g01, g11 = (Gs[c][cand] for c in range(4))
+    fscale = np.max(np.abs([f00, f10, f01, f11]), axis=0)
+    gscale = np.max(np.abs([g00, g10, g01, g11]), axis=0)
+
+    def newton(s, t):
+        for _ in range(30):
+            fv = f00 * (1 - s) * (1 - t) + f10 * s * (1 - t) + f01 * (1 - s) * t + f11 * s * t
+            gv = g00 * (1 - s) * (1 - t) + g10 * s * (1 - t) + g01 * (1 - s) * t + g11 * s * t
+            fs = (f10 - f00) * (1 - t) + (f11 - f01) * t
+            ft = (f01 - f00) * (1 - s) + (f11 - f10) * s
+            gs = (g10 - g00) * (1 - t) + (g11 - g01) * t
+            gt = (g01 - g00) * (1 - s) + (g11 - g10) * s
+            det = fs * gt - ft * gs
+            det = np.where(np.abs(det) < 1e-300, 1e-300, det)
+            s = s - (gt * fv - ft * gv) / det
+            t = t - (-gs * fv + fs * gv) / det
         fv = f00 * (1 - s) * (1 - t) + f10 * s * (1 - t) + f01 * (1 - s) * t + f11 * s * t
         gv = g00 * (1 - s) * (1 - t) + g10 * s * (1 - t) + g01 * (1 - s) * t + g11 * s * t
         fs = (f10 - f00) * (1 - t) + (f11 - f01) * t
         ft = (f01 - f00) * (1 - s) + (f11 - f10) * s
         gs = (g10 - g00) * (1 - t) + (g11 - g01) * t
         gt = (g01 - g00) * (1 - s) + (g11 - g10) * s
-        det = fs * gt - ft * gs
-        det = np.where(np.abs(det) < 1e-14, 1e-14, det)
-        s = s - (gt * fv - ft * gv) / det
-        t = t - (-gs * fv + fs * gv) / det
-    ok = (s >= 0) & (s <= 1) & (t >= 0) & (t <= 1) & np.isfinite(s) & np.isfinite(t)
+        e = 1e-9
+        good = ((s >= -e) & (s <= 1 + e) & (t >= -e) & (t <= 1 + e) & np.isfinite(s) & np.isfinite(t)
+                & (np.abs(fv) <= RES_TOL * fscale) & (np.abs(gv) <= RES_TOL * gscale))
+        return np.clip(s, 0, 1), np.clip(t, 0, 1), np.sign(fs * gt - ft * gs), good
+
+    # several starting points; the first converged in-face root is accepted, and faces whose
+    # bilinear equations have no real common zero in the face are rejected (residual test)
+    s = np.full(len(idx), np.nan); t = s.copy(); orient = np.zeros(len(idx)); ok = np.zeros(len(idx), bool)
+    for s0, t0 in ((0.5, 0.5), (0.25, 0.25), (0.75, 0.25), (0.25, 0.75), (0.75, 0.75)):
+        with np.errstate(over="ignore", invalid="ignore", divide="ignore"):   # diverging starts are rejected
+            sn, tn, on, gn = newton(np.full(len(idx), s0), np.full(len(idx), t0))
+        take = gn & ~ok
+        s[take], t[take], orient[take] = sn[take], tn[take], on[take]
+        ok |= gn
+    REJECTED[n] = int((~ok).sum())
     # cand keeps all three array axes, so idx is already the face's lower corner
     pos = idx.astype(float)
     pos[:, p] += s
     pos[:, q] += t
-    orient = np.sign(det)
     return idx[ok], pos[ok], orient[ok]
+
+
+RES_TOL = 1e-8          # accepted root: |f|, |g| below RES_TOL times the face's corner scale
+REJECTED = {0: 0, 1: 0, 2: 0}   # candidate faces without an accepted root, per axis (last call)
 
 
 def find_filaments(u, v, a, b, dx):
@@ -113,32 +144,67 @@ def find_curves(f, g, dx, stitch_tol=None):
     With stitch_tol (in grid cells), pieces broken by a single missed face crossing are
     joined (see stitch)."""
     lines = chain_faces([face_points(f, g, n) for n in range(3)], f.shape, dx)
-    return stitch(lines, stitch_tol * dx) if stitch_tol else lines
+    LAST.update(rejected=sum(REJECTED.values()), bridges=0, max_bridge=0.0, refused=0)
+    return stitch(lines, stitch_tol * dx, fields=(f, g, dx)) if stitch_tol else lines
+
+
+LAST = {}   # diagnostics of the last find_curves call: rejected faces, bridges, longest bridge
+
+
+def _off_surface(fields, P):
+    """Distances (in grid cells) of points P from the f = 0 and g = 0 isosurfaces, estimated
+    as |value| / |gradient| from trilinear interpolation of the fields."""
+    from scipy.ndimage import map_coordinates
+    f, g, dx = fields
+    out = []
+    for F in (f, g):
+        idx = (P / dx - 0.5).T
+        val = map_coordinates(F, idx, order=1, mode="nearest")
+        grad = np.zeros(len(P))
+        for ax in range(3):
+            e = np.zeros((3, 1)); e[ax] = 0.5
+            d = map_coordinates(F, idx + e, order=1, mode="nearest") - map_coordinates(F, idx - e, order=1, mode="nearest")
+            grad += d ** 2
+        out.append(np.abs(val) / np.maximum(np.sqrt(grad), 1e-300))
+    return np.maximum(*out)
 
 
 def is_closed(p, tol=1e-9):
     return len(p) > 3 and np.linalg.norm(p[0] - p[-1]) <= tol
 
 
-def stitch(lines, tol):
+def stitch(lines, tol, fields=None):
     """Join oriented open polylines whose end lies within tol of another's start (or of
     its own start, which closes it). A face crossing missed by the root finder breaks a
-    filament into such pieces, with a gap of about one grid cell."""
+    filament into such pieces, with a gap of about one grid cell. With fields = (f, g, dx),
+    a bridge is accepted only if its midpoint lies within half a grid cell of both
+    isosurfaces; the number of bridges and the longest one are recorded in LAST."""
     closed = [l for l in lines if is_closed(l)]
     open_ = [l for l in lines if not is_closed(l)]
+
+    def bridge_ok(p0, p1):
+        if fields is None:
+            return True
+        ok = _off_surface(fields, 0.5 * (p0 + p1)[None, :])[0] <= 0.5
+        if ok:
+            LAST["bridges"] = LAST.get("bridges", 0) + 1
+            LAST["max_bridge"] = max(LAST.get("max_bridge", 0.0), float(np.linalg.norm(p1 - p0)))
+        else:
+            LAST["refused"] = LAST.get("refused", 0) + 1
+        return ok
     changed = True
     while changed and open_:
         changed = False
         for i, a in enumerate(open_):
             # own start first (closing), then the nearest other start
-            if len(a) > 3 and np.linalg.norm(a[-1] - a[0]) < tol:
+            if len(a) > 3 and np.linalg.norm(a[-1] - a[0]) < tol and bridge_ok(a[-1], a[0]):
                 closed.append(np.vstack([a, a[:1]]))
                 open_.pop(i); changed = True
                 break
             dist = [(np.linalg.norm(a[-1] - b[0]), j) for j, b in enumerate(open_) if j != i]
             if dist:
                 dmin, j = min(dist)
-                if dmin < tol:
+                if dmin < tol and bridge_ok(a[-1], open_[j][0]):
                     b = open_[j]
                     joined = np.vstack([a, b])
                     open_ = [l for k, l in enumerate(open_) if k not in (i, j)] + [joined]

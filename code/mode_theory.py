@@ -1,4 +1,6 @@
-"""Linear damping of m = 2 and m = 3 shape modes on a ring, filament equation
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Linear damping of m = 2 and m = 3 shape modes on a ring, filament equation
 X_t = alpha X_ss + beta X_s x X_ss - eta P(X_ssss), for two hypotheses:
   tension-like damping (alpha > 0, eta = 0)  vs  rigidity (alpha = 0, eta > 0).
 Amplitude invariant A_m = sqrt(r_m^2 + m^2/(m^2-1) z_m^2) (exchanged by the binormal term)."""

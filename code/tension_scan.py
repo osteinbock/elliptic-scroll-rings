@@ -1,4 +1,6 @@
-"""Filament tension alpha and binormal coefficient beta from circular scroll
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Filament tension alpha and binormal coefficient beta from circular scroll
 rings (Barkley, periodic box): R^2 = R0^2 - 2 alpha t, dz/dt = beta / R."""
 import sys
 import numpy as np

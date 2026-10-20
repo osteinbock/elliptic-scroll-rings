@@ -1,4 +1,6 @@
-"""Fit beta and rigidity eta of the filament equation to an RD elliptic ring.
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Fit beta and rigidity eta of the filament equation to an RD elliptic ring.
 
 alpha is tied to the measured circular-ring tension: alpha = alpha_circ - eta/R^2
 (the projected -eta X_ssss term alone shrinks a circle like a tension eta/R^2).

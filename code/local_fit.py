@@ -1,4 +1,6 @@
-"""Refit rigidity eta with LOCAL coefficients alpha(K), beta(K) from circular rings
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Refit rigidity eta with LOCAL coefficients alpha(K), beta(K) from circular rings
 (Barkley a=1.1 b=0.17 eps=0.02). The circle data give alpha_c(K) = alpha(K) + eta K^2
 (the projected rigidity term alone shrinks a circle like a tension eta K^2), so the
 model uses alpha(K) = alpha_c(K) - eta K^2. K is clamped to the measured range."""

@@ -112,6 +112,8 @@ def main():
         if len(rows) % 50 == 0:
             print(f"t={n*dt:6.1f}  |u_k|={abs(2*uk):.3f}  arg={np.angle(uk):+.2f}  layers={ok.sum()}  [{time.time()-t0:.0f}s]",
                   flush=True)
+    if not rows:
+        sys.exit(f"{out}: no profile passed the layer-coverage test")
     r = np.array(rows, dtype=object)
     np.savez(out, t=r[:, 0].astype(float), u0=r[:, 1].astype(complex), uk=r[:, 2].astype(complex),
              nlay=r[:, 3].astype(int), ukm=r[:, 4].astype(complex), prof=np.stack(r[:, 5]),

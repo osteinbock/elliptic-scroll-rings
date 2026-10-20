@@ -2,7 +2,7 @@
 # statements of chaos_paper/main.tex, rerun after the audit fixes (z bookkeeping, longest-curve
 # measure, closed flag, saved metadata). Same parameters and seeds (all runs are deterministic) as
 # the original runs; output goes to v2b/ with the original relative names. Commands were traced from
-# the original run logs.
+# the original run logs. The paper uses outputs regenerated with these commands (data/MANIFEST.json).
 # One command per line, longest groups first. Run from the code directory:
 #   mkdir -p v2b/rerun_r2 v2b/sf2 v2b/conv v2b/fig1_fields v2b/movie
 #   grep -v '^#' runs_barkley_v2.sh | grep . | NUMBA_NUM_THREADS=4 xargs -P 5 -I{} sh -c '{}'

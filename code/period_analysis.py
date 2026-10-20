@@ -1,4 +1,7 @@
-"""Axis-switching half-periods of RD elliptic scroll rings vs filament-equation predictions.
+"""Helper module: the paper uses its RUNS, amplitude_factor, intervals and predict through
+period_analysis_r2.py (Fig. 5); its own __main__ table and figure are exploratory.
+
+Axis-switching half-periods of RD elliptic scroll rings vs filament-equation predictions.
 
 For every interval between consecutive axis crossings (hx = hy) of a run, measure
   T_half (observed), Rbar = <L/2pi>, beta = d z / d(int dt/R), alpha = -1/2 d(R^2)/dt,
@@ -77,9 +80,10 @@ def intervals(path, period):
         nc = d["ncurves"][ok][m]
         # skip intervals near collapse, with tiny amplitude, beyond the range of the
         # finite-amplitude factor (eps <= 0.36), or after the ring broke up
-        if Rb < 3.2 or eps < 0.04 or eps > EPS_MAX or np.mean(nc > 1) > 0.2:
+        gap = C.max_gap(t[good], t0, t1)
+        if Rb < 3.2 or eps < 0.04 or eps > EPS_MAX or np.mean(nc > 1) > 0.2 or gap > period / 2:
             continue
-        rows.append(dict(t0=t0, t1=t1, Th=t1 - t0, R=Rb, beta=beta, alpha=alpha, eps=eps))
+        rows.append(dict(t0=t0, t1=t1, Th=t1 - t0, R=Rb, beta=beta, alpha=alpha, eps=eps, max_gap=gap))
     return rows
 
 
@@ -105,7 +109,7 @@ if __name__ == "__main__":
             print(f"{lab:24s} t={r['t0']:6.1f}-{r['t1']:6.1f}  Th={r['Th']:5.1f}  R={r['R']:.2f}  "
                   f"beta={r['beta']:+.2f} alpha={r['alpha']:+.3f} eps={r['eps']:.2f}  "
                   f"T0={T0:5.1f} T1={T1:5.1f} T2={T2:5.1f}  obs/T2={r['Th'] / T2:.2f}")
-    keys = ["run", "a", "b", "rigid", "t0", "t1", "Th", "R", "beta", "alpha", "eps", "T0", "T1", "T2"]
+    keys = ["run", "a", "b", "rigid", "t0", "t1", "Th", "R", "beta", "alpha", "eps", "T0", "T1", "T2", "max_gap"]
     with open("period_table.csv", "w") as fh:
         fh.write(",".join(keys) + "\n")
         for r in table:

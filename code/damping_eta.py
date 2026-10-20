@@ -1,4 +1,6 @@
-"""Rigidity-type damping of m = 2 and m = 3 shape modes at the stable radius.
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Rigidity-type damping of m = 2 and m = 3 shape modes at the stable radius.
 
 Solves the filament equation X_t = alpha K N + beta K B - eta P(X_ssss) for weakly deformed
 m-fold rings (R = 4.85, beta = -1.23 so that the m = 2 frequency matches the RD ring) and fits

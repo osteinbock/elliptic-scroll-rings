@@ -1,4 +1,6 @@
-"""Damping and frequency of m = 2 and m = 3 shape modes of RD scroll rings
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Damping and frequency of m = 2 and m = 3 shape modes of RD scroll rings
 (mode_m{2,3}_{s,L}.npz from ellipse_ring.py --m ... --amp ...).
 
 Amplitude invariant A_m = sqrt(r_m^2 + m^2/(m^2-1) z_m^2) (the binormal term only

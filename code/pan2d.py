@@ -27,7 +27,7 @@ for n in range(1, int(T / dt) + 1):
     v, vn = vn, v
     if n % int(round(10 / dt)) == 0:
         if not np.isfinite(u).all():
-            print("BLOWUP at t", n * dt); sys.exit()
+            print("BLOWUP at t", n * dt); sys.exit(1)
         uu, vv = u[:, :, 1], v[:, :, 1]
         on = np.abs(uu - 0.5) < 0.05
         vst = np.median(vv[on]) if on.any() else np.nan

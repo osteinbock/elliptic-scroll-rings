@@ -80,15 +80,20 @@ def large_modes():
             if sel.sum() < 40 or t[sel][0] < 6:
                 continue
             fm = fit_mode(t[sel], sig[f"r{m}c"][sel], sig[f"z{m}c"][sel], w0)
+            if not fm["success"] or fm["at_bound"]:
+                print(f"m={m} t~{tc:.0f}: fit REJECTED"); continue
             Rw = R_all[sel].mean()
             W = fm["omega"] * Rw ** 2 / (m * np.sqrt(m * m - 1))
             Q = fm["ratio"] / np.sqrt((m * m - 1) / m ** 2)
             zz = sig["z"][sel]
             bd = abs(np.polyfit(t[sel], zz, 1)[0]) * Rw
             amp = np.hypot(sig[f"r{m}c"][sel], sig[f"z{m}c"][sel]).max()
-            out.append((m, tc, Rw, m / Rw, W, Q, W / Q, W * Q, bd, fm["gamma"], amp / Rw))
+            qd = abs(np.degrees(fm["dphase"])) % 180.0
+            qd = min(qd, 180.0 - qd)                       # departure from quadrature
+            out.append((m, tc, Rw, m / Rw, W, Q, W / Q, W * Q, bd, fm["gamma"], amp / Rw, qd, fm["rms"]))
             print(f"m={m} t~{tc:.0f}: R={Rw:.2f} k={m/Rw:.3f} sqrt(bz*br)={W:.3f} Q=sqrt(br/bz)={Q:.3f}"
-                  f" beta_zeta={W/Q:.3f} beta_r={W*Q:.3f} beta_drift={bd:.3f} ratio={W/bd:.3f} rel.amp={amp/Rw:.3f}")
+                  f" beta_zeta={W/Q:.3f} beta_r={W*Q:.3f} beta_drift={bd:.3f} ratio={W/bd:.3f} rel.amp={amp/Rw:.3f}"
+                  f" off quadrature {qd:.1f} deg")
     return np.array(out)
 
 
@@ -96,5 +101,7 @@ if __name__ == "__main__":
     sf = straight()
     tl = tilt()
     lm = large_modes()
+    print(f"large ring: largest departure from quadrature {lm[:, 11].max():.1f} deg over {len(lm)} windows")
+    # columns of 'large': m, t, R, k, W, Q, beta_zeta, beta_r, beta_drift, gamma, rel.amp, quad. dev. (deg), rms
     np.savez("new_tests.npz", straight=sf, tilt=tl, large=lm)
     print("wrote new_tests.npz")

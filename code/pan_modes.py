@@ -1,4 +1,6 @@
-"""Damping and frequency of m-fold shape modes (Panfilov kinetics, seeded rings).
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Damping and frequency of m-fold shape modes (Panfilov kinetics, seeded rings).
 
 E_m = sqrt(r_m^2 + m^2/(m^2-1) zeta_m^2) is conserved by the lowest-order law with
 alpha = 0; tension changes it at rate -alpha (2m^2-1)/(2 R^2), rigidity at about

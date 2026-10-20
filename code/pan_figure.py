@@ -3,7 +3,7 @@
 single-curve frames) vs the filament equation with |beta| of circular rings, following the
 measured size change and started at the first planar moment; (c) observed / predicted half-period of every
 half-cycle (halfcycle.py conventions), from halfcycles_panfilov.csv.
-    python pan_figure.py [datadir] [out.png]        (run halfcycle_tables.py first)
+    python pan_figure.py [datadir] [out.png] [barkley_period_table.csv]    (run halfcycle_tables.py first)
 """
 import os
 import sys
@@ -18,7 +18,10 @@ INK, MUTED, C1, C2 = "#1f1f1e", "#6b6a63", "#2a78d6", "#eb6834"
 D = sys.argv[1] if len(sys.argv) > 1 else "v2"
 out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(D, "figS1.png")
 rows = H.read_csv(os.path.join(D, "halfcycles_panfilov.csv"))
-bark, _ = H.barkley_reference()
+# Barkley reference: mean ratio of Fig. 5 (rigid spirals), from that analysis's table
+BARKLEY = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(os.path.abspath(D)), "v2b", "period_table_r2.csv")
+bark, _ = H.barkley_reference(BARKLEY)
+print(f"Barkley reference {bark:.3f} from {BARKLEY}")
 
 fig = plt.figure(figsize=(10, 7.2), dpi=130)
 gs = fig.add_gridspec(2, 3, width_ratios=[1, 1, 0.8], hspace=0.35, wspace=0.35)

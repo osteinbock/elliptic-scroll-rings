@@ -1,4 +1,5 @@
-"""Validation of the treatment of fragmented frames (audit item 4).
+"""Validation of the treatment of fragmented frames (audit item 4). Snapshots only (no fields):
+for a field-based check of bridges see barkley3d.stitch(fields=...).
 
 In frames with ncurves > 1 the old extractor broke the ring into open pieces separated by
 about one grid cell (one missed face crossing), and measure() used the longest piece. For
@@ -34,7 +35,7 @@ def validate(path, dx):
         nmulti += 1
         lines = B.stitch([l for _, l in sorted(ls)], 2.0 * dx)
         m = E.measure(lines, None)
-        if m is None or not m["closed"]:
+        if m is None or len(lines) != 1 or not m["closed"]:      # exactly one closed curve
             continue
         nclosed += 1
         i = np.nanargmin(np.abs(t - float(s)))

@@ -1,4 +1,6 @@
-"""Draft of Fig. 1(b): one axis-switching cycle of an elliptic scroll-ring filament
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Draft of Fig. 1(b): one axis-switching cycle of an elliptic scroll-ring filament
 (Barkley a=1.1 b=0.17 eps=0.02, seed 8x5), filament coloured by height."""
 import numpy as np
 import matplotlib

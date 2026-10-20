@@ -1,0 +1,497 @@
+{
+ "barkley.single_closed_fraction.min": 1.0,
+ "barkley.analysed.min_image_clearance": 12.03,
+ "barkley.analysed.max_gap": 0.25,
+ "barkley.circles.L2pi_vs_Rm.max_percent": 0.032,
+ "barkley.modes.L2pi_vs_Rm.median_percent.range": [
+  0.12,
+  1.4
+ ],
+ "fig2.halfwidths_t5": [
+  6.54,
+  4.1
+ ],
+ "fig2.planar_moments": [
+  19.2,
+  36.7
+ ],
+ "fig2.switches_within_120": 7,
+ "fig2.drift_speed": 0.334,
+ "fig2.Rv_10unit_windows.first_last": [
+  1.55,
+  1.76
+ ],
+ "fig2.saddle_amplitude_decrease": 2.99,
+ "fig2.model_faster_factor": 1.171,
+ "fig2.circle_beta_same_size.first_last": [
+  1.85,
+  1.78
+ ],
+ "fig2.slowdown_first_last_percent": [
+  16.3,
+  0.8
+ ],
+ "fig3.b015.alpha_beta": [
+  0.577,
+  1.479
+ ],
+ "fig3.b005.abs_beta_over_alpha": 0.752,
+ "fig3.b015.R_at_t6": 8.97,
+ "fig3.b015.last_filament_t": 92.0,
+ "fig3.b015.switches_with_R_above_2.9": 4,
+ "fig3.b015.first_two_intervals": [
+  26.4,
+  15.0,
+  9.4
+ ],
+ "fig3.b015.max_switch_position_error_lnR": 0.046,
+ "b018.time_clearance_below_12": 90.5,
+ "b018.R_at_t10_and_at_tc": [
+  8.5,
+  11.9
+ ],
+ "b018.switches_before_tc": 2,
+ "b018.max_ellipticity_before_tc": 0.38,
+ "fig4.rings_with_windows": 14,
+ "fig4.alpha_zero_K": [
+  0.203
+ ],
+ "fig4.alpha_beta_at_K_below_0.04": [
+  0.74,
+  2.93
+ ],
+ "fig4.beta_at_K_above_0.24": 1.67,
+ "fig4.final_radii_near_Rstar": [
+  4.53,
+  4.82
+ ],
+ "dx015.ring_R_at_120_and_145": [
+  4.52,
+  4.53
+ ],
+ "fig5.n_halfcycles": 27,
+ "fig5.rigid.mean_sd_n": [
+  1.318,
+  0.075,
+  21
+ ],
+ "fig5.rigid.range": [
+  1.14,
+  1.47
+ ],
+ "fig5.b018": [
+  1.2
+ ],
+ "fig5.meander.mean_sd": [
+  1.72,
+  0.04
+ ],
+ "fig5.max_tension_correction_percent": 0.15,
+ "fig5.max_amplitude_correction_percent": 2.11,
+ "modes.m2.beta_zeta_beta_r_beta_drift": [
+  1.31,
+  1.14,
+  1.78
+ ],
+ "modes.m2.freq_difference_percent": 0.5,
+ "modes.m2.decay_rate": 0.011,
+ "modes.m3.beta_zeta_beta_r_beta_drift": [
+  1.08,
+  1.1,
+  1.75
+ ],
+ "modes.m3.freq_difference_percent": 2.5,
+ "modes.m3.decay_rate": 0.058,
+ "modes.max_departure_from_quadrature_deg": 12.5,
+ "modes.m2.beta_zeta_over_drift.range": [
+  0.74,
+  0.76
+ ],
+ "modes.m2.beta_r_over_drift.range": [
+  0.64,
+  0.65
+ ],
+ "modes.m3.beta_zeta_over_drift.range": [
+  0.59,
+  0.68
+ ],
+ "modes.m3.beta_r_over_drift.range": [
+  0.63,
+  0.74
+ ],
+ "modes.local_law_beta_r_over_drift_at_Rstar": 0.62,
+ "tilt.angle_deg_and_ratio": [
+  12.0,
+  1.01
+ ],
+ "large.m2.beta_zeta_over_drift_mean_k": [
+  0.79,
+  0.29
+ ],
+ "large.m3.beta_zeta_over_drift_mean_k": [
+  0.68,
+  0.41
+ ],
+ "straight.beta_at_k_first_last": [
+  2.29,
+  0.25,
+  1.04,
+  0.79
+ ],
+ "straight.growth_rates_k_le_0.6": [
+  0.021,
+  0.04
+ ],
+ "straight.growth_rate_k_0.79": -0.0037,
+ "ringmodes_below_straight_percent.range": [
+  13.0,
+  34.0
+ ],
+ "buckle.max_deviation_from_straight_percent": 7.2,
+ "twist.median_rms_per_length": 0.038,
+ "twist.tipphase.spread_max_rad": 0.9,
+ "twist.tipphase.median_gradient": 0.04,
+ "panfilov.ratio.mean_sd_n": [
+  0.999,
+  0.016,
+  11
+ ],
+ "tableS2.pell_gf0.775_20x12.npz": [
+  0.981,
+  0.005,
+  3
+ ],
+ "tableS2.pell_gf0.8_24x15.npz": [
+  1.005,
+  0.016,
+  4
+ ],
+ "tableS2.pellBIG_gf0.8_24x15.npz": [
+  1.01,
+  null,
+  1
+ ],
+ "tableS2.pellHR_gf0.8_24x15.npz": [
+  1.005,
+  0.002,
+  2
+ ],
+ "tableS2.pellXR_gf0.8_24x15.npz": [
+  1.01,
+  null,
+  1
+ ],
+ "atri.dx3.ratio.mean_sd_n": [
+  1.054,
+  0.013,
+  10
+ ],
+ "atri.dx2.ratio.mean_sd_n": [
+  1.06,
+  0.009,
+  3
+ ],
+ "atri.dx3.Rbar_range": [
+  94,
+  146
+ ],
+ "atri.dx3.aspect_range": [
+  1.17,
+  2.43
+ ],
+ "atri.dx3.min_clearance_um": 192,
+ "atri.dx3.clearance_ge_260.mean_sd_n": [
+  1.052,
+  0.013,
+  6
+ ],
+ "supp.max_gap.panfilov_atri": [
+  1.0026666666667552,
+  2.0
+ ],
+ "supp.factor.range": [
+  1.001,
+  1.226
+ ],
+ "supp.factor.at_aspect_1.05": 1.001,
+ "supp.factor.at_aspect_1.5": 1.047,
+ "supp.factor.at_aspect_2.4": 1.219,
+ "tableS4.rows": [
+  [
+   "aell2_P0.1_100x60.npz",
+   3.0,
+   261,
+   590,
+   94,
+   1.77,
+   329,
+   1.074
+  ],
+  [
+   "aell2_P0.1_100x60.npz",
+   3.0,
+   590,
+   1023,
+   106,
+   2.06,
+   433,
+   1.059
+  ],
+  [
+   "aell2_P0.1_100x60.npz",
+   3.0,
+   1023,
+   1621,
+   120,
+   2.43,
+   598,
+   1.066
+  ],
+  [
+   "aell2_P0.1_130x80.npz",
+   3.0,
+   436,
+   985,
+   123,
+   1.75,
+   550,
+   1.053
+  ],
+  [
+   "aell2_P0.1_130x80.npz",
+   3.0,
+   985,
+   1715,
+   137,
+   2.0,
+   729,
+   1.068
+  ],
+  [
+   "aell_dx2_P0.1_100x60.npz",
+   2.0,
+   262,
+   587,
+   93,
+   1.76,
+   325,
+   1.069
+  ],
+  [
+   "aell_dx2_P0.1_100x60.npz",
+   2.0,
+   587,
+   1010,
+   104,
+   2.04,
+   423,
+   1.057
+  ],
+  [
+   "aell_dx2_P0.1_100x60.npz",
+   2.0,
+   1010,
+   1580,
+   118,
+   2.41,
+   570,
+   1.053
+  ],
+  [
+   "aellW_P0.1_100x88.npz",
+   3.0,
+   347,
+   764,
+   111,
+   1.17,
+   417,
+   1.057
+  ],
+  [
+   "aellW_P0.1_100x88.npz",
+   3.0,
+   764,
+   1272,
+   122,
+   1.22,
+   507,
+   1.049
+  ],
+  [
+   "aellW_P0.1_100x88.npz",
+   3.0,
+   1272,
+   1891,
+   135,
+   1.28,
+   619,
+   1.041
+  ],
+  [
+   "aellW_P0.1_120x105.npz",
+   3.0,
+   487,
+   1073,
+   132,
+   1.17,
+   586,
+   1.042
+  ],
+  [
+   "aellW_P0.1_120x105.npz",
+   3.0,
+   1073,
+   1785,
+   146,
+   1.22,
+   712,
+   1.036
+  ]
+ ],
+ "circles.used_for_tables": [
+  [
+   "panfilov",
+   "pcirc_gf0.775_R14.npz",
+   -0.0286,
+   0.7075
+  ],
+  [
+   "panfilov",
+   "pcirc_gf0.8_R14.npz",
+   0.0908,
+   0.6188
+  ],
+  [
+   "panfilov",
+   "pcirc_gf0.8_R14.npz",
+   0.0908,
+   0.6188
+  ],
+  [
+   "panfilov",
+   "pcircHR_gf0.8_R14.npz",
+   0.1071,
+   0.6176
+  ],
+  [
+   "panfilov",
+   "pcircXR_gf0.8_R14.npz",
+   0.1083,
+   0.617
+  ],
+  [
+   "atri",
+   "acirc4_P0.1_c052.npz",
+   -2.9317,
+   28.423
+  ],
+  [
+   "atri",
+   "acirc4_P0.1_c052.npz",
+   -2.9317,
+   28.423
+  ],
+  [
+   "atri",
+   "acirc_dx2_P0.1.npz",
+   -2.7886,
+   28.3099
+  ],
+  [
+   "atri",
+   "acirc4_P0.1_c052.npz",
+   -2.9317,
+   28.423
+  ],
+  [
+   "atri",
+   "acirc4_P0.1_c052.npz",
+   -2.9317,
+   28.423
+  ]
+ ],
+ "tableS1.gf0.775": [
+  14,
+  23,
+  -0.032,
+  0.008,
+  0.7,
+  0.02
+ ],
+ "tableS1.gf0.8": [
+  9,
+  21,
+  0.087,
+  0.006,
+  0.61,
+  0.01
+ ],
+ "tableS1.gf0.825": [
+  5,
+  21,
+  0.152,
+  0.008,
+  0.54,
+  0.01
+ ],
+ "tableS1.gf0.85": [
+  5,
+  20,
+  0.199,
+  0.01,
+  0.48,
+  0.01
+ ],
+ "tableS1.gf0.9": [
+  5,
+  20,
+  0.259,
+  0.018,
+  0.42,
+  0.02
+ ],
+ "tableS3.P0.085": [
+  104,
+  165,
+  -9.51,
+  0.41,
+  20.1,
+  0.02
+ ],
+ "tableS3.P0.095": [
+  83,
+  180,
+  -5.15,
+  0.18,
+  26.56,
+  0.14
+ ],
+ "tableS3.P0.100": [
+  102,
+  125,
+  -2.93,
+  0.06,
+  28.42,
+  0.01
+ ],
+ "tableS3.P0.100.dx2": [
+  102,
+  124,
+  -2.79,
+  0.06,
+  28.31,
+  0.02
+ ],
+ "tableS3.P0.100.cstar0.566": [
+  102,
+  125,
+  -2.93,
+  0.07,
+  28.37,
+  0.01
+ ],
+ "atri.P0.095.first_switch_obs_pred": [
+  220,
+  226
+ ]
+}

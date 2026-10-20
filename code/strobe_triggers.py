@@ -1,4 +1,6 @@
-"""Phase-locked strobe times from the ring-center probe u(t): band-pass around the rotation
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Phase-locked strobe times from the ring-center probe u(t): band-pass around the rotation
 frequency, Hilbert phase, and the times at which the unwrapped phase passes 2 pi n.
 
     python strobe_triggers.py pass1.npz [t_start] -> prints times, writes strobe/triggers.txt

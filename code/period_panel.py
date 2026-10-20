@@ -1,4 +1,6 @@
-"""Observed vs predicted half-period of the axis-switching oscillation, every half-cycle
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Observed vs predicted half-period of the axis-switching oscillation, every half-cycle
 of every run (period_table.csv from period_analysis.py). Prediction: linear filament
 equation with alpha, beta, R measured in the same half-cycle."""
 import csv

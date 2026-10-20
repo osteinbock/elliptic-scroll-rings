@@ -1,4 +1,7 @@
-"""alpha(K) and beta(K) from circular scroll rings (local slopes in sliding windows).
+"""EXPLORATORY: not used for the paper (Fig. 4 and the 0.62 beta_drift estimate come from
+alpha_stationarity.windows via make_figs.py); kept for the record.
+
+alpha(K) and beta(K) from circular scroll rings (local slopes in sliding windows).
 
 For each run: smooth R(t), z(t) over one rotation period, then in 10-unit windows
 alpha = -1/2 d(R^2)/dt, beta = R dz/dt, K = 1/<R>. Pools all runs and fits

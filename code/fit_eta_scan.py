@@ -1,4 +1,6 @@
-"""Rigidity scan with circle-calibrated alpha(K), beta(K) (Barkley a=1.1 b=0.17 eps=0.02).
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Rigidity scan with circle-calibrated alpha(K), beta(K) (Barkley a=1.1 b=0.17 eps=0.02).
 
 Circular rings measured at R = 5.1 and 7.28:  alpha_c = 0.010, 0.100;  beta_c = -1.68, -1.88.
 Model: alpha(Rbar) = A0 + (C - eta)/Rbar^2, beta(Rbar) = B0 + B2/Rbar^2 (Rbar = L/2pi, uniform along

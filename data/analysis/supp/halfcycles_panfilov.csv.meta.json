@@ -1,0 +1,17 @@
+{
+ "table": "halfcycles_panfilov.csv",
+ "rows": 11,
+ "radius": "Rm",
+ "code_revision": null,
+ "inputs": {
+  "pcircHR_gf0.8_R14.npz": "6fdf0c68ed3c387b5a53bdf75a5f97b1575245a32841a172b3de8c31f2a82b29",
+  "pcircXR_gf0.8_R14.npz": "96d8e586fbbbca036bc970a667f20a12bde319d1328b2c603cca5c6f7a7e3196",
+  "pcirc_gf0.775_R14.npz": "294d58ecdb4f97e5bf13d184223f315111405f3950934f2e0a761f9a1f2e413a",
+  "pcirc_gf0.8_R14.npz": "4281bf3e1c80ce6899f856a9dd76d39729c26827a9c6d4b1704a7ab255485b9b",
+  "pellBIG_gf0.8_24x15.npz": "4d0495a23d9074c0f0e680304453cd81c2d23ecdca03a34ed39c36b4dcc43e00",
+  "pellHR_gf0.8_24x15.npz": "041a511c402f1bff1043be8751c44dc753dff0fe2459a52fae45189102108d1d",
+  "pellXR_gf0.8_24x15.npz": "772b9ff51ca77e435a6bc9f082aef5bc47b93abfcf4a4c3a072667e76232ebf4",
+  "pell_gf0.775_20x12.npz": "307f3a8af4a13b20567f8dd8311e7a451cd4d3c90a15390d1976c980395bf0ec",
+  "pell_gf0.8_24x15.npz": "b734c8d67ee0a151a837bd79fd368f634fa509d1502d198583054ec175b31f33"
+ }
+}

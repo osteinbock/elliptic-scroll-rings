@@ -1,4 +1,6 @@
-"""Frequencies of m = 2 and m = 3 shape modes of scroll rings near the stable radius
+"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+
+Frequencies of m = 2 and m = 3 shape modes of scroll rings near the stable radius
 (modeR_m{2,3}_a{0.08,0.15}.npz, Barkley a=1.1 b=0.17 eps=0.02).
 
 beta_eff(m) = omega_m Rbar^2 / (m sqrt(m^2-1)) is the binormal coefficient the mode

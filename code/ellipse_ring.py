@@ -12,9 +12,11 @@ Initial condition: a broken plane pulse confined to the inside of the ellipse
 edge is the ellipse, which curls up into a single scroll ring; the wake stops
 the slab from also launching a wave upwards.
 
-Filament = u = 1/2 and v = a/2 - b (barkley3d.find_filaments). Before each
-detection the arrays are rolled along z so the ring sits mid-box and never
-straddles the periodic seam.
+Filament = u = 1/2 and v = a/2 - b (barkley3d.find_filaments). After each
+detection the arrays are rolled along z by whole cells so that the ring sits mid-box at
+the next detection and does not reach the periodic z seam; the x and y seams are not
+stitched, so the lateral box must keep the ring away from them. Each row records the
+extraction diagnostics (rejected faces, number and length of bridges, refused bridges).
 
     python ellipse_ring.py --b 0.05 --Ax 6 --Ay 6 --T 40          # circular ring
     python ellipse_ring.py --b 0.09 --Ax 8 --Ay 5 --T 300 --out e.npz
@@ -119,6 +121,7 @@ def run(a, b, eps, Ax, Ay, Lxy, Lz, dx, T, every_t=0.5, flip=False, verbose=True
         u, v = initial_ring(shape, dx, Ax, Ay, Lz / 2, flip=flip, mode=mode, amp=amp, tilt=tilt)
     un, vn = np.empty_like(u), np.empty_like(v)
     zoff = 0.0                                  # accumulated z shift from rolling
+    misses = 0                                  # consecutive samples without a filament
     rows, frames = [], {}
     snap_steps = {int(round(s / dt)): s for s in snaps}
     t0 = time.time()
@@ -136,10 +139,13 @@ def run(a, b, eps, Ax, Ay, Lxy, Lz, dx, T, every_t=0.5, flip=False, verbose=True
             lines = model.find(u, v, dx) if model else B.find_filaments(u, v, a, b, dx)
             m = measure(lines, Lxy)
             t = n * dt
+            diag = dict(B.LAST) if B.LAST else {}
             if m is None:
+                misses += 1
                 if verbose:
                     print(f"t={t:7.1f}  no filament")
-                if t > (20 if model else 5):
+                # end only after three consecutive samples without a filament
+                if t > (20 if model else 5) and misses >= 3:
                     # end of the run: distinguish a diverged field from a vanished filament
                     finite = bool(np.isfinite(u).all() and np.isfinite(v).all())
                     rows.append(dict(t=t, end=1.0 if finite else 2.0))   # 1: no filament, 2: non-finite field
@@ -148,6 +154,9 @@ def run(a, b, eps, Ax, Ay, Lxy, Lz, dx, T, every_t=0.5, flip=False, verbose=True
                               else "non-finite field (numerical instability)")
                     break
                 continue
+            misses = 0
+            m.update(rejected=float(diag.get("rejected", 0)), bridges=float(diag.get("bridges", 0)),
+                     max_bridge=float(diag.get("max_bridge", 0.0)), refused=float(diag.get("refused", 0)))
             # physical height uses the offset BEFORE this frame's roll (zc is the pre-roll centre)
             m["z"] = m["zc"] + zoff
             # recentre the ring in z (roll the fields) so it never hits the seam
@@ -175,8 +184,20 @@ def run(a, b, eps, Ax, Ay, Lxy, Lz, dx, T, every_t=0.5, flip=False, verbose=True
 
 def table(rows):
     keys = ["t", "hx", "hy", "Rm", "z", "zc", "cx", "cy", "h2c", "h2s", "length", "ncurves",
-            "r1c", "r1s", "z1c", "z1s", "r2c", "r2s", "z2c", "z2s", "r3c", "r3s", "z3c", "z3s", "zfix", "closed", "end"]
+            "r1c", "r1s", "z1c", "z1s", "r2c", "r2s", "z2c", "z2s", "r3c", "r3s", "z3c", "z3s", "zfix", "closed", "end",
+            "rejected", "bridges", "max_bridge", "refused"]
     return {k: np.array([r.get(k, np.nan) for r in rows]) for k in keys}
+
+
+def code_revision():
+    """Git revision of the code directory (or 'unknown')."""
+    import os, subprocess
+    try:
+        r = subprocess.run(["git", "-C", os.path.dirname(os.path.abspath(__file__)), "rev-parse", "HEAD"],
+                           capture_output=True, text=True, timeout=10)
+        return r.stdout.strip() or "unknown"
+    except (OSError, subprocess.SubprocessError):
+        return "unknown"
 
 
 def main():
@@ -220,8 +241,11 @@ def main():
         if prb:
             pa = np.array(prb)
             d["probe_t"], d["probe_u"] = pa[:, 0], pa[:, 1]
-        np.savez_compressed(args.out, **d, **{k: getattr(args, k) for k in
-                                               ("a", "b", "eps", "Ax", "Ay", "Lxy", "Lz", "dx")})
+        meta = {k: getattr(args, k) for k in ("a", "b", "eps", "Ax", "Ay", "Lxy", "Lz", "dx", "T", "every",
+                                              "m", "amp", "tilt")}
+        meta.update(dt=0.8 * args.dx ** 2 / 6, snaps_requested=np.array(args.snaps, float),
+                    snaps_saved=np.array(sorted(frames), float), code_revision=code_revision())
+        np.savez_compressed(args.out, **d, **meta)
         print("wrote", args.out)
 
 

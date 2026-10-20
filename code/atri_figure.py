@@ -6,7 +6,7 @@ first planar moment and following the measured growth of the ring (halfcycle.mod
 halfcycles_atri.csv (seeds 100 x 60 and 130 x 80, weakly elliptic 100 x 88 and 120 x 105,
 and 100 x 60 at dx = 2 um);
 reference lines from period_table_r2.csv (Barkley) and halfcycles_panfilov.csv.
-    python atri_figure.py [datadir] [out.png]       (run halfcycle_tables.py first)
+    python atri_figure.py [datadir] [out.png] [barkley_period_table.csv]   (run halfcycle_tables.py first)
 """
 import os
 import sys
@@ -23,7 +23,10 @@ out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(D, "figS2.png")
 allrows = H.read_csv(os.path.join(D, "halfcycles_atri.csv"))
 rows = [r for r in allrows if r["dx"] == 3.0]
 pan = [r["ratio"] for r in H.read_csv(os.path.join(D, "halfcycles_panfilov.csv"))]
-bark, _ = H.barkley_reference()
+# Barkley reference: mean ratio of Fig. 5 (rigid spirals), from that analysis's table
+BARKLEY = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(os.path.abspath(D)), "v2b", "period_table_r2.csv")
+bark, _ = H.barkley_reference(BARKLEY)
+print(f"Barkley reference {bark:.3f} from {BARKLEY}")
 
 fn = "aell2_P0.1_100x60.npz"
 beta = [r["beta"] for r in rows if r["file"] == fn][0]
@@ -33,7 +36,7 @@ M = H.model_series_grown(S, beta)   # follows the measured growth of the ring (a
 # is run with |beta|, so the RD curve is shown with the sign that makes the initial slopes agree
 x0 = H.C.crossings(S["t"], S["z2c"])[0]
 k = (S["t"] > x0) & (S["t"] < x0 + 3 * ATRI_PERIOD) & np.isfinite(S["z2c"])
-sgn = np.sign(np.polyfit(S["t"][k], S["z2c"][k], 1)[0] * np.polyfit(M["t"][:60], M["h2c"][:60], 1)[0])
+sgn = np.sign(np.polyfit(S["t"][k], S["z2c"][k], 1)[0] * np.polyfit(M["t"][:60], M["z2c"][:60], 1)[0])
 
 fig = plt.figure(figsize=(10, 6.4), dpi=130)
 gs = fig.add_gridspec(2, 3, width_ratios=[1, 1, 0.75], hspace=0.3, wspace=0.4)
@@ -50,7 +53,7 @@ ax_a.set_ylabel(r"half-width ($\mu$m)")
 ax_a.legend(frameon=False, fontsize=8, ncol=3, loc="upper left")
 ax_a.set_title("(a)", fontsize=9, loc="left")
 ax_b.plot(S["t"], sgn * S["z2c"], color=INK, lw=2, label="simulation")
-ax_b.plot(M["t"], M["h2c"], color=MUTED, lw=1.2, ls="--", label="filament eq.")
+ax_b.plot(M["t"], M["z2c"], color=MUTED, lw=1.2, ls="--", label="filament eq.")
 ax_b.axhline(0, color=MUTED, lw=0.6)
 ax_b.set_ylabel(r"saddle amplitude ($\mu$m)")
 ax_b.set_xlabel("time (s)")

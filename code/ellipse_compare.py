@@ -21,7 +21,7 @@ def smooth(t, y, period, maxgap=None):
     The samples are first interpolated onto a uniform time grid, so that deleted frames
     do not shorten the window; gaps longer than maxgap (default period / 2) are left
     undefined, and any window touching them returns nan. For gap-free uniform samples
-    this is the plain boxcar."""
+    this is the plain (centred) boxcar."""
     t, y = np.asarray(t, float), np.asarray(y, float)
     good = np.isfinite(y)
     out = np.full(len(t), np.nan)
@@ -38,15 +38,31 @@ def smooth(t, y, period, maxgap=None):
     w = max(1, int(round(period / dt)))
     if w > n:
         return out
-    ys = np.convolve(yu, np.ones(w) / w, mode="same")       # nan spreads over the window
-    half = w // 2
+    # centred window covering exactly one period: w points for odd w; for even w, w + 1 points
+    # with half weight at both ends (a plain even boxcar lags by half a sample)
+    k = np.ones(w) if w % 2 else np.r_[0.5, np.ones(w - 1), 0.5]
+    ys = np.convolve(yu, k / k.sum(), mode="same")         # nan spreads over the window
+    half = len(k) // 2
     ys[:half] = np.nan
     ys[n - half:] = np.nan
-    # back to the original sample times (nearest uniform sample, exact for uniform input)
-    k = np.clip(np.rint((t - tg[0]) / dt).astype(int), 0, n - 1)
-    out = ys[k]
-    out[(t < tg[0]) | (t > tg[-1])] = np.nan
+    # back to the original sample times by linear interpolation on the uniform grid (exact for
+    # uniform input); a value next to an undefined grid point is undefined
+    x = (t - tg[0]) / dt
+    i0 = np.clip(np.floor(x).astype(int), 0, n - 1)
+    i1 = np.clip(i0 + 1, 0, n - 1)
+    w = np.clip(x - i0, 0.0, 1.0)
+    out = np.where(w < 1e-9, ys[i0], (1 - w) * ys[i0] + w * ys[i1])
+    out[(t < tg[0] - 1e-9 * dt) | (t > tg[-1] + 1e-9 * dt)] = np.nan
     return out
+
+
+def max_gap(t_valid, a, b):
+    """Largest gap between valid sample times within [a, b], including the gaps to a and b."""
+    tv = np.asarray(t_valid, float)
+    tv = tv[(tv >= a) & (tv <= b)]
+    if len(tv) == 0:
+        return b - a
+    return float(np.max(np.diff(np.r_[a, tv, b])))
 
 
 def crossings(t, e):

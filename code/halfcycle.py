@@ -40,6 +40,7 @@ def smoothed(path, period):
         out[k] = C.smooth(t, y, period)
     out["RL"] = out["length"] / (2 * np.pi)
     out["frac_used"] = ok[np.isfinite(d["Rm"])].mean()
+    out["t_valid"] = d["t"][ok]
     return out
 
 
@@ -69,7 +70,10 @@ def half_cycles(path, period, beta, alpha=0.0, radius="Rm"):
     rows = []
     for a, b in zip(x[:-1], x[1:]):
         m = (t >= a) & (t <= b) & np.isfinite(S["R"])
-        if m.sum() < 5:
+        gap = C.max_gap(S["t_valid"], a, b)
+        # consecutive crossings must belong to one continuous record: a gap longer than half a
+        # rotation period could hide further crossings (the smoothing leaves such gaps undefined)
+        if m.sum() < 5 or gap > period / 2:
             continue
         Rb = S["R"][m].mean()
         disc = 48 * beta ** 2 - alpha ** 2
@@ -78,7 +82,7 @@ def half_cycles(path, period, beta, alpha=0.0, radius="Rm"):
         f = model_factor(hx0, hy0, beta, radius=radius)
         rows.append(dict(t_start=a, t_end=b, T_obs=b - a, Rbar=Rb, aspect=max(hx0, hy0) / min(hx0, hy0),
                          T_lin=Tlin, factor=f, T_pred=f * Tlin, ratio=(b - a) / (f * Tlin),
-                         ratio_linear=(b - a) / Tlin))
+                         ratio_linear=(b - a) / Tlin, max_gap=gap, radius=radius))
     return rows, S
 
 
@@ -105,7 +109,7 @@ def read_csv(path):
     return rows
 
 
-def barkley_reference(path="period_table_r2.csv"):
+def barkley_reference(path):
     """Mean and sd of the Barkley half-cycle ratio (rigid rotation, b = 0.15-0.17), as in Fig. 5."""
     q = [r["Th"] / r["T2"] for r in read_csv(path)
          if str(r["rigid"]) == "True" and r["a"] == 1.1 and 0.15 <= r["b"] <= 0.17]
@@ -114,17 +118,20 @@ def barkley_reference(path="period_table_r2.csv"):
 
 def model_series_grown(S, beta, t_end=None):
     """As model_series, but following the measured size change of the RD ring: binormal flow
-    is scale invariant, so a ring of radius R(t) runs on the clock s = int dt R0^2 / R(t)^2 and
-    its lengths scale with R(t)/R0 (R: smoothed Rm of the RD ring; R0 = R at the start)."""
+    is scale invariant and conserves the filament length, so a ring of length L(t) runs on the
+    clock s = int dt (L0 / L(t))^2 and its lengths scale with L(t) / L0 (L: period-averaged
+    length of the RD ring, L0 = L at the start). For the display only; the half-cycle
+    predictions use model_factor. Returns hx, hy and the angle-weighted saddle amplitude z2c,
+    the same measure as the RD z2c."""
     t = S["t"]
     x = C.crossings(t, S["z2c"])
     t0 = x[0]
-    g = np.isfinite(S["Rm"]) & (t >= t0)
-    tt, RR = t[g], S["Rm"][g]
+    g = np.isfinite(S["length"]) & (t >= t0)
+    tt, RR = t[g], S["length"][g]
     R0 = RR[0]
     s = np.concatenate([[0], np.cumsum(0.5 * ((R0 / RR[1:]) ** 2 + (R0 / RR[:-1]) ** 2) * np.diff(tt))])
     hx0, hy0 = np.interp(t0, t, S["hx"]), np.interp(t0, t, S["hy"])
     r = F.run(hx0, hy0, 0.0, abs(beta), s[-1], n=48, dt=None, every=s[-1] / 600)
     tm = np.interp(r["t"], s, tt)
     sc = np.interp(tm, tt, RR) / R0
-    return dict(t=tm, hx=r["hx"] * sc, hy=r["hy"] * sc, h2c=r["h2c"] * sc)
+    return dict(t=tm, hx=r["hx"] * sc, hy=r["hy"] * sc, h2c=r["h2c"] * sc, z2c=r["z2c"] * sc)

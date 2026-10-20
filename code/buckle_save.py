@@ -32,21 +32,31 @@ def main():
         A = np.hypot(abs(fr), abs(fz))
         g = np.polyfit(t, np.log(A), 1)[0]
         s = (abs(fr) ** 2 - abs(fz) ** 2) / A ** 2
-        best = None
-        for w0 in np.linspace(0.05, 0.6, 111):
+        # s oscillates at 2 omega; the scan stays below the Nyquist limit of the snapshot spacing
+        dts = np.median(np.diff(t))
+        wmax = 0.95 * np.pi / (2 * dts)
+        best, sols = None, []
+        for w0 in np.linspace(0.05, min(0.6, wmax), 111):
             try:
-                p, _ = curve_fit(lambda t, a, w, ph, c: a * np.cos(2 * w * t + ph) + c, t, s, p0=[0.8, w0, 0, 0])
+                p, cov = curve_fit(lambda t, a, w, ph, c: a * np.cos(2 * w * t + ph) + c, t, s, p0=[0.8, w0, 0, 0])
             except RuntimeError:
                 continue
             r2 = np.sum((p[0] * np.cos(2 * p[1] * t + p[2]) + p[3] - s) ** 2)
+            sols.append((r2, abs(p[1])))
             if best is None or r2 < best[0]:
-                best = (r2, p)
+                best = (r2, p, cov)
         w = abs(best[1][1])
+        werr = float(np.sqrt(max(best[2][1, 1], 0))) if np.all(np.isfinite(best[2])) else np.nan
+        # next-best distinct frequency (identifiability): its residual relative to the best
+        other = [r for r, ww in sols if abs(ww - w) > 0.1 * w]
+        contrast = (min(other) / best[0]) if other else np.inf
+        print(f"   m={m}: omega {w:.3f} +- {werr:.3f} (descriptive), 2 omega / Nyquist = {2 * w * dts / np.pi:.2f}, "
+              f"next distinct solution has {contrast:.1f}x the residual")
         Rm = R[sel].mean()
         k = m / Rm
-        fits.append((m, Rm, k, g, -g / k ** 2, w, w * Rm ** 2 / (m * np.sqrt(m * m - 1))))
+        fits.append((m, Rm, k, g, -g / k ** 2, w, w * Rm ** 2 / (m * np.sqrt(m * m - 1)), werr, contrast))
         print(f"m={m}: R={Rm:.2f} k={k:.3f} growth={g:.4f} gamma/k^2={-g / k**2:+.3f} omega={w:.3f} "
-              f"sqrt(bz br)={fits[-1][-1]:.2f}")
+              f"sqrt(bz br)={fits[-1][6]:.2f}")
     # filament at the last snapshot, for the figure
     last = [l for l in snaps[190.0] if len(l) > 20]
     np.savez("sf2/buckle.npz", T=T, R=R, fits=np.array(fits), last=np.concatenate(last),

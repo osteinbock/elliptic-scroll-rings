@@ -20,4 +20,6 @@ for s, ls in frames.items():
 np.savez(out, **d, gf=gf, P=gf, Ax=Ax, Ay=Ay, Lxy=Lxy, Lz=Lz, dx=DX, dt=M.dt(DX), cstar=M.cstar,
          nstar=M.nstar, every_t=2.0, T=T)   # gf: legacy name of P
 ok = np.isfinite(d["Rm"])
-print(f"DONE {out}: R {d['Rm'][ok][min(20, ok.sum()-1)]:.2f} -> {d['Rm'][ok][-1]:.2f} at t={d['t'][ok][-1]:.0f}")
+if ok.sum() == 0:
+    sys.exit(f"{out}: no filament found")
+print(f"DONE {out}: R {d['Rm'][ok][min(20, ok.sum() - 1)]:.2f} -> {d['Rm'][ok][-1]:.2f} at t={d['t'][ok][-1]:.0f}")

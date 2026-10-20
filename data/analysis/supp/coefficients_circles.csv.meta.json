@@ -1,0 +1,24 @@
+{
+ "table": "coefficients_circles.csv",
+ "rows": 10,
+ "radius": "Rm",
+ "code_revision": null,
+ "inputs": {
+  "acirc4_P0.1_c052.npz": "8f5519422cea8166bb4dfdb01570ad695a6c3a6fc6ffa613722e21a63472fe1c",
+  "acirc_dx2_P0.1.npz": "ac794af08ad6bf67f3af7dae7132ee95c76019d91963bbb421733f2a5be7eddb",
+  "aell2_P0.1_100x60.npz": "11d207d6553784dbc3e649c8ef7eae2351f67d33f32d5c0d3bd9bf3400bb0b63",
+  "aell2_P0.1_130x80.npz": "e8e79db1d09efa9d0741cbd639aaa4ab372d333acc3307f0fc697ba316e5499f",
+  "aellW_P0.1_100x88.npz": "4f6f9e96f39bf39b5b94cc7e9557be1a1c48dbec2ee92069f08db912ee9cbeb5",
+  "aellW_P0.1_120x105.npz": "9b322b2b6c95c26ae99b388a7c8b9be8526666f324d39e9604b0e0da6ff3130e",
+  "aell_dx2_P0.1_100x60.npz": "06063eaa2165df615e12e7cf5bef18ab2ce67b269d34bdfc24820410a4e12c3a",
+  "pcircHR_gf0.8_R14.npz": "6fdf0c68ed3c387b5a53bdf75a5f97b1575245a32841a172b3de8c31f2a82b29",
+  "pcircXR_gf0.8_R14.npz": "96d8e586fbbbca036bc970a667f20a12bde319d1328b2c603cca5c6f7a7e3196",
+  "pcirc_gf0.775_R14.npz": "294d58ecdb4f97e5bf13d184223f315111405f3950934f2e0a761f9a1f2e413a",
+  "pcirc_gf0.8_R14.npz": "4281bf3e1c80ce6899f856a9dd76d39729c26827a9c6d4b1704a7ab255485b9b",
+  "pellBIG_gf0.8_24x15.npz": "4d0495a23d9074c0f0e680304453cd81c2d23ecdca03a34ed39c36b4dcc43e00",
+  "pellHR_gf0.8_24x15.npz": "041a511c402f1bff1043be8751c44dc753dff0fe2459a52fae45189102108d1d",
+  "pellXR_gf0.8_24x15.npz": "772b9ff51ca77e435a6bc9f082aef5bc47b93abfcf4a4c3a072667e76232ebf4",
+  "pell_gf0.775_20x12.npz": "307f3a8af4a13b20567f8dd8311e7a451cd4d3c90a15390d1976c980395bf0ec",
+  "pell_gf0.8_24x15.npz": "b734c8d67ee0a151a837bd79fd368f634fa509d1502d198583054ec175b31f33"
+ }
+}

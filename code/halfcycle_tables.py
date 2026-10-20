@@ -44,12 +44,29 @@ def atri_coeffs(path):
     return rows[:, 2].mean(), rows[:, 2].std(), abs(rows[:, 3].mean()), rows[:, 3].std(), len(rows)
 
 
-def write(path, rows):
-    if rows:
-        with open(path, "w", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=list(rows[0]))
-            w.writeheader()
-            w.writerows(rows)
+def write(path, rows, inputs):
+    """Write rows atomically, with a sidecar <path>.meta.json (radius convention, code revision,
+    input files and their SHA-256). Empty tables are an error, so that a failed analysis never
+    leaves an older table in place."""
+    import json, hashlib, subprocess
+    if not rows:
+        raise RuntimeError(f"{path}: no rows; refusing to write an empty table")
+    tmp = path + ".tmp"
+    with open(tmp, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w.writeheader()
+        w.writerows(rows)
+    os.replace(tmp, path)
+    try:
+        rev = subprocess.run(["git", "-C", os.path.dirname(os.path.abspath(__file__)), "rev-parse", "HEAD"],
+                             capture_output=True, text=True).stdout.strip() or None
+    except OSError:
+        rev = None
+    sha = lambda f: hashlib.sha256(open(f, "rb").read()).hexdigest()
+    meta = dict(table=os.path.basename(path), rows=len(rows), radius=RADIUS, code_revision=rev,
+                inputs={os.path.basename(f): sha(f) for f in sorted(set(inputs))})
+    with open(path + ".meta.json", "w") as f:
+        json.dump(meta, f, indent=1)
 
 
 def summary(label, rows):
@@ -60,31 +77,39 @@ def summary(label, rows):
           f"   per half-cycle {np.round(q, 3).tolist()}")
 
 
+def require(path):
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"required input missing: {path}")
+    return path
+
+
 def main(D):
-    p = lambda f: os.path.join(D, f)
-    coeffs, out = [], []
+    p = lambda f: require(os.path.join(D, f))
+    coeffs, out, used = [], [], []
     print("Panfilov-Rudenko:")
     for fn, gf, dx, dom, seed, circ in PAN:
-        if not os.path.exists(p(fn)):
-            print("  missing", fn); continue
+        used += [p(fn), p(circ)]
         al, sal, be, sbe, nw = pan_coeffs(p(circ))
         coeffs.append(dict(model="panfilov", file=circ, gf=gf, dx=dx, alpha=al, alpha_sd=sal, beta=be, beta_sd=sbe, windows=nw))
         rows, S = H.half_cycles(p(fn), PA.PERIOD[gf], be, al, RADIUS)
+        if not rows:
+            raise RuntimeError(f"{fn}: no valid half-cycle")
         summary(f"gf {gf:<5} dx {dx} {dom:11s} seed {seed} |beta| {be:.4f} alpha {al:+.3f} used {S['frac_used']:.2f}", rows)
         out += [dict(file=fn, gf=gf, dx=dx, circle=circ, beta=be, alpha=al, **r) for r in rows]
-    write(p("halfcycles_panfilov.csv"), out)
-    out = []
+    write(os.path.join(D, "halfcycles_panfilov.csv"), out, used)
+    out, used_a = [], []
     print("Atri (P = 0.1 uM):")
     for fn, dx, dom, seed, circ in ATRI:
-        if not os.path.exists(p(fn)):
-            print("  missing", fn); continue
+        used_a += [p(fn), p(circ)]
         al, sal, be, sbe, nw = atri_coeffs(p(circ))
         coeffs.append(dict(model="atri", file=circ, gf=0.1, dx=dx, alpha=al, alpha_sd=sal, beta=be, beta_sd=sbe, windows=nw))
         rows, S = H.half_cycles(p(fn), ATRI_PERIOD, be, al, RADIUS)
+        if not rows:
+            raise RuntimeError(f"{fn}: no valid half-cycle")
         summary(f"dx {dx} {dom} seed {seed} |beta| {be:.2f} alpha {al:+.2f} used {S['frac_used']:.2f}", rows)
         out += [dict(file=fn, dx=dx, circle=circ, beta=be, alpha=al, **r) for r in rows]
-    write(p("halfcycles_atri.csv"), out)
-    write(p("coefficients_circles.csv"), coeffs)
+    write(os.path.join(D, "halfcycles_atri.csv"), out, used_a)
+    write(os.path.join(D, "coefficients_circles.csv"), coeffs, used + used_a)
 
 
 if __name__ == "__main__":
