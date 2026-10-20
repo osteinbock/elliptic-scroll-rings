@@ -53,9 +53,7 @@ PRODUCTS = {
         ("refine_compare.json", "python refine_compare.py BARKLEY REFINE"),
     ],
 }
-SIMULATION_CODE = ("barkley3d.py", "ellipse_ring.py", "panfilov.py", "atri.py", "oregonator.py",
-                   "pan_ring.py", "atri_ring.py", "circle_run.py", "straight_filament.py", "twist_run.py",
-                   "movie_frames.py", "param_probe.py", "meander_check.py")
+from provenance import SIMULATION_CODE, files_digest, commit_digest   # noqa: E402
 
 
 def sha256(path):
@@ -67,13 +65,9 @@ def sha256(path):
 
 
 def source_digest(files=None):
-    """SHA-256 over the named source files (name and bytes with LF line ends, sorted): identifies
-    the code whether or not it lies in a git checkout, independent of line-ending conversion."""
-    h = hashlib.sha256()
-    for f in sorted(files or [f for f in os.listdir(HERE) if f.endswith(".py")]):
-        h.update(f.encode())
-        h.update(open(os.path.join(HERE, f), "rb").read().replace(bytes([13, 10]), bytes([10])))
-    return h.hexdigest()
+    """Digest (provenance.digest convention) of the named files, by default all .py files of this
+    code folder; run the exporter from the released code folder so that it describes those files."""
+    return files_digest(files or sorted(f for f in os.listdir(HERE) if f.endswith(".py")))
 
 
 def git_revision():
@@ -115,7 +109,28 @@ def safe_dest(outdir, *parts):
     return dst
 
 
+def same_arrays(path, arrays):
+    """True if path holds exactly these arrays (then it is not rewritten, so its bytes and hash stay)."""
+    if not os.path.exists(path):
+        return False
+    with np.load(path) as d:
+        if set(d.files) != set(arrays):
+            return False
+        for k, v in arrays.items():
+            a = d[k]
+            if a.shape != np.shape(v) or a.dtype != np.asarray(v).dtype:
+                return False
+            if a.dtype.kind in "fc":
+                if not np.array_equal(a, v, equal_nan=True):
+                    return False
+            elif not np.array_equal(a, v):
+                return False
+    return True
+
+
 def atomic_savez(dst, arrays):
+    if same_arrays(dst, arrays):
+        return
     tmp = dst + ".tmp.npz"
     np.savez_compressed(tmp, **arrays)
     os.replace(tmp, dst)
@@ -127,10 +142,18 @@ def main(outdir, supp, barkley, refine, sim_commit=None):
     for g, r in roots.items():
         if inside(outdir, r) or inside(r, outdir):
             raise ValueError(f"archive {outdir} and input folder {r} must not contain each other")
-    manifest = dict(git_revision=git_revision(), source_tree_sha256=source_digest(),
-                    simulation_code_sha256=source_digest(SIMULATION_CODE),
+    manifest = dict(git_head_at_export=git_revision(),
+                    source_tree_sha256=source_digest(),
+                    source_tree_files=("all .py files of the code folder that ran the exporter; it describes the "
+                                       "code of the commit that contains this manifest"),
                     simulation_code_files=list(SIMULATION_CODE),
+                    simulation_code_sha256_current=source_digest(SIMULATION_CODE),
                     production_simulation_commit=sim_commit,
+                    simulation_code_sha256_at_production_commit=commit_digest(sim_commit) if sim_commit else None,
+                    provenance_note=("The production runs predate per-run source digests; their code_revision "
+                                     "fields read 'unknown' or are absent. The production commit was identified "
+                                     "afterwards: its simulation modules are byte-identical (up to line ends) to "
+                                     "the files that ran, all of which were last modified before the runs started."),
                     note="hashes are of the bytes as written; data/ is stored with -text in git", runs=[], products=[])
     for group, rel, line in commands():
         src = os.path.join(roots[group], rel)

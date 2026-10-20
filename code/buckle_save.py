@@ -4,8 +4,9 @@ Growth rate from a log-linear fit of sqrt(|r_m|^2 + |z_m|^2) for t >= 90; freque
 exchange between radial and vertical parts, s = (|r_m|^2 - |z_m|^2)/A^2 ~ cos(2 omega t); the
 binormal coefficient follows from omega = m sqrt(m^2 - 1) sqrt(beta_zeta beta_r) / R^2.
 
-The fit of s is bounded to 0 < omega < pi/(2 dt) (dt: snapshot spacing), so that 2 omega stays
-below the Nyquist limit and cannot be an alias; fits that end on a bound are rejected. The
+The fit of s is restricted to the principal Nyquist band, 0 < omega < pi/(2 dt) (dt: snapshot
+spacing); boundary solutions are rejected. This selects the admissible sampled frequency but cannot
+by itself exclude a higher-frequency component of the continuous signal aliased into that band. The
 frequency is also refitted with the window starting at t = 80 and 100 (sensitivity). The
 complex mode series fr_m(t), fz_m(t) are saved with the fits, so that
     python buckle_save.py --from-series sf2/buckle.npz

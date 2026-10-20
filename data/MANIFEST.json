@@ -1,7 +1,7 @@
 {
- "git_revision": null,
- "source_tree_sha256": "5e5811ede98b54a2d1cd9194dcfe3fa84dd22007f6caea794103f1626dad2260",
- "simulation_code_sha256": "6086603504a288a5dea63411dd461e8f8ad7ff2f116148d1f8493341ebe13124",
+ "git_head_at_export": "0ebd45a4e0b4275cb5d713e6c47ed2546c7f996e",
+ "source_tree_sha256": "ef1d739c57791825713e719023f163b9196631ce9654585a5ce2f1db82f94885",
+ "source_tree_files": "all .py files of the code folder that ran the exporter; it describes the code of the commit that contains this manifest",
  "simulation_code_files": [
   "barkley3d.py",
   "ellipse_ring.py",
@@ -17,7 +17,10 @@
   "param_probe.py",
   "meander_check.py"
  ],
+ "simulation_code_sha256_current": "c2bd96786adbd3071d6ddb1a843cd97564e33cda005a3044dce3d634be9fe4ed",
  "production_simulation_commit": "22d77e8b92022f0ecac7ca97389ad5eecb5cec4b",
+ "simulation_code_sha256_at_production_commit": "a3ce81a74593e7620353865686e2af6ee10a762158f1285d076fbec30413dbab",
+ "provenance_note": "The production runs predate per-run source digests; their code_revision fields read 'unknown' or are absent. The production commit was identified afterwards: its simulation modules are byte-identical (up to line ends) to the files that ran, all of which were last modified before the runs started.",
  "note": "hashes are of the bytes as written; data/ is stored with -text in git",
  "runs": [
   {
