@@ -191,6 +191,48 @@ def test_halfcycle_tables_fails_on_missing_input():
         assert open(os.path.join(d, "halfcycles_panfilov.csv")).read() == "old\n"
 
 
+def test_export_never_touches_sources():
+    """Re-audit 3, item A: absolute input folders must not make the exporter overwrite them."""
+    import hashlib
+    import json
+    import export_data as ED
+    with tempfile.TemporaryDirectory() as d:
+        raw, out = os.path.join(d, "raw"), os.path.join(d, "archive")
+        os.makedirs(os.path.join(raw, "sub"))
+        src = os.path.join(raw, "sub", "run.npz")
+        np.savez(src, t=np.arange(3.0), Rm=np.ones(3), raw_Rm=np.ones(3), snap_1_0=np.zeros((4, 3)))
+        before = hashlib.sha256(open(src, "rb").read()).hexdigest()
+        cmds, prods = ED.commands, ED.PRODUCTS
+        ED.commands = lambda: [("supp", os.path.join("sub", "run.npz"), "cd v2/sub && run")]
+        ED.PRODUCTS = {}
+        try:
+            ED.main(out, raw, raw, raw)
+        finally:
+            ED.commands, ED.PRODUCTS = cmds, prods
+        assert hashlib.sha256(open(src, "rb").read()).hexdigest() == before
+        dst = os.path.join(out, "runs", "supp", "sub", "run.npz")
+        k = np.load(dst).files
+        assert "snap_1_0" not in k and "raw_Rm" in k and "t" in k
+        m = json.load(open(os.path.join(out, "MANIFEST.json")))
+        assert m["runs"][0]["source_sha256"] == before and m["runs"][0]["file"] == "runs/supp/sub/run.npz"
+        try:
+            ED.main(os.path.join(raw, "inner"), raw, raw, raw)  # archive inside an input folder
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("archive inside an input folder was accepted")
+
+
+def test_export_rejects_escaping_paths():
+    import export_data as ED
+    with tempfile.TemporaryDirectory() as d:
+        try:
+            ED.safe_dest(d, "runs", "..", "..", "x.npz")
+        except ValueError:
+            return
+        raise AssertionError("escaping destination accepted")
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
     failed = 0

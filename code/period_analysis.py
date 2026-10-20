@@ -59,6 +59,22 @@ def single_closed(d):
     return g & (d["closed"] == 1) if "closed" in d.files else g
 
 
+CLEARANCE_MIN = 12.0    # analyses stop once the ring comes this close to its periodic images
+
+
+def image_contact_time(d, period):
+    """First time at which the period-averaged lateral clearance Lxy - 2 max(hx, hy) between the
+    ring and its periodic images drops below CLEARANCE_MIN (inf if never); later intervals are
+    not analysed, even if the clearance recovers."""
+    if "Lxy" not in d.files:
+        return np.inf
+    ok = np.isfinite(d["hx"]) & np.isfinite(d["hy"])
+    t = d["t"][ok]
+    c = C.smooth(t, float(d["Lxy"]) - 2 * np.maximum(d["hx"][ok], d["hy"][ok]), period)
+    bad = np.flatnonzero(np.isfinite(c) & (c < CLEARANCE_MIN))
+    return t[bad[0]] if len(bad) else np.inf
+
+
 def intervals(path, period):
     d = np.load(path)
     ok = np.isfinite(d["hx"]) & np.isfinite(d["length"])
@@ -67,6 +83,7 @@ def intervals(path, period):
     hx, hy, L, z = (C.smooth(t, np.where(good, d[k][ok], np.nan), period) for k in ("hx", "hy", "length", "z"))
     R = L / (2 * np.pi)
     x = C.crossings(t, hx - hy)
+    t_contact = image_contact_time(d, period)
     rows = []
     for t0, t1 in zip(x[:-1], x[1:]):
         m = (t >= t0) & (t <= t1) & np.isfinite(R) & np.isfinite(z)
@@ -81,7 +98,8 @@ def intervals(path, period):
         # skip intervals near collapse, with tiny amplitude, beyond the range of the
         # finite-amplitude factor (eps <= 0.36), or after the ring broke up
         gap = C.max_gap(t[good], t0, t1)
-        if Rb < 3.2 or eps < 0.04 or eps > EPS_MAX or np.mean(nc > 1) > 0.2 or gap > period / 2:
+        if (Rb < 3.2 or eps < 0.04 or eps > EPS_MAX or np.mean(nc > 1) > 0.2 or gap > period / 2
+                or t1 > t_contact):
             continue
         rows.append(dict(t0=t0, t1=t1, Th=t1 - t0, R=Rb, beta=beta, alpha=alpha, eps=eps, max_gap=gap))
     return rows

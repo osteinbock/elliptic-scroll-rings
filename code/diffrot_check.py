@@ -9,16 +9,22 @@ between ends and sides that varies with the switching cycle.
 Data: movie/ell8x5_movie.npz (8 x 5 ring, a = 1.1, b = 0.17; snapshots every 0.2 for t = 3-40).
 """
 import re
+import sys
 import numpy as np
 from scipy.ndimage import uniform_filter1d
 
-d = np.load("movie/ell8x5_movie.npz")
-times = np.array(sorted(float(m.group(1)) for k in d.files if (m := re.match(r"snap_([\d.]+)_0$", k))))
 NB = 36
 th_c = (np.arange(NB) + 0.5) / NB * 2 * np.pi - np.pi
-RHO = np.full((len(times), NB), np.nan)
-Z = np.full((len(times), NB), np.nan)
-for i, t in enumerate(times):
+FROM_BINS = sys.argv[sys.argv.index("--from-bins") + 1] if "--from-bins" in sys.argv else None
+if FROM_BINS:                       # repeat the analysis from the saved binned arrays (no snapshots)
+    b0 = np.load(FROM_BINS)
+    times, RHO, Z = b0["times"], b0["RHO"], b0["Z"]
+else:
+    d = np.load("movie/ell8x5_movie.npz")
+    times = np.array(sorted(float(m.group(1)) for k in d.files if (m := re.match(r"snap_([\d.]+)_0$", k))))
+    RHO = np.full((len(times), NB), np.nan)
+    Z = np.full((len(times), NB), np.nan)
+for i, t in enumerate([] if FROM_BINS else times):
     ls = [d[k] for k in d.files if k.startswith(f"snap_{t:g}_")]
     p = max(ls, key=len)
     c = p.mean(0)
@@ -61,4 +67,4 @@ hxy = None
 print("t, phase(ends)-phase(sides) [rad]:")
 for tt, dd in list(zip(times[sel], diff))[::10]:
     print(f"  t={tt:5.1f}  {dd:+.2f}")
-np.savez("diffrot.npz", t=times[sel], rel=rel[sel], th=th_c, diff=diff, grad=grad)
+np.savez("diffrot.npz", t=times[sel], rel=rel[sel], th=th_c, diff=diff, grad=grad, times=times, RHO=RHO, Z=Z)

@@ -190,14 +190,24 @@ def table(rows):
 
 
 def code_revision():
-    """Git revision of the code directory (or 'unknown')."""
-    import os, subprocess
+    """'git:<commit>' of the code directory, or, outside a git checkout, 'tree:<sha256>' over the
+    simulation sources (file names and bytes with LF line ends; see export_data.SIMULATION_CODE)."""
+    import os, subprocess, hashlib
+    here = os.path.dirname(os.path.abspath(__file__))
     try:
-        r = subprocess.run(["git", "-C", os.path.dirname(os.path.abspath(__file__)), "rev-parse", "HEAD"],
-                           capture_output=True, text=True, timeout=10)
-        return r.stdout.strip() or "unknown"
+        r = subprocess.run(["git", "-C", here, "rev-parse", "HEAD"], capture_output=True, text=True, timeout=10)
+        if r.returncode == 0 and r.stdout.strip():
+            return "git:" + r.stdout.strip()
     except (OSError, subprocess.SubprocessError):
-        return "unknown"
+        pass
+    h = hashlib.sha256()
+    for f in sorted(("barkley3d.py", "ellipse_ring.py", "panfilov.py", "atri.py", "oregonator.py", "pan_ring.py",
+                     "atri_ring.py", "circle_run.py", "straight_filament.py", "twist_run.py")):
+        p = os.path.join(here, f)
+        if os.path.exists(p):
+            h.update(f.encode())
+            h.update(open(p, "rb").read().replace(bytes([13, 10]), bytes([10])))
+    return "tree:" + h.hexdigest()
 
 
 def main():

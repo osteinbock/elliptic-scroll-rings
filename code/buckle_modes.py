@@ -1,4 +1,5 @@
-"""EXPLORATORY: not used for any figure, table, or number of the paper; kept for the record.
+"""EXPLORATORY: this command-line analysis feeds no figure, table, or number of the paper.
+The production helper spectra() now lives in ring_spectra.py (used by buckle_save.py).
 
 Buckling mode analysis of the R0 = 38 scroll ring (sf2/circXXL_R0_38_snaps.npz).
 
@@ -16,29 +17,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-NB = 1024
 
 
-def spectra(lines):
-    lines = [l for l in lines if len(l) > 20]
-    p = np.concatenate(lines)
-    c = p.mean(0)
-    th = np.arctan2(p[:, 1] - c[1], p[:, 0] - c[0])
-    rho = np.hypot(p[:, 0] - c[0], p[:, 1] - c[1])
-    R = np.median(rho)
-    keep = np.abs(rho - R) < 6
-    th, rho, z = th[keep], rho[keep], p[keep, 2]
-    b = ((th + np.pi) / (2 * np.pi) * NB).astype(int) % NB
-    cnt = np.bincount(b, minlength=NB)
-    rb = np.bincount(b, rho, NB)
-    zb = np.bincount(b, z, NB)
-    ok = cnt > 0
-    ang = (np.arange(NB) + 0.5) / NB * 2 * np.pi - np.pi
-    rb = np.interp(ang, ang[ok], rb[ok] / cnt[ok], period=2 * np.pi)
-    zb = np.interp(ang, ang[ok], zb[ok] / cnt[ok], period=2 * np.pi)
-    fr = np.fft.rfft(rb - rb.mean()) * 2 / NB
-    fz = np.fft.rfft(zb - zb.mean()) * 2 / NB
-    return R, fr, fz, ok.mean()
+from ring_spectra import spectra, NB      # noqa: F401  (production helper; this script is exploratory)
 
 
 def main():

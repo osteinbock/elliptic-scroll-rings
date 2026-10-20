@@ -297,7 +297,7 @@ def fig1():
 
 # ----------------------------------------------------------------------------- Fig. 2
 def fig2():
-    t, S, _ = smooth_run("ell_a1.1_b0.17_8x5.npz", 4.44, ("hx", "hy", "h2c"))
+    t, S, _ = smooth_run("ell_a1.1_b0.17_8x5.npz", 4.44, ("hx", "hy", "z2c"))
     # filament equation with alpha = 0 and the drift coefficient of a circular ring of the same size
     m1 = F.run(6.5, 4.0, 0.0, -1.80, t[-1] - 5, n=64, dt=0.01)
     fig, ax = plt.subplots(2, 1, figsize=(W1, 3.0), sharex=True)
@@ -305,8 +305,8 @@ def fig2():
         ax[0].plot(t, S[k], color=col, lw=1.4)
         ax[0].plot(m1["t"] + 5, m1[k], color=col, lw=0.9, ls="--")
     ax[0].set_ylabel("half-width")
-    ax[1].plot(t, S["h2c"], color=INK, lw=1.4)
-    ax[1].plot(m1["t"] + 5, m1["h2c"], color=MUTED, lw=0.9, ls="--")
+    ax[1].plot(t, S["z2c"], color=INK, lw=1.4)
+    ax[1].plot(m1["t"] + 5, m1["z2c"], color=MUTED, lw=0.9, ls="--")
     ax[1].axhline(0, color=MUTED, lw=0.5)
     ax[1].set(ylabel="saddle amplitude", xlabel="time", xlim=(0, 120), ylim=(-1.2, 1.2))
     for a_, s in zip(ax, "ab"):
@@ -355,7 +355,7 @@ def fit_shrink_drift(path, period, t0=6.0, Rmin=3.6):
 
 def fig3():
     P, t0 = 4.13, 6.0
-    t, S, d = smooth_run("ellP_a1.1_b0.15_12x7.5.npz", P, ("hx", "hy", "h2c", "length"))
+    t, S, d = smooth_run("ellP_a1.1_b0.15_12x7.5.npz", P, ("hx", "hy", "z2c", "length"))
     al15, be15, hx0, hy0 = fit_shrink_drift("ellP_a1.1_b0.15_12x7.5.npz", P, t0)
     print(f"fig3: a=1.1 b=0.15 alpha={al15:.3f} beta={be15:.3f} start {hx0:.2f} x {hy0:.2f}")
     r = F.run(hx0, hy0, al15, be15, t[-1] - t0, n=64, dt=0.01)
@@ -368,8 +368,8 @@ def fig3():
         a0.plot(tm, M[k], color=col, lw=0.9, ls="--")
     a0.set(ylabel="half-width", ylim=(0, 12))
     a0.legend(loc="upper right", ncol=2)
-    a1.plot(t, S["h2c"], color=INK, lw=1.4, label="simulation")
-    a1.plot(tm, M["h2c"], color=MUTED, lw=0.9, ls="--", label="filament eq.")
+    a1.plot(t, S["z2c"], color=INK, lw=1.4, label="simulation")
+    a1.plot(tm, M["z2c"], color=MUTED, lw=0.9, ls="--", label="filament eq.")
     a1.axhline(0, color=MUTED, lw=0.5)
     a1.set(ylabel="saddle ampl.", xlabel="time", xlim=(0, 92), yticks=[-1, 0, 1])
     a1.legend(loc="lower right")

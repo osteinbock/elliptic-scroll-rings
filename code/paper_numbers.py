@@ -1,6 +1,6 @@
 """Every number quoted in the manuscript and SI that follows from the simulations, recomputed
 from the production data and analysis products; written to <BARKLEY>/paper_numbers.json.
-    python paper_numbers.py SUPP BARKLEY        (after build_all.sh has produced the tables)
+    python paper_numbers.py SUPP BARKLEY [REFINE]   (after build_all.sh has produced the tables)
 """
 import os
 import sys
@@ -15,6 +15,7 @@ import filament_flow as F            # noqa: E402
 import halfcycle as H                # noqa: E402
 
 S, B = sys.argv[1], sys.argv[2]
+RF = sys.argv[3] if len(sys.argv) > 3 else None
 OUT = {}
 
 
@@ -317,9 +318,34 @@ def supp():
     put("atri.P0.095.first_switch_obs_pred", [round(obs), round(pred)])
 
 
-for name, fn in (("methods", methods), ("radius conventions", radii), ("Fig. 2", fig2), ("Fig. 3 and b = 0.18", fig3),
-                 ("Fig. 4", fig4), ("Fig. 5", fig5), ("shape modes", modes), ("supplementary models", supp)):
+def refine():
+    import refine_compare as RC
+    res = {"m2": None, "m3": None}
+    mc, mf = RC.modes(B), RC.modes(RF)
+    for m in (2, 3):
+        c, f = mc[m], mf[m]
+        put(f"refine.m{m}.beta_zeta_change_percent", round(100 * (f["beta_zeta"] / c["beta_zeta"] - 1), 1))
+        put(f"refine.m{m}.beta_r_change_percent", round(100 * (f["beta_r"] / c["beta_r"] - 1), 1))
+        put(f"refine.m{m}.beta_zeta_over_drift_fine.range", [round(v, 2) for v in f["bz_over_drift_range"]])
+        put(f"refine.m{m}.R_fine", round(f["R"], 2))
+    sc = RC.straight(os.path.join(B, "sf2", "L32_k035.npz"))
+    sf = RC.straight(os.path.join(RF, "sf2", "L32_k035_dx015.npz"))
+    put("refine.straight_k0.35.beta_change_percent", round(100 * (sf["beta"] / sc["beta"] - 1), 1))
+
+
+SECTIONS = [("methods", methods), ("radius conventions", radii), ("Fig. 2", fig2), ("Fig. 3 and b = 0.18", fig3),
+                 ("Fig. 4", fig4), ("Fig. 5", fig5), ("shape modes", modes), ("supplementary models", supp)]
+if RF:
+    SECTIONS.append(("grid refinement", refine))
+for name, fn in SECTIONS:
     section(name, fn)
-with open(os.path.join(B, "paper_numbers.json"), "w") as f:
+errors = [k for k in OUT if k.startswith("ERROR")]
+target = os.path.join(B, "paper_numbers.json")
+if errors:                          # never replace a complete result with a partial one
+    with open(target + ".partial", "w", newline=chr(10)) as f:
+        json.dump(OUT, f, indent=1)
+    sys.exit(f"{len(errors)} section(s) failed: {errors}; wrote {target}.partial, kept {target}")
+with open(target + ".tmp", "w", newline=chr(10)) as f:
     json.dump(OUT, f, indent=1)
-print("wrote", os.path.join(B, "paper_numbers.json"))
+os.replace(target + ".tmp", target)
+print("wrote", target)

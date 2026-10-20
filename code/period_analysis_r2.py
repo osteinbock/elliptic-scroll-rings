@@ -31,6 +31,7 @@ def intervals_r2(path, period):
     r2, L, z = (C.smooth(t, y, period) for y in (r2, np.where(good, d["length"][ok], np.nan), np.where(good, d["z"][ok], np.nan)))
     R = L / (2 * np.pi)
     x = C.crossings(t, r2)
+    t_contact = PA.image_contact_time(d, period)
     rows = []
     for t0, t1 in zip(x[:-1], x[1:]):
         m = (t >= t0) & (t <= t1) & np.isfinite(R) & np.isfinite(z)
@@ -43,7 +44,8 @@ def intervals_r2(path, period):
         eps = np.max(np.abs(r2[m]) / R[m])
         nc = d["ncurves"][ok][m]
         gap = C.max_gap(t[good & np.isfinite(r2raw)], t0, t1)
-        if Rb < 3.2 or eps < 0.04 or eps > PA.EPS_MAX or np.mean(nc > 1) > 0.2 or gap > period / 2:
+        if (Rb < 3.2 or eps < 0.04 or eps > PA.EPS_MAX or np.mean(nc > 1) > 0.2 or gap > period / 2
+                or t1 > t_contact):
             continue
         rows.append(dict(t0=t0, t1=t1, Th=t1 - t0, R=Rb, beta=beta, alpha=alpha, eps=eps, max_gap=gap))
     return rows

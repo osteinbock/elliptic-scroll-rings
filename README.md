@@ -43,24 +43,34 @@ Scripts whose docstring begins with "EXPLORATORY" (and `pan_compare.py`, `atri_c
 
 `data/` holds the processed data behind every figure, table, and quoted number:
 
-- `data/runs/`: per-frame tables of all 94 production simulations (ring measures, validity flags,
-  extraction diagnostics, run metadata); filament snapshots and fields are omitted;
+- `data/runs/`: per-frame tables of all 94 production simulations and of the 5 grid-refinement
+  runs (ring measures, validity flags, pre-mask radius, extraction diagnostics, run metadata);
+  filament snapshots and fields are omitted;
 - `data/analysis/`: the analysis products (half-cycle tables, coefficient tables, mode fits and
   their sensitivity sweep, straight-filament and buckling fits, `paper_numbers.json` with every
   number quoted in the manuscript and SI);
-- `data/MANIFEST.json`: for each file, its SHA-256 and the command that produced it.
+- `data/MANIFEST.json`: for each file, its SHA-256 and the command that produced it, plus the
+  commit whose simulation modules produced the runs (hashes refer to the stored bytes; git keeps
+  `data/` unconverted, see `.gitattributes`).
+
+`python code/rebuild_from_archive.py data` recomputes every quoted number from these tables alone
+(no simulations or snapshots; the buckling and tip-phase checks use their saved series) and
+reports any difference from `data/analysis/barkley/paper_numbers.json`.
 
 ## Reproducing the results
 
 The full simulations write their raw output (`.npz`, with snapshots) to the working directory;
 these files are not part of the repository.
 
-1. Run the simulations listed in `runs_barkley_v2.sh` (Barkley model) and `runs_v2.sh`
-   (Panfilov–Rudenko and Atri models), one command per line with all parameters, from the code
-   directory (the lists write to `v2b/` and `v2/`; create the subfolders named in their headers).
-2. `sh build_all.sh v2 v2b [archive_dir]` then marks invalid frames (`mask_frames.py`), runs every
-   analysis in order, writes Figs. 1–6, Tables S1–S4 and Figs. S1–S2, recomputes all quoted
-   numbers (`paper_numbers.py`), and optionally writes the data archive (`export_data.py`).
+1. Run the simulations listed in `runs_barkley_v2.sh` (Barkley model), `runs_v2.sh`
+   (Panfilov–Rudenko and Atri models), and `runs_refine.sh` (grid refinement), one command per
+   line with all parameters, from the code directory (the lists write to `v2b/`, `v2/`, and `v5r/`;
+   create the subfolders named in their headers).
+2. `sh build_all.sh v2 v2b v5r [archive_dir]` then marks invalid frames (`mask_frames.py`), runs
+   every analysis in order, writes Figs. 1–6, Tables S1–S4 and Figs. S1–S2, compares the grids
+   (`refine_compare.py`), recomputes all quoted numbers (`paper_numbers.py`, which exits with an
+   error and keeps the previous result if any part fails), and optionally writes the data archive
+   (`export_data.py`, which only reads its input folders).
 
 `python tests/test_regression.py` runs the regression tests (filament extraction, recentering,
 smoothing and gap handling, mode fits, stale-output guards); no data files are needed.

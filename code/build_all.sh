@@ -1,15 +1,16 @@
 #!/bin/sh
 # Rebuild every table, figure, and the data archive from the production runs, in order.
-#   sh build_all.sh SUPP BARKLEY [ARCHIVE]
+#   sh build_all.sh SUPP BARKLEY REFINE [ARCHIVE]
 # SUPP: folder of runs_v2.sh outputs (Panfilov-Rudenko, Atri), BARKLEY: folder of
 # runs_barkley_v2.sh outputs, ARCHIVE: optional output folder for export_data.py.
 # Requires a POSIX shell (sh, grep, seq, xargs) and Python with NumPy, SciPy, Numba, Matplotlib.
 set -e
 S=${1:?supplementary-model folder}
 B=${2:?Barkley folder}
+RF=${3:?refinement folder (runs_refine.sh outputs)}
 HERE=$(cd "$(dirname "$0")" && pwd)
 
-python "$HERE/mask_frames.py" "$S"/*.npz "$B"/*.npz "$B"/*/*.npz
+python "$HERE/mask_frames.py" "$S"/*.npz "$B"/*.npz "$B"/*/*.npz "$RF"/*.npz
 
 # Barkley model: Figs. 1-6 and the numbers of Secs. II-III
 (
@@ -33,9 +34,12 @@ python "$HERE/halfcycle_tables.py" "$S"
 python "$HERE/pan_figure.py" "$S" "$S/figS1.png" "$B/period_table_r2.csv"
 python "$HERE/atri_figure.py" "$S" "$S/figS2.png" "$B/period_table_r2.csv"
 
-# numbers quoted in the manuscript and SI
-python "$HERE/paper_numbers.py" "$S" "$B"
+# grid refinement of the mode couplings and straight-filament dispersion
+python "$HERE/refine_compare.py" "$B" "$RF"
 
-if [ -n "$3" ]; then
-  python "$HERE/export_data.py" "$3" "$S" "$B"
+# numbers quoted in the manuscript and SI
+python "$HERE/paper_numbers.py" "$S" "$B" "$RF"
+
+if [ -n "$4" ]; then
+  python "$HERE/export_data.py" "$4" "$S" "$B" "$RF"
 fi

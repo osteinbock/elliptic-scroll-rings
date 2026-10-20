@@ -493,5 +493,20 @@
  "atri.P0.095.first_switch_obs_pred": [
   220,
   226
- ]
+ ],
+ "refine.m2.beta_zeta_change_percent": -3.8,
+ "refine.m2.beta_r_change_percent": 1.9,
+ "refine.m2.beta_zeta_over_drift_fine.range": [
+  0.71,
+  0.74
+ ],
+ "refine.m2.R_fine": 4.67,
+ "refine.m3.beta_zeta_change_percent": -1.1,
+ "refine.m3.beta_r_change_percent": 0.1,
+ "refine.m3.beta_zeta_over_drift_fine.range": [
+  0.58,
+  0.67
+ ],
+ "refine.m3.R_fine": 4.84,
+ "refine.straight_k0.35.beta_change_percent": 1.2
 }

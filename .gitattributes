@@ -1,0 +1,2 @@
+# processed data: store the exact bytes (manifest hashes refer to them)
+data/** -text
