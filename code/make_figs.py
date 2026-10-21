@@ -466,8 +466,8 @@ def fig4():
     ax[1].plot(K, np.polyval(cal.pa, K), color=INK, lw=0.8)
     ax[2].plot(K, np.polyval(cal.pb, K), color=INK, lw=0.8)
     ax[1].axhline(0, color=MUTED, lw=0.5)
-    ax[1].set(xlabel=r"curvature $K = 1/\bar R$", ylabel=r"tension $\alpha$", xlim=(0, 0.32))
-    ax[2].set(xlabel=r"curvature $K = 1/\bar R$", ylabel=r"drift coefficient $\beta$", xlim=(0, 0.32))
+    ax[1].set(xlabel=r"curvature $K = 1/R_m$", ylabel=r"tension $\alpha$", xlim=(0, 0.32))
+    ax[2].set(xlabel=r"curvature $K = 1/R_m$", ylabel=r"drift coefficient $\beta$", xlim=(0, 0.32))
     for a_, s in zip(ax, "abc"):
         grid(a_)
         label(a_, s, x=-0.36, y=1.12)
@@ -532,11 +532,12 @@ def fig5():
     a.legend(loc="lower right", fontsize=7, handletextpad=0.1, labelspacing=0.25, borderaxespad=0.3)
     # (b) ratio against the ring diameter in wavelengths, all three models (planar-moment half-cycles, R_m)
     b_ = ax[1]
-    z2 = [r for r in rows if r["event"] == "z2" and r["radius"] == "Rm"]
-    groups = [("barkley", lambda r: "mode" not in r["run"], INK, "o", "Barkley"),
-              ("barkley", lambda r: "mode" in r["run"], INK, "s", "Barkley, weak $m=2$"),
-              ("panfilov", lambda r: True, ORANGE, "D", "Panfilov–Rudenko"),
-              ("atri", lambda r: True, AQUA, "^", "Atri")]
+    z2 = [r for r in rows if r["event"] == "z2" and r["radius"] == "Rm"
+          and not (r["model"] == "barkley" and r["Rbar"] < HU.RBAR_MIN_CAL)]      # beta(K) poorly constrained there
+    groups = [("barkley", (lambda run: lambda r: r["run"] == run)(run), col, "o", None) for run, col, _ in sets]
+    groups += [("barkley", lambda r: "mode" in r["run"], ORANGE, "s", "weak $m=2$"),
+               ("panfilov", lambda r: True, INK, "D", "Panfilov–Rudenko"),
+               ("atri", lambda r: True, MUTED, "^", "Atri")]
     b_.axhline(1, color=MUTED, lw=0.6)
     for model, sel, col, mk, nm in groups:
         rr = [r for r in z2 if r["model"] == model and sel(r)]
@@ -547,12 +548,14 @@ def fig5():
         lo, hi = np.minimum(res, alt), np.maximum(res, alt)
         b_.vlines(x, lo, hi, color=col, lw=0.7, zorder=1)
         b_.scatter(x, res, s=16, marker=mk, facecolor="white", edgecolor=col, lw=0.8, zorder=2)
-    h = [Line2D([], [], ls="", marker=mk, color=col, ms=4.5) for _, _, col, mk, _ in groups]
+    named = [g for g in groups if g[4]]
+    h = [Line2D([], [], ls="", marker="o", color=MUTED, ms=4.5)] + \
+        [Line2D([], [], ls="", marker=mk, color=col, ms=4.5) for _, _, col, mk, _ in named]
     h += [Line2D([], [], ls="", marker="o", color=MUTED, ms=4.5),
           Line2D([], [], ls="", marker="o", mfc="white", mec=MUTED, ms=4.5)]
-    b_.legend(h, [g[4] for g in groups] + ["observed / predicted", "after Eq. (5)"], loc="upper right", fontsize=7,
-              ncol=1, handletextpad=0.2, labelspacing=0.25, borderaxespad=0.3)
-    b_.set(xlabel=r"ring diameter $2\bar R/\lambda$", ylabel="observed / predicted half-period", ylim=(0.9, 1.85), xlim=(0, 2.6))
+    b_.legend(h, ["Barkley (as in a)"] + [g[4] for g in named] + ["frequency ratio", "after Eq. (5)"], loc="upper right",
+              fontsize=7, ncol=1, handletextpad=0.2, labelspacing=0.25, borderaxespad=0.3)
+    b_.set(xlabel=r"ring diameter $2R_m/\lambda$", ylabel="predicted / observed frequency", ylim=(0.9, 1.65), xlim=(0, 2.6))
     for a_, s in zip(ax, "ab"):
         grid(a_)
         label(a_, s, x=-0.24, y=1.03)
@@ -563,39 +566,10 @@ def fig5():
 
 # ----------------------------------------------------------------------------- Fig. 6
 def mode_ranges():
-    """Couplings of the ring modes relative to the drift coefficient with their full ranges:
-    seed amplitude x fit window x smoothing x dx = 0.15 x filament definition (R*), fits in tau over the
-    whole run and its halves, constant-frequency windows and filament definitions (larger ring)."""
-    MR = json.load(open("mode_refit.json"))
-    MDf = json.load(open(os.path.join(FD.REVISION, "mode_definitions.json")))
-    nt = np.load("new_tests.npz")["large"]
-    out = []
-    for m in (2, 3):
-        main = [r for r in MR["rstar"] if r["m"] == m]
-        rng = MR["rstar_ranges"][str(m)]
-        dz = [r["bz"] / r["bdrift"] for r in MDf["rstar"] if r["m"] == m]
-        dr = [r["br"] / r["bdrift"] for r in MDf["rstar"] if r["m"] == m]
-        k = np.mean([r["k"] for r in main])
-        out.append(dict(m=m, ring="R*", k=k, bz=rng["bz_main"], br=rng["br_main"],
-                        bz_rng=[min(rng["bz_range"][0], min(dz)), max(rng["bz_range"][1], max(dz))],
-                        br_rng=[min(rng["br_range"][0], min(dr)), max(rng["br_range"][1], max(dr))],
-                        W=np.mean([np.sqrt(r["bz"] * r["br"]) for r in main])))
-    m4 = [r for r in MDf["rstar"] if r["m"] == 4]
-    bz4 = [r["bz"] / r["bdrift"] for r in m4] + [w["bz_over_drift"] for w in MDf["m4_windows"]]   # definitions, fit windows
-    br4 = [r["br"] / r["bdrift"] for r in m4] + [w["br_over_drift"] for w in MDf["m4_windows"]]
-    std4 = [r for r in m4 if "standard" in r["definition"]][0]
-    out.append(dict(m=4, ring="R*", k=4 / std4["R"], bz=std4["bz"] / std4["bdrift"], br=std4["br"] / std4["bdrift"],
-                    bz_rng=[min(bz4), max(bz4)], br_rng=[min(br4), max(br4)], W=np.sqrt(std4["bz"] * std4["br"])))
-    for m in (2, 3):
-        tf = [r for r in MR["tau_fits"] if r["run"] == "larger ring" and r["m"] == m]
-        full = [r for r in tf if r["t0"] == 15.0 and r["t1"] in (150.0, 100.0)][0]
-        dz = [r["bz"] / r["bdrift"] for r in MDf["large"] if r["m"] == m] + [r["bz"] / r["bdrift"] for r in tf]
-        dr = [r["br"] / r["bdrift"] for r in MDf["large"] if r["m"] == m] + [r["br"] / r["bdrift"] for r in tf]
-        L = nt[(nt[:, 0] == m) & np.isfinite(nt[:, 8])]
-        dz += list(L[:, 6] / L[:, 8]); dr += list(L[:, 7] / L[:, 8])
-        out.append(dict(m=m, ring="larger", k=full["k"], bz=full["bz"] / full["bdrift"], br=full["br"] / full["bdrift"],
-                        bz_rng=[min(dz), max(dz)], br_rng=[min(dr), max(dr)], W=full["W"]))
-    return out
+    """Couplings of the ring modes relative to beta_c of circular rings of the same radius, with their
+    full ranges (mode_summary.py)."""
+    import mode_summary
+    return mode_summary.modes()
 
 
 def fig6():
@@ -624,10 +598,11 @@ def fig6():
                        mfc=col if filled else "white", mec=col, mew=1.1, elinewidth=0.8, capsize=2, zorder=4)
     a.text(0.66, 0.37, r"$\beta_\zeta$", color=BLUE, fontsize=9, ha="center")
     a.text(0.66, 0.86, r"$\beta_r$", color=ORANGE, fontsize=9, ha="center")
-    a.set(xlabel=r"wavenumber $k = m/\bar R$", ylabel=r"coupling $/\,\beta_\mathrm{drift}$", xlim=(0.15, 0.88), ylim=(0.0, 1.3))
+    a.set(xlabel=r"wavenumber $k = m/R_m$", ylabel=r"coupling $/\,\beta_\mathrm{c}$", xlim=(0.15, 0.88), ylim=(0.0, 1.3))
     b_ = ax[1]
     b_.errorbar(sl[:, 0], sl[:, 3], yerr=sl[:, 4], fmt="o-", color=BLUE, ms=4.5, lw=1.0)
-    b_.plot([c["k"] for c in s15], [c["beta"] for c in s15], marker="o", mfc="white", mec=MUTED, ms=4.5, mew=1.0, ls=":", color=MUTED, lw=0.9)
+    b_.plot([c["k"] for c in s15], [c["beta"] for c in s15], marker="o", mfc="none", mec=MUTED, ms=6.5, mew=1.1, ls=":", color=MUTED, lw=1.1,
+            zorder=5)                                 # on top: at k = 0.45 and 0.6 it coincides with b = 0.17
     for r in rows:
         b_.scatter([r["k"]], [r["W"]], marker=mk[r["m"]], s=26, facecolor=INK if r["ring"] == "R*" else "white",
                    edgecolor=INK, linewidth=1.1, zorder=4)
@@ -658,8 +633,8 @@ def figS1():
         ax[0].plot(K, np.polyval(cal.pa, K), color=col, lw=0.9)
         ax[1].plot(K, np.polyval(cal.pb, K), color=col, lw=0.9)
     ax[0].axhline(0, color=MUTED, lw=0.5)
-    ax[0].set(xlabel=r"curvature $K = 1/\bar R$", ylabel=r"tension $\alpha$", xlim=(0, 0.5))
-    ax[1].set(xlabel=r"curvature $K = 1/\bar R$", ylabel=r"drift coefficient $\beta$", xlim=(0, 0.5))
+    ax[0].set(xlabel=r"curvature $K = 1/R_m$", ylabel=r"tension $\alpha$", xlim=(0, 0.5))
+    ax[1].set(xlabel=r"curvature $K = 1/R_m$", ylabel=r"drift coefficient $\beta$", xlim=(0, 0.5))
     ax[1].legend(loc="upper right", fontsize=7, markerscale=2)
     for a_, s in zip(ax, "ab"):
         grid(a_)
@@ -738,10 +713,13 @@ def figS3():
                             (a1, "pell_gf0.8_24x15.npz", 0.8, r"$g_f = 0.8$ (weakly positive tension)")):
         beta = [r["beta"] for r in pan if r["file"] == fn][0]
         _stacked_halfwidths(ax, os.path.join(FD.SUPP, fn), pan_alpha.PERIOD[gf], beta, lab)
+    a0.set_ylim(11.5, 22.5)                    # headroom: the panel titles must not touch the curves
+    a0.set_yticks([12.5, 15.0, 17.5, 20.0])
+    a1.set_ylim(7.0, 27.0)
     a1.set_xlabel("time")
     plt.setp(a0.get_xticklabels(), visible=False)
     h = [Line2D([], [], color=BLUE, lw=1.3), Line2D([], [], color=ORANGE, lw=1.3), Line2D([], [], color=MUTED, lw=0.8, ls="--")]
-    a1.legend(h, [r"$h_x$", r"$h_y$", "filament eq."], loc="lower left", ncol=3, fontsize=7)
+    a1.legend(h, [r"$h_x$", r"$h_y$", "filament eq."], loc="lower left", ncol=3, fontsize=8)
     runs = [("gf=0.775 dx=0.6 80^2 x 50", "0.775\n0.6"), ("gf=0.8 dx=0.6 88^2 x 50", "0.8\n0.6"),
             ("gf=0.8 dx=0.6 120^2 x 80", "0.8\n0.6,\nlarge"), ("gf=0.8 dx=0.4 88^2 x 50", "0.8\n0.4"),
             ("gf=0.8 dx=0.3 76^2 x 40", "0.8\n0.3")]
@@ -754,9 +732,9 @@ def figS3():
     a2.set_xticks(range(len(runs)))
     a2.set_xticklabels([r[1] for r in runs], fontsize=7)
     a2.set(xlim=(-0.6, len(runs) - 0.4), ylim=(0.9, 1.1), xlabel=r"$g_f$ / grid spacing $\Delta x$",
-           ylabel="observed / predicted half-period")
+           ylabel="predicted / observed frequency")
     a2.legend([Line2D([], [], ls="", marker="o", color=INK, ms=3.5), Line2D([], [], ls="", marker="o", mfc="white", mec=INK, ms=3.5)],
-              ["observed / predicted", "after Eq. (5)"], loc="upper left", fontsize=7)
+              ["frequency ratio", "after Eq. (5)"], loc="upper left", fontsize=7)
     for a_, s_ in zip((a0, a1, a2), "abc"):
         grid(a_)
         label(a_, s_, x=-0.14 if a_ is not a2 else -0.42, y=1.06)
@@ -783,7 +761,7 @@ def figS4():
     a0.plot(M["t"], M["hx"], color=BLUE, lw=0.8, ls="--"); a0.plot(M["t"], M["hy"], color=ORANGE, lw=0.8, ls="--")
     a0.set_ylabel(r"half-width ($\mu$m)")
     a0.legend([Line2D([], [], color=BLUE, lw=1.3), Line2D([], [], color=ORANGE, lw=1.3), Line2D([], [], color=MUTED, lw=0.8, ls="--")],
-              [r"$h_x$", r"$h_y$", "filament eq."], loc="upper left", ncol=3, fontsize=7)
+              [r"$h_x$", r"$h_y$", "filament eq."], loc="upper left", ncol=3, fontsize=8)
     a1.plot(S["t"], sgn * S["z2c"], color=INK, lw=1.3)
     a1.plot(M["t"], M["z2c"], color=MUTED, lw=0.8, ls="--")
     a1.axhline(0, color=MUTED, lw=0.5)
@@ -798,7 +776,7 @@ def figS4():
         col = BLUE if "88" in run or "105" in run else (MUTED if "dx=2.0" in run else INK)
         a2.plot([r["Rbar"] for r in rr], [r["ratio_c"] for r in rr], mk, color=col, mfc=mfc if mfc != BLUE else col, mec=col, ms=5, label=lab)
     a2.axhline(1.0, color=MUTED, lw=0.8)
-    a2.set(xlabel=r"mean radius $\bar R_m$ ($\mu$m)", ylabel="observed / predicted half-period", ylim=(0.95, 1.12))
+    a2.set(xlabel=r"mean radius $\bar R_m$ ($\mu$m)", ylabel="predicted / observed frequency", ylim=(0.92, 1.10))
     a2.legend(loc="lower left", fontsize=6.5, title=r"seed ($\mu$m)", title_fontsize=7, handletextpad=0.2)
     for a_, s_ in zip((a0, a1, a2), "abc"):
         grid(a_)

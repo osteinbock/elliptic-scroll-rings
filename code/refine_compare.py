@@ -31,8 +31,13 @@ def modes(folder):
                             rows.append((r["bz"] / r["bdrift"], r["br"] / r["bdrift"], r["bz"], r["br"], r["bdrift"], r["R"]))
             a = np.array(rows)
             main = [MD.analyze(m, amp, MD.T1[m]) for amp in (0.08, 0.15)]
+            tq = [np.tan(np.radians(r["dphase"])) for r in main]          # diagonal rates as in mode_refit.diag_rates
+            ar = [(r["gamma"] - r["omega"] * q) * r["R"] ** 2 / (m * m - 1) for r, q in zip(main, tq)]
+            az = [(r["gamma"] + r["omega"] * q) * r["R"] ** 2 / (m * m) for r, q in zip(main, tq)]
             out[m] = dict(beta_zeta=np.mean([r["bz"] for r in main]), beta_r=np.mean([r["br"] for r in main]),
                           beta_drift=np.mean([r["bdrift"] for r in main]), R=np.mean([r["R"] for r in main]),
+                          alpha_r=[float(v) for v in ar], alpha_zeta=[float(v) for v in az],
+                          dphase_deg=[float(r["dphase"]) for r in main],
                           bz_over_drift_range=[a[:, 0].min(), a[:, 0].max()], br_over_drift_range=[a[:, 1].min(), a[:, 1].max()])
         return out
     finally:

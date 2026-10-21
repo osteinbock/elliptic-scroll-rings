@@ -36,6 +36,7 @@ import period_analysis as PA
 HERE = os.path.dirname(os.path.abspath(__file__))
 import folders as FD          # noqa: E402  (SUPP, BARKLEY, REVISION)
 ASPECT_MIN = 1.05             # z2 events: nearly circular rings have ill-defined planar moments
+RBAR_MIN_CAL = 3.5            # Barkley b = 0.15, 0.16: beta(K) poorly constrained below (flagged in Tables S1-S2, Fig. 5b)
 
 
 # ----------------------------------------------------------------------------- calibration
@@ -170,6 +171,12 @@ def predictions(t, R, z, f, calib):
                    ratio_c=Pc / (np.pi * f), ratio_c_avg=(t[-1] - t[0]) / (f * 2 * np.pi * Rb ** 2 / np.sqrt(disc)),
                    eq5_factor=Pc / Ploc, eq5_global=1 / np.sqrt(float(calib.beta_r_over_beta(Rb))),
                    residual=Ploc / (np.pi * f), calib_inside=float(calib.inside(Rb)))
+        # ratio_c is a ratio of mean frequencies; the literal ratio of durations uses the time at which the
+        # predicted phase reaches pi f (held at the last frequency if that lies beyond the half-cycle)
+        w = np.sqrt(np.maximum(48 * bc ** 2 - ac ** 2, 0)) / (2 * R ** 2)
+        cum = np.concatenate([[0], np.cumsum(0.5 * (w[1:] + w[:-1]) * np.diff(t))])
+        tp = np.interp(np.pi * f, cum, t) if cum[-1] >= np.pi * f else t[-1] + (np.pi * f - cum[-1]) / w[-1]
+        row["ratio_c_duration"] = (t[-1] - t[0]) / (tp - t[0])
     return row
 
 
@@ -229,7 +236,7 @@ def r2_half_cycles(path, period, calib, model, run):
 
 
 COLUMNS = ["model", "run", "event", "radius", "t_start", "t_end", "T_obs", "Rbar", "R_end_over_start", "aspect",
-           "eps", "factor", "beta_c", "alpha_c", "beta_own", "alpha_own", "own_over_c", "ratio_c", "ratio_c_avg",
+           "eps", "factor", "beta_c", "alpha_c", "beta_own", "alpha_own", "own_over_c", "ratio_c", "ratio_c_avg", "ratio_c_duration",
            "ratio_own", "eq5_factor", "eq5_global", "residual", "calib_inside", "max_gap"]
 
 

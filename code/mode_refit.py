@@ -56,6 +56,7 @@ def tau_fit(t, r, z, Rs, zz, m, t0, t1):
     return dict(m=m, t0=float(t0), t1=float(t1), R=float(Rb), R_start=float(RR[0]), R_end=float(RR[-1]),
                 k=float(m / Rb), W=float(W), Q=float(Q), bz=float(W / Q), br=float(W * Q), bdrift=float(bd),
                 alpha_r=float(ar), alpha_zeta=float(az), dphase_deg=float(np.degrees(f["dphase"])),
+                omega_tau=float(f["omega"]), gamma_tau=float(f["gamma"]),
                 ok=bool(f["success"] and not f["at_bound"]), rms=float(f["rms"]))
 
 

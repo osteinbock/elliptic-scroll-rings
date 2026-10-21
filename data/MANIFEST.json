@@ -1,6 +1,6 @@
 {
- "git_head_at_export": "2351b8845fdf788b19eedd3fa2a4543411eadc23",
- "source_tree_sha256": "94dcd9c30868bf935ae6ab3b4ea672b1d6e4e362bec73125b7d284b66a537fd9",
+ "git_head_at_export": "e22940170b3c78621bab073f3916034bb8599354",
+ "source_tree_sha256": "63db824716ae784aa52367a4a61f0b733055e05b8fe4c9bb7c333513c65acd97",
  "source_tree_files": "all .py files of the code folder that ran the exporter; it describes the code of the commit that contains this manifest",
  "simulation_code_files": [
   "barkley3d.py",
@@ -1379,13 +1379,13 @@
    "file": "analysis/barkley/mode_refit.json",
    "group": "barkley",
    "command": "cd BARKLEY && python mode_refit.py",
-   "sha256": "25b416e205e233bc90ee1b73a557393ea07607b1535c329285497418559c4a12"
+   "sha256": "b74ee02283b2435917a12714a2c941b049861ac36137ee049ba3687ce42bda0f"
   },
   {
    "file": "analysis/barkley/rigidity_test.json",
    "group": "barkley",
    "command": "cd BARKLEY && python rigidity_test.py",
-   "sha256": "843ff3ebf6e97cef044e23fe7e22aa243cdb78f9da1999d0d07b2faf80be0e6e"
+   "sha256": "1d32fc5e6037ed7b48640ba606b2a192d0eac492877c39dbe88f4173ccfc3ad8"
   },
   {
    "file": "analysis/barkley/local_law_halfcycles.csv",
@@ -1397,7 +1397,7 @@
    "file": "analysis/barkley/paper_numbers.json",
    "group": "barkley",
    "command": "cd BARKLEY && python paper_numbers.py SUPP BARKLEY REFINE REVISION",
-   "sha256": "9c188111e0586461ea71335905d4ec5a954ca031722b4e49cf8b4a12cef8a4a1"
+   "sha256": "66cad1e8d403b2ff947201c8ca99970d1d8866e436908d49621c39f04b0e8ebe"
   },
   {
    "file": "analysis/supp/halfcycles_panfilov.csv",
@@ -1439,19 +1439,19 @@
    "file": "analysis/refine/refine_compare.json",
    "group": "refine",
    "command": "cd REFINE && python refine_compare.py BARKLEY REFINE",
-   "sha256": "d99890dfa1a8c21851c1f7bef04764b5c832f7d4d193019613b3894bc16857e8"
+   "sha256": "31157eb1728733a7a287bd40e537d0821015334d03f198c155d760d389ab9307"
   },
   {
    "file": "analysis/revision/uniform_halfcycles.csv",
    "group": "revision",
    "command": "cd REVISION && python halfcycle_uniform.py uniform_halfcycles.csv",
-   "sha256": "f73421b3f988978a6e6ee46a31e3349ad6afcf831188ba88cf69759266dbe998"
+   "sha256": "68e5f4b74bb0642a6485a36e39ef7df1639c1744dc273c46ccf67b00db5ed242"
   },
   {
    "file": "analysis/revision/mode_definitions.json",
    "group": "revision",
    "command": "cd REVISION && python mode_definitions.py",
-   "sha256": "73305b2a3ebafd534ef213cb78e29cbcb97c2527364376c9e6727d035b740c76"
+   "sha256": "55466885b0b19cb0422dbb54e55e99aaf5efc909865e9cae13a260f7262500a3"
   },
   {
    "file": "analysis/revision/controls.json",

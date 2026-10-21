@@ -850,62 +850,62 @@
  ],
  "rev.modes.Rstar.m2.k": 0.41,
  "rev.modes.Rstar.m2.bz_over_drift.main_range": [
-  0.74,
-  0.71,
-  0.76
+  0.73,
+  0.7,
+  0.75
  ],
  "rev.modes.Rstar.m2.br_over_drift.main_range": [
   0.64,
-  0.59,
+  0.57,
   0.67
  ],
  "rev.modes.Rstar.m3.k": 0.61,
  "rev.modes.Rstar.m3.bz_over_drift.main_range": [
-  0.62,
-  0.58,
-  0.68
+  0.6,
+  0.56,
+  0.66
  ],
  "rev.modes.Rstar.m3.br_over_drift.main_range": [
-  0.63,
-  0.6,
-  0.74
+  0.61,
+  0.56,
+  0.72
  ],
  "rev.modes.Rstar.m4.k": 0.8,
  "rev.modes.Rstar.m4.bz_over_drift.main_range": [
-  0.43,
-  0.39,
-  0.44
+  0.41,
+  0.37,
+  0.42
  ],
  "rev.modes.Rstar.m4.br_over_drift.main_range": [
-  0.74,
-  0.71,
-  0.77
+  0.7,
+  0.67,
+  0.74
  ],
  "rev.modes.larger.m2.k": 0.28,
  "rev.modes.larger.m2.bz_over_drift.main_range": [
-  0.8,
-  0.76,
-  0.83
+  0.78,
+  0.74,
+  0.82
  ],
  "rev.modes.larger.m2.br_over_drift.main_range": [
-  0.6,
-  0.57,
-  0.63
+  0.59,
+  0.55,
+  0.62
  ],
  "rev.modes.larger.m3.k": 0.41,
  "rev.modes.larger.m3.bz_over_drift.main_range": [
-  0.66,
-  0.66,
-  0.72
+  0.62,
+  0.61,
+  0.66
  ],
  "rev.modes.larger.m3.br_over_drift.main_range": [
-  0.64,
-  0.61,
-  0.64
+  0.6,
+  0.57,
+  0.6
  ],
  "rev.modes.m2.halfperiod_ratio_from_couplings.Rstar_larger": [
-  1.454,
-  1.449
+  1.467,
+  1.478
  ],
  "rev.modes.m2.halfperiod_ratio_vs_circle.Rstar_larger": [
   1.467,
@@ -1024,34 +1024,34 @@
  ],
  "rev.rigidity.e2_from_freq.range": [
   -3.3,
-  -0.9
+  -0.7
  ],
  "rev.rigidity.implied_split.bz_br.ranges": [
   [
-   0.83,
+   0.76,
    0.91
   ],
   [
-   0.44,
+   0.38,
    0.51
   ]
  ],
  "rev.rigidity.e2_from_zeta.range": [
   -7.5,
-  -2.2
+  -1.8
  ],
  "rev.rigidity.e2_from_r.range": [
   -1.19,
-  0.06
+  0.21
  ],
  "rev.rigidity.e1_from_zeta_and_r.ranges": [
   [
-   0.8,
+   -0.1,
    2.5
   ],
   [
    -1.0,
-   0.5
+   0.9
   ]
  ],
  "rev.rigidity.straight.linear_fit_gamma2_e2": [
@@ -1212,5 +1212,430 @@
    0.0,
    0.18
   ]
- ]
+ ],
+ "round2.duration_ratio_smaller_percent.b015_b016": [
+  2.6,
+  6.2
+ ],
+ "round2.duration_ratio_smaller_percent.b017": [
+  -0.0,
+  2.1
+ ],
+ "round2.b017.strong.eq5_linear_local_and_global.range": [
+  1.24,
+  1.27
+ ],
+ "round2.b017.strong.residual_linear_local_and_global.range": [
+  1.08,
+  1.16
+ ],
+ "round2.b017.weak.ratio_eq5_residual": [
+  1.459,
+  1.264,
+  1.154
+ ],
+ "round2.b017.8x5.z2_Rm.ratio_mean": 1.417,
+ "round2.b017.8x5.z2_L.ratio_mean": 1.428,
+ "round2.b017.12x7.5.z2_Rm.ratio_mean": 1.392,
+ "round2.b017.12x7.5.z2_L.ratio_mean": 1.432,
+ "round2.b017.strong_below_weak_percent.range": [
+  1.9,
+  4.6
+ ],
+ "round2.b017.finite_amplitude_eq5.strong_and_weak.range": [
+  [
+   1.19,
+   1.25
+  ],
+  [
+   1.24,
+   1.26
+  ]
+ ],
+ "round2.b017.finite_amplitude_residual.strong.range_n": [
+  1.13,
+  1.21,
+  22
+ ],
+ "round2.b017.weak.z2_L.ratio_mean": 1.46,
+ "round2.siIID.halfwidth_ellipse_L_minus_ring_L_percent.strong_and_weak": [
+  [
+   -3.2,
+   -0.6
+  ],
+  [
+   -1.0,
+   -0.2
+  ]
+ ],
+ "round2.b015_b016.eq5_local_and_global.range": [
+  1.0,
+  1.25
+ ],
+ "round2.b015_b016.residual_local_and_global.range": [
+  1.1,
+  1.4
+ ],
+ "round2.panfilov.gf0.8.eq5_factor_by_dx.0.6_0.4_0.3": [
+  [
+   0.977,
+   0.982
+  ],
+  [
+   1.006,
+   1.006
+  ],
+  [
+   0.996,
+   0.996
+  ]
+ ],
+ "round2.small_ring_halfcycles_excluded_n": 4,
+ "round2.drift_per_halfcycle_over_R.b017.range_mean": [
+  1.11,
+  1.33,
+  1.19
+ ],
+ "round2.drift_per_halfcycle.b017.eps_range": [
+  0.08,
+  0.32
+ ],
+ "round2.lowest_order_drift_per_switch_over_R.eps_0.02_0.3": [
+  0.91,
+  0.83
+ ],
+ "round2.modes.Rstar.m2.bz_br_brloc": [
+  0.73,
+  0.64,
+  0.63
+ ],
+ "round2.modes.Rstar.m2.bz_rng_br_rng": [
+  [
+   0.7,
+   0.75
+  ],
+  [
+   0.57,
+   0.67
+  ]
+ ],
+ "round2.modes.Rstar.m2.az_ar_arloc": [
+  0.27,
+  -0.18,
+  -0.14
+ ],
+ "round2.modes.Rstar.m2.az_rng_ar_rng": [
+  [
+   0.25,
+   0.31
+  ],
+  [
+   -0.25,
+   -0.15
+  ]
+ ],
+ "round2.modes.Rstar.m2.phi_deg": [
+  11.1,
+  10.3
+ ],
+ "round2.modes.Rstar.m2.br_over_eq5_minus_1_percent": 0,
+ "round2.modes.Rstar.m3.bz_br_brloc": [
+  0.6,
+  0.61,
+  0.63
+ ],
+ "round2.modes.Rstar.m3.bz_rng_br_rng": [
+  [
+   0.56,
+   0.66
+  ],
+  [
+   0.56,
+   0.72
+  ]
+ ],
+ "round2.modes.Rstar.m3.az_ar_arloc": [
+  0.31,
+  -0.01,
+  -0.14
+ ],
+ "round2.modes.Rstar.m3.az_rng_ar_rng": [
+  [
+   0.27,
+   0.42
+  ],
+  [
+   -0.15,
+   0.05
+  ]
+ ],
+ "round2.modes.Rstar.m3.phi_deg": [
+  10.2,
+  7.4
+ ],
+ "round2.modes.Rstar.m3.br_over_eq5_minus_1_percent": -4,
+ "round2.modes.Rstar.m4.bz_br_brloc": [
+  0.41,
+  0.7,
+  0.63
+ ],
+ "round2.modes.Rstar.m4.bz_rng_br_rng": [
+  [
+   0.37,
+   0.42
+  ],
+  [
+   0.67,
+   0.74
+  ]
+ ],
+ "round2.modes.Rstar.m4.az_ar_arloc": [
+  -0.05,
+  0.46,
+  -0.14
+ ],
+ "round2.modes.Rstar.m4.az_rng_ar_rng": [
+  [
+   -0.3,
+   0.14
+  ],
+  [
+   0.29,
+   0.68
+  ]
+ ],
+ "round2.modes.Rstar.m4.phi_deg": [
+  -14.3
+ ],
+ "round2.modes.Rstar.m4.br_over_eq5_minus_1_percent": 12,
+ "round2.modes.larger.m2.bz_br_brloc": [
+  0.78,
+  0.59,
+  0.63
+ ],
+ "round2.modes.larger.m2.bz_rng_br_rng": [
+  [
+   0.74,
+   0.82
+  ],
+  [
+   0.55,
+   0.62
+  ]
+ ],
+ "round2.modes.larger.m2.az_ar_arloc": [
+  0.22,
+  -0.31,
+  -0.23
+ ],
+ "round2.modes.larger.m2.az_rng_ar_rng": [
+  [
+   0.21,
+   0.25
+  ],
+  [
+   -0.34,
+   -0.28
+  ]
+ ],
+ "round2.modes.larger.m2.phi_deg": [
+  10.7
+ ],
+ "round2.modes.larger.m2.br_over_eq5_minus_1_percent": -7,
+ "round2.modes.larger.m3.bz_br_brloc": [
+  0.62,
+  0.6,
+  0.64
+ ],
+ "round2.modes.larger.m3.bz_rng_br_rng": [
+  [
+   0.61,
+   0.66
+  ],
+  [
+   0.57,
+   0.6
+  ]
+ ],
+ "round2.modes.larger.m3.az_ar_arloc": [
+  0.21,
+  -0.16,
+  -0.24
+ ],
+ "round2.modes.larger.m3.az_rng_ar_rng": [
+  [
+   0.19,
+   0.25
+  ],
+  [
+   -0.2,
+   -0.14
+  ]
+ ],
+ "round2.modes.larger.m3.phi_deg": [
+  8.1
+ ],
+ "round2.modes.larger.m3.br_over_eq5_minus_1_percent": -6,
+ "round2.modes.m4.phase_windows_and_definitions.range": [
+  [
+   -21.8,
+   -13.9
+  ],
+  [
+   -28.5,
+   -3.7
+  ]
+ ],
+ "round2.modes.decay_rates.m2_m3_m4": [
+  0.011,
+  0.058,
+  0.123
+ ],
+ "round2.modes.curvature_only_growth.m2_m3": [
+  0.009,
+  0.023
+ ],
+ "round2.modes.alpha_r_curvature_only_at_Rstar.global_and_local_range": [
+  -0.14,
+  [
+   -0.19,
+   -0.17
+  ]
+ ],
+ "round2.modes.curvature_only_growth.m2_m3.global_and_local_range": [
+  [
+   0.009,
+   0.012
+  ],
+  [
+   0.023,
+   0.032
+  ]
+ ],
+ "round2.modes.alpha_c.larger_m2_m3": [
+  0.08,
+  0.09
+ ],
+ "round2.modes.beta_drift_vs_beta_own_percent.max_abs": 1.4,
+ "round2.defs.Rstar.m2.bz_over_betac_range_br_spread_bz_over_drift_spread": [
+  [
+   0.7,
+   0.74
+  ],
+  0.08,
+  0.01
+ ],
+ "round2.defs.Rstar.m3.bz_over_betac_range_br_spread_bz_over_drift_spread": [
+  [
+   0.56,
+   0.61
+  ],
+  0.06,
+  0.04
+ ],
+ "round2.modes.m2_frequency_ratio.Rstar_range_and_larger": [
+  [
+   1.46,
+   1.47
+  ],
+  1.48
+ ],
+ "round2.modes.larger.m2.Rm_start_end_and_betac_change_percent": [
+  8.1,
+  6.4,
+  -8.4
+ ],
+ "round2.modes.m2_amplitude_ratio.measured_curvature_only_rigidity": [
+  0.81,
+  0.69,
+  0.65
+ ],
+ "round2.rigidity.e2_from_zeta_r_freq.ranges": [
+  [
+   -7.5,
+   -1.8
+  ],
+  [
+   -1.19,
+   0.21
+  ],
+  [
+   -3.3,
+   -0.7
+  ]
+ ],
+ "round2.rigidity.freq_matched_bz_br_over_betac.ranges": [
+  [
+   0.76,
+   0.91
+  ],
+  [
+   0.38,
+   0.51
+  ]
+ ],
+ "round2.rigidity.e1_from_zeta_and_r.ranges": [
+  [
+   -0.1,
+   2.5
+  ],
+  [
+   -1.0,
+   0.9
+  ]
+ ],
+ "round2.twist.beta_zeta_bound_max.m2_m3_m4": [
+  0.014,
+  0.015,
+  0.223
+ ],
+ "round2.twist.observed_beta_zeta_shift.m2_m3_m4": [
+  [
+   0.48,
+   0.49
+  ],
+  [
+   0.71,
+   0.73
+  ],
+  1.07
+ ],
+ "round2.twist.lag_deg.range": [
+  4.0,
+  27.0
+ ],
+ "round2.dx015.m2.R_az_ar": [
+  4.67,
+  [
+   0.26,
+   0.28
+  ],
+  [
+   -0.15,
+   -0.13
+  ]
+ ],
+ "round2.dx015.m3.R_az_ar": [
+  4.84,
+  [
+   0.29,
+   0.35
+  ],
+  [
+   -0.03,
+   0.04
+  ]
+ ],
+ "round2.betac.log_fit.a_b_rms_n": [
+  0.72,
+  -0.69,
+  0.028,
+  426
+ ],
+ "round2.betac.log_fit.K0": 2.8,
+ "round2.betac.even_poly_K2_and_cubic_rms": [
+  0.066,
+  0.02
+ ],
+ "round2.betac.at_K_0.04": 2.9
 }

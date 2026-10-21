@@ -38,16 +38,24 @@ def fmt(x, nd=3):
     return "---" if x == "" or x is None or (isinstance(x, float) and not np.isfinite(x)) else f"{x:.{nd}f}"
 
 
+def phi(dphase_deg):
+    """Signed offset from quadrature (degrees) of the fitted relative phase; positive for D > A."""
+    return (dphase_deg % 360.0) - 180.0
+
+
 def main(outdir):
+    import halfcycle_uniform as HU
     os.makedirs(outdir, exist_ok=True)
     U = rows_csv(os.path.join(FD.REVISION, "uniform_halfcycles.csv"))
+    small = lambda r: r["model"] == "barkley" and r["Rbar"] < HU.RBAR_MIN_CAL      # beta(K) poorly constrained
     # ---------------------------------------------------------------- Barkley half-cycles of Fig. 5(a)
     labels = {"a=1.1 b=0.15": r"0.15, $12\times7.5$", "a=1.1 b=0.16": r"0.16, $12\times7.5$",
               "a=1.1 b=0.17 (8x5)": r"0.17, $8\times5$", "a=1.1 b=0.17 (12x7.5)": r"0.17, $12\times7.5$",
               "a=1.1 b=0.18": r"0.18, $12\times7.5$"}
     L = []
     for r in [r for r in U if r["model"] == "barkley" and r["event"] == "r2"]:
-        L.append(f"{labels[r['run']]} & {r['t_start']:.1f}--{r['t_end']:.1f} & {r['T_obs']:.2f} & {r['Rbar']:.2f} & "
+        L.append(f"{labels[r['run']]} & {r['t_start']:.1f}--{r['t_end']:.1f} & {r['T_obs']:.2f} & {r['Rbar']:.2f}"
+                 f"{'$^\\dagger$' if small(r) else ''} & "
                  f"{r['eps']:.2f} & {r['alpha_own']:+.3f} & {r['beta_own']:.3f} & {r['beta_c']:.3f} & {r['factor']:.3f} & "
                  f"{r['ratio_c']:.3f} & {r['ratio_own']:.3f} & {r['eq5_factor']:.3f} & {r['residual']:.3f} \\\\")
     write(outdir, "tab_barkley_halfcycles.tex", L)
@@ -71,8 +79,8 @@ def main(outdir):
              ("atri", "dx=3.0 660^2 x 280 seed 120 x 105", r"Atri, $120\times105~\mu$m"),
              ("atri", "dx=2.0 600^2 x 280 seed 100 x 60", r"Atri, $100\times60~\mu$m, $\Delta x = 2~\mu$m")]
     for model, run, lab in order:
-        rm = [r for r in U if r["model"] == model and r["run"] == run and r["event"] == "z2" and r["radius"] == "Rm"]
-        rl = [r for r in U if r["model"] == model and r["run"] == run and r["event"] == "z2" and r["radius"] == "L"]
+        rm = [r for r in U if r["model"] == model and r["run"] == run and r["event"] == "z2" and r["radius"] == "Rm" and not small(r)]
+        rl = [r for r in U if r["model"] == model and r["run"] == run and r["event"] == "z2" and r["radius"] == "L" and not small(r)]
         if not rm:
             continue
         ms = lambda v: f"{np.mean(v):.3f}" + (f" $\\pm$ {np.std(v, ddof=1):.3f}" if len(v) > 1 else "")
@@ -98,7 +106,6 @@ def main(outdir):
                  f"{r['factor']:.3f} & {r['ratio_c']:.3f} & {r['eq5_factor']:.3f} & {r['residual']:.3f} \\\\")
     write(outdir, "tab_pan_halfcycles.tex", L)
     # ---------------------------------------------------------------- calibrations at b = 0.15-0.18
-    import halfcycle_uniform as HU
     L = []
     for b in (0.15, 0.16, 0.17, 0.18):
         c = HU.barkley_calibration(b)
@@ -139,28 +146,42 @@ def main(outdir):
     # ---------------------------------------------------------------- shape modes
     MR = json.load(open(os.path.join(FD.BARKLEY, "mode_refit.json")))
     MD = json.load(open(os.path.join(FD.REVISION, "mode_definitions.json")))
+    cal = HU.barkley_calibration(0.17)
+    bc = lambda R: float(cal.beta(R))                      # circular-ring drift coefficient at R
     L = []
     for r in MR["rstar"]:
         L.append(f"$R^\\ast$ & {r['m']} & {r['amp']:.2f} & {r['R']:.2f} & {r['k']:.3f} & {r['omega']:.4f} & {r['gamma']:.4f} & "
-                 f"{abs(abs(r['dphase_deg']) - 180):.1f} & {r['bz'] / r['bdrift']:.3f} & {r['br'] / r['bdrift']:.3f} & "
+                 f"{phi(r['dphase_deg']):+.1f} & {r['bz'] / r['beta_c']:.3f} & {r['br'] / r['beta_c']:.3f} & "
                  f"{r['alpha_zeta']:+.2f} & {r['alpha_r']:+.2f} \\\\")
     for r in [x for x in MD["rstar"] if x["m"] == 4 and "standard" in x["definition"]]:
         L.append(f"$R^\\ast$ & 4 & 0.10 & {r['R']:.2f} & {4 / r['R']:.3f} & {r['omega']:.4f} & {r['gamma']:.4f} & "
-                 f"{abs(abs(r['dphase_deg']) - 180):.1f} & {r['bz'] / r['bdrift']:.3f} & {r['br'] / r['bdrift']:.3f} & "
+                 f"{phi(r['dphase_deg']):+.1f} & {r['bz'] / bc(r['R']):.3f} & {r['br'] / bc(r['R']):.3f} & "
                  f"{r['alpha_zeta']:+.2f} & {r['alpha_r']:+.2f} \\\\")
     for r in [x for x in MR["tau_fits"] if x["run"] == "larger ring" and x["t0"] == 15.0 and x["t1"] in (150.0, 100.0)]:
-        L.append(f"larger & {r['m']} & {0.08 if r['m'] == 2 else 0.10:.2f} & {r['R']:.2f} & {r['k']:.3f} & $\\tau$ fit & --- & "
-                 f"{abs(abs(r['dphase_deg']) - 180):.1f} & {r['bz'] / r['bdrift']:.3f} & {r['br'] / r['bdrift']:.3f} & "
+        L.append(f"larger & {r['m']} & {0.08 if r['m'] == 2 else 0.10:.2f} & {r['R']:.2f} & {r['k']:.3f} & "
+                 f"{r['omega_tau']:.3f}$^\\tau$ & {r['gamma_tau']:.3f}$^\\tau$ & "
+                 f"{phi(r['dphase_deg']):+.1f} & {r['bz'] / r['beta_c']:.3f} & {r['br'] / r['beta_c']:.3f} & "
                  f"{r['alpha_zeta']:+.2f} & {r['alpha_r']:+.2f} \\\\")
     write(outdir, "tab_modes.tex", L)
     L = []
-    for r in [x for x in MD["rstar"] if x["m"] in (2, 3)]:
+    for r in MD["rstar"]:
         d = r["definition"].replace("u=", "$u = ").replace(", v=", "$, $v = ").replace(" (standard)", "$ (standard)")
         if "standard" not in d:
             d += "$"
-        L.append(f"{r['m']} & {r['amp']:.2f} & {d} & {r['R']:.3f} & {r['omega']:.4f} & {r['q']:.4f} & "
-                 f"{r['bz'] / r['bdrift']:.3f} & {r['br'] / r['bdrift']:.3f} & {r['alpha_zeta']:+.2f} & {r['alpha_r']:+.2f} \\\\")
+        L.append(f"{r['m']} & {r['amp']:.2f} & {d} & {r['R']:.3f} & {r['omega']:.4f} & {r['q']:.4f} & {phi(r['dphase_deg']):+.1f} & "
+                 f"{r['bz'] / bc(r['R']):.3f} & {r['br'] / bc(r['R']):.3f} & {r['alpha_zeta']:+.2f} & {r['alpha_r']:+.2f} \\\\")
     write(outdir, "tab_definitions.tex", L)
+    # ---------------------------------------------------------------- Table I of the main text: shape modes
+    import mode_summary
+    f2 = lambda x: f"{x:.2f}".replace("-", "$-$")
+    span = lambda v: f"{f2(v[0])}--{f2(v[1])}" if v[0] >= 0 else f"{f2(v[0])} to {f2(v[1])}"
+    L = []
+    for r in mode_summary.modes():
+        ring = "$R^\\ast$" if r["ring"] == "R*" else "larger"
+        L.append(f"{ring} & {r['m']} & {r['k']:.2f} & {f2(r['bz'])} ({span(r['bz_rng'])}) & {f2(r['br'])} ({span(r['br_rng'])}) & "
+                 f"{f2(r['br_loc'])} & {f2(r['az'])} ({span(r['az_rng'])}) & {f2(r['ar'])} ({span(r['ar_rng'])}) & "
+                 f"{f2(r['ar_loc'])} & {'/'.join(f'{p:+.0f}'.replace('-', '$-$') for p in r['phi'])} \\\\")
+    write(outdir, "tab_main_modes.tex", L)
     RT = json.load(open(os.path.join(FD.BARKLEY, "rigidity_test.json")))
     L = []
     for r in RT["rings"]:
@@ -179,7 +200,8 @@ def main(outdir):
     for t in tw:
         m = t["m"]
         rel = t["rel"][f"tw{m}c"]
-        L.append(f"{os.path.basename(t['run']).replace('_lv.npz', '').replace('_', r'\_')} & {m} & {rel['amp_over_r']:.3f} & "
+        amp = os.path.basename(t["run"]).split("_a")[1].split("_")[0]          # seed amplitude delta of the mode run
+        L.append(f"{float(amp):.2f} & {m} & {rel['amp_over_r']:.3f} & "
                  f"{rel['phase_deg']:+.0f} & {t['rel'][f'tw{m}s']['amp_over_r']:.3f} & {t['tw_rms_median']:.4f} & {t['tw_net_max']:.3f} \\\\")
     write(outdir, "tab_twist.tex", L)
 
