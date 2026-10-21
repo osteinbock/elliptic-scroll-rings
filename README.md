@@ -57,7 +57,7 @@ earlier or side analyses that feed no figure, table, or number of the paper.
 `data/` holds the processed data behind the figures, tables, and quoted numbers:
 
 - `data/runs/`: per-frame tables of all 94 production simulations, of the 5 grid-refinement runs,
-  and of the 28 runs added in the revision (ring measures, validity flags, pre-mask radius,
+  and of the 30 runs added in the revision (ring measures, validity flags, pre-mask radius,
   extraction diagnostics, run metadata); filament snapshots and fields are omitted;
 - `data/analysis/`: the analysis products (half-cycle tables with both baselines, coefficient tables,
   mode fits and their sensitivity sweeps, filament definitions and twist, the rigidity test, controls,
@@ -87,7 +87,7 @@ these files are not part of the repository.
 1. Run the simulations listed in `runs_barkley_v2.sh` (Barkley model), `runs_v2.sh`
    (Panfilov–Rudenko and Atri models), `runs_refine.sh` (grid refinement), and `runs_revision.sh`
    (circular-ring calibrations at b = 0.15–0.18, mode runs with other filament definitions and the
-   rotation phase, controls, two-dimensional spirals), one command per line with all parameters,
+   rotation phase, controls, two Panfilov–Rudenko circular rings, two-dimensional spirals), one command per line with all parameters,
    from the code directory (the lists write to `v2b/`, `v2/`, `v5r/`, and `v6/`; create the
    subfolders named in their headers).
 2. `sh build_all.sh v2 v2b v5r v6 [archive_dir]` then marks invalid frames (`mask_frames.py`), runs

@@ -1,6 +1,6 @@
 {
- "git_head_at_export": "0e600f31bd554fa4503b335f390d3d3c0abdd86e",
- "source_tree_sha256": "9e388c7fda6a6896974b489955fd5ef92f385cc103f67d5f7db83f982fc3ae2d",
+ "git_head_at_export": "2351b8845fdf788b19eedd3fa2a4543411eadc23",
+ "source_tree_sha256": "94dcd9c30868bf935ae6ab3b4ea672b1d6e4e362bec73125b7d284b66a537fd9",
  "source_tree_files": "all .py files of the code folder that ran the exporter; it describes the code of the commit that contains this manifest",
  "simulation_code_files": [
   "barkley3d.py",
@@ -20,7 +20,7 @@
  "simulation_code_sha256_current": "d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2",
  "production_simulation_commit": "22d77e8b92022f0ecac7ca97389ad5eecb5cec4b",
  "simulation_code_sha256_at_production_commit": "a3ce81a74593e7620353865686e2af6ee10a762158f1285d076fbec30413dbab",
- "provenance_note": "The production runs of runs_v2.sh, runs_barkley_v2.sh and runs_refine.sh predate per-run source digests; their code_revision fields read 'unknown' or are absent. Their production commit was identified afterwards: its simulation modules are byte-identical (up to line ends) to the files that ran, all of which were last modified before the runs started. The runs of runs_revision.sh record the digest of the simulation modules that ran (code_revision 'tree:<digest>', listed per run; the straight-filament runs record none).",
+ "provenance_note": "The production runs of runs_v2.sh, runs_barkley_v2.sh and runs_refine.sh predate per-run source digests; their code_revision fields read 'unknown' or are absent. Their production commit was identified afterwards: its simulation modules are byte-identical (up to line ends) to the files that ran, all of which were last modified before the runs started. The runs of runs_revision.sh record the digest of the simulation modules that ran (code_revision 'tree:<digest>', listed per run; the straight-filament and Panfilov-Rudenko ring runs record none).",
  "note": "hashes are of the bytes as written; data/ is stored with -text in git",
  "runs": [
   {
@@ -1292,6 +1292,26 @@
    "sha256": "8fa29cd6887026731aeb573555ebb17652f02929af9bcd1ba6afc90d4157f5d4",
    "frames": 986,
    "code_revision": null
+  },
+  {
+   "file": "runs/revision/pcirc_gf0.775_R18.npz",
+   "group": "revision",
+   "source": "pcirc_gf0.775_R18.npz",
+   "command": "cd v6 && python -u ../pan_ring.py 0.775 0.330 18 18 76 50 800 pcirc_gf0.775_R18.npz > pcirc_gf0.775_R18.log 2>&1",
+   "source_sha256": "9ce47e7a2f1faf926ae8d61bff723e0ef52aadb75097550d4ab7bdc61f971330",
+   "sha256": "666a1e25d45a2e0a005456e90da8029196a6987ad05ef5d99fe3e79d9608e577",
+   "frames": 798,
+   "code_revision": null
+  },
+  {
+   "file": "runs/revision/pcirc_gf0.8_R18.npz",
+   "group": "revision",
+   "source": "pcirc_gf0.8_R18.npz",
+   "command": "cd v6 && python -u ../pan_ring.py 0.8 0.372 18 18 76 50 600 pcirc_gf0.8_R18.npz > pcirc_gf0.8_R18.log 2>&1",
+   "source_sha256": "d6ed9535ee57be63e9b1d1532a7aeeeac61651f22ea7f676c3bcd3c8f557ede1",
+   "sha256": "e0ae0cd011777bc2475552147e0e8a11e806a3e0b6d3bb5259e437de7bce333a",
+   "frames": 598,
+   "code_revision": null
   }
  ],
  "products": [
@@ -1377,7 +1397,7 @@
    "file": "analysis/barkley/paper_numbers.json",
    "group": "barkley",
    "command": "cd BARKLEY && python paper_numbers.py SUPP BARKLEY REFINE REVISION",
-   "sha256": "c01b0038b17318f1d63f3afcebda03618a6957e75c6602ecba1c33209558792e"
+   "sha256": "9c188111e0586461ea71335905d4ec5a954ca031722b4e49cf8b4a12cef8a4a1"
   },
   {
    "file": "analysis/supp/halfcycles_panfilov.csv",
@@ -1425,7 +1445,7 @@
    "file": "analysis/revision/uniform_halfcycles.csv",
    "group": "revision",
    "command": "cd REVISION && python halfcycle_uniform.py uniform_halfcycles.csv",
-   "sha256": "c4d3e492195a70fa490cadf003f4ff86efa57c038f968c531fe56f0554df5cd5"
+   "sha256": "f73421b3f988978a6e6ee46a31e3349ad6afcf831188ba88cf69759266dbe998"
   },
   {
    "file": "analysis/revision/mode_definitions.json",

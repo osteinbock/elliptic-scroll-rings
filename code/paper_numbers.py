@@ -294,10 +294,13 @@ def supp():
                           round(r["aspect"], 2), round(r["T_obs"]), round(r["ratio"], 3)] for r in A])
     co = H.read_csv(os.path.join(S, "coefficients_circles.csv"))
     put("circles.used_for_tables", [[r["model"], r["file"], round(r["alpha"], 4), round(r["beta"], 4)] for r in co])
-    # Table S1: pooled over both seeds
+    # Table S1 (S10 of the SI): pooled over the seeds 14 and 22 and, for g_f = 0.775 and 0.8, 18 (REVISION)
     import pan_alpha as PA
     for gf in (0.775, 0.8, 0.825, 0.85, 0.9):
-        w = np.vstack([PA.windows(os.path.join(S, f"pcirc_gf{gf}_R{R}.npz"), single=True)[1] for R in (14, 22)])
+        paths = [os.path.join(S, f"pcirc_gf{gf}_R{R}.npz") for R in (14, 22)]
+        if RV and gf in (0.775, 0.8):
+            paths.append(os.path.join(RV, f"pcirc_gf{gf}_R18.npz"))
+        w = np.vstack([PA.windows(p, single=True)[1] for p in paths])
         put(f"tableS1.gf{gf}", [round(w[:, 1].min()), round(w[:, 1].max()), round(w[:, 2].mean(), 3),
                                  round(w[:, 2].std(), 3), round(abs(w[:, 3].mean()), 2), round(w[:, 3].std(), 2)])
     # Table S3 and Atri controls
@@ -840,8 +843,9 @@ def rev_supp_models():
         br = float(cal.beta_r_over_beta(Rmean))
         put(f"rev.panfilov.gf{gf}.beta_r_over_beta_at_mean_Rbar_and_shortening_percent", [round(br, 2), round(100 * (1 - 1 / np.sqrt(br)))])
     wig = []
-    for f in ("pcirc_gf0.775_R14.npz", "pcirc_gf0.775_R22.npz", "pcirc_gf0.8_R14.npz", "pcirc_gf0.8_R22.npz"):
-        d = np.load(os.path.join(S, f))
+    for p in [os.path.join(S, f"pcirc_gf{g}_R{R}.npz") for g in (0.775, 0.8) for R in (14, 22)] + \
+             [os.path.join(RV, f"pcirc_gf{g}_R18.npz") for g in (0.775, 0.8)]:
+        d = np.load(p)
         ok = single(d) & (d["t"] > 2 * 40.0)
         wig.append(np.median(d["length"][ok] / (2 * np.pi * d["Rm"][ok]) - 1))
     put("rev.panfilov.circles.L_over_2piRm_minus_1.median_percent.range", _rng(100 * np.array(wig), 1))

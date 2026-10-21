@@ -414,15 +414,15 @@
   14,
   23,
   -0.032,
-  0.008,
+  0.009,
   0.7,
-  0.02
+  0.01
  ],
  "tableS1.gf0.8": [
   9,
   21,
-  0.087,
-  0.006,
+  0.086,
+  0.005,
   0.61,
   0.01
  ],
@@ -628,16 +628,16 @@
   11
  ],
  "rev.panfilov.gf0.775.ratio_c.mean_sd_n_runs": [
-  0.968,
+  0.967,
   0.006,
   3,
   1
  ],
  "rev.panfilov.gf0.775.eq5_factor.mean": 0.97,
- "rev.panfilov.gf0.775.residual.mean": 0.998,
+ "rev.panfilov.gf0.775.residual.mean": 0.997,
  "rev.panfilov.gf0.8.ratio_c.mean_sd_n_runs": [
-  1.004,
-  0.014,
+  1.003,
+  0.015,
   7,
   4
  ],

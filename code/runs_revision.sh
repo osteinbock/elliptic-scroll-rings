@@ -1,4 +1,5 @@
-# Barkley-model runs for the revision (referee reports of 20 October 2026), eps = 0.02, dx = 0.2.
+# Runs for the revision (referee reports of 20 October 2026): Barkley model (eps = 0.02, dx = 0.2) and,
+# at the end, two Panfilov-Rudenko circular rings and the two-dimensional spirals.
 # Output goes to v6/. One command per line, longest first. Run from the code directory:
 #   mkdir -p v6/sf2 v6/spiral2d
 #   grep -v '^#' runs_revision.sh | grep . | NUMBA_NUM_THREADS=4 xargs -P 5 -I{} sh -c '{}'
@@ -43,7 +44,11 @@ cd v6/sf2 && python -u ../../straight_filament.py 90 0.5 120 b015_k035.npz 32 1.
 cd v6/sf2 && python -u ../../straight_filament.py 70 0.5 100 b015_k045.npz 32 1.1 0.15 0.02 0.2 > b015_k045.log 2>&1
 cd v6/sf2 && python -u ../../straight_filament.py 52 0.5 80 b015_k060.npz 32 1.1 0.15 0.02 0.2 > b015_k060.log 2>&1
 cd v6/sf2 && python -u ../../straight_filament.py 70 0.5 100 b016_k045.npz 32 1.1 0.16 0.02 0.2 > b016_k045.log 2>&1
-# Two-dimensional spirals: rotation period, core radius and wavelength (SI Table S5); the Panfilov-Rudenko
+# Panfilov-Rudenko circular rings seeded with radius 18 (third ring of the calibrations at g_f = 0.775 and 0.8,
+# between the seeds 14 and 22 of runs_v2.sh; same parameters, dx = 0.6)
+cd v6 && python -u ../pan_ring.py 0.775 0.330 18 18 76 50 800 pcirc_gf0.775_R18.npz > pcirc_gf0.775_R18.log 2>&1
+cd v6 && python -u ../pan_ring.py 0.8 0.372 18 18 76 50 600 pcirc_gf0.8_R18.npz > pcirc_gf0.8_R18.log 2>&1
+# Two-dimensional spirals: rotation period, core radius and wavelength (SI Table S4); the Panfilov-Rudenko
 # spirals are computed by pan2d.py and analyzed from its saved fields
 cd v6/spiral2d && python -u ../../wavelength2d.py barkley 1.1 0.15 0.02 90 450 0.2 barkley_b0.15.json > barkley_b0.15.log 2>&1
 cd v6/spiral2d && python -u ../../wavelength2d.py barkley 1.1 0.16 0.02 90 450 0.2 barkley_b0.16.json > barkley_b0.16.log 2>&1

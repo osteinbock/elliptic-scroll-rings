@@ -173,7 +173,7 @@ def main(outdir, supp, barkley, refine, revision, sim_commit=None):
                                      "byte-identical (up to line ends) to the files that ran, all of which were last "
                                      "modified before the runs started. The runs of runs_revision.sh record the digest "
                                      "of the simulation modules that ran (code_revision 'tree:<digest>', listed per run; "
-                                     "the straight-filament runs record none)."),
+                                     "the straight-filament and Panfilov-Rudenko ring runs record none)."),
                     note="hashes are of the bytes as written; data/ is stored with -text in git", runs=[], products=[])
     for group, rel, line in commands():
         src = os.path.join(roots[group], rel)

@@ -122,15 +122,16 @@ def barkley_calibration(b, deg=3, win=10.0, step=5.0):
 
 
 def panfilov_calibration(gf, dx=0.6, deg=1):
-    files = {0.775: ["pcirc_gf0.775_R14.npz", "pcirc_gf0.775_R22.npz"],
-             0.8: ["pcirc_gf0.8_R14.npz", "pcirc_gf0.8_R22.npz"]}[gf]
+    """Circular Panfilov-Rudenko rings: at dx = 0.6 the seeds 14 and 22 (SUPP) and 18 (REVISION)."""
+    paths = {g: [os.path.join(FD.SUPP, f"pcirc_gf{g}_R14.npz"), os.path.join(FD.SUPP, f"pcirc_gf{g}_R22.npz"),
+                 os.path.join(FD.REVISION, f"pcirc_gf{g}_R18.npz")] for g in (0.775, 0.8)}[gf]
     if dx == 0.4:
-        files = ["pcircHR_gf0.8_R14.npz"]
+        paths = [os.path.join(FD.SUPP, "pcircHR_gf0.8_R14.npz")]
     elif dx == 0.3:
-        files = ["pcircXR_gf0.8_R14.npz"]
+        paths = [os.path.join(FD.SUPP, "pcircXR_gf0.8_R14.npz")]
     import pan_alpha
     per = pan_alpha.PERIOD[gf]
-    pts = [circle_windows(os.path.join(FD.SUPP, f), per, 2 * per, per, 2 * per, Rmin=2) for f in files]
+    pts = [circle_windows(p, per, 2 * per, per, 2 * per, Rmin=2) for p in paths]
     return Calibration(np.concatenate(pts), deg, f"Panfilov gf={gf} dx={dx}", dK=1.0, nmin=10 ** 9)
 
 
