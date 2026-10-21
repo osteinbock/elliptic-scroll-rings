@@ -1,6 +1,6 @@
 {
- "git_head_at_export": "0ebd45a4e0b4275cb5d713e6c47ed2546c7f996e",
- "source_tree_sha256": "ef1d739c57791825713e719023f163b9196631ce9654585a5ce2f1db82f94885",
+ "git_head_at_export": "0e600f31bd554fa4503b335f390d3d3c0abdd86e",
+ "source_tree_sha256": "9e388c7fda6a6896974b489955fd5ef92f385cc103f67d5f7db83f982fc3ae2d",
  "source_tree_files": "all .py files of the code folder that ran the exporter; it describes the code of the commit that contains this manifest",
  "simulation_code_files": [
   "barkley3d.py",
@@ -17,10 +17,10 @@
   "param_probe.py",
   "meander_check.py"
  ],
- "simulation_code_sha256_current": "c2bd96786adbd3071d6ddb1a843cd97564e33cda005a3044dce3d634be9fe4ed",
+ "simulation_code_sha256_current": "d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2",
  "production_simulation_commit": "22d77e8b92022f0ecac7ca97389ad5eecb5cec4b",
  "simulation_code_sha256_at_production_commit": "a3ce81a74593e7620353865686e2af6ee10a762158f1285d076fbec30413dbab",
- "provenance_note": "The production runs predate per-run source digests; their code_revision fields read 'unknown' or are absent. The production commit was identified afterwards: its simulation modules are byte-identical (up to line ends) to the files that ran, all of which were last modified before the runs started.",
+ "provenance_note": "The production runs of runs_v2.sh, runs_barkley_v2.sh and runs_refine.sh predate per-run source digests; their code_revision fields read 'unknown' or are absent. Their production commit was identified afterwards: its simulation modules are byte-identical (up to line ends) to the files that ran, all of which were last modified before the runs started. The runs of runs_revision.sh record the digest of the simulation modules that ran (code_revision 'tree:<digest>', listed per run; the straight-filament runs record none).",
  "note": "hashes are of the bytes as written; data/ is stored with -text in git",
  "runs": [
   {
@@ -30,7 +30,8 @@
    "command": "cd v2 && ATRI_DX=2.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 100 60 600 280 1800 aell_dx2_P0.1_100x60.npz $(seq 50 50 1800) > aell_dx2.log 2>&1",
    "source_sha256": "06063eaa2165df615e12e7cf5bef18ab2ce67b269d34bdfc24820410a4e12c3a",
    "sha256": "11a0b0163763e32ac23e693e0a903f30dfbfaa43268cf288e3db2baf776944cb",
-   "frames": 900
+   "frames": 900,
+   "code_revision": null
   },
   {
    "file": "runs/supp/acirc_dx2_P0.1.npz",
@@ -39,7 +40,8 @@
    "command": "cd v2 && ATRI_DX=2.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 100 100 520 280 900 acirc_dx2_P0.1.npz > acirc_dx2.log 2>&1",
    "source_sha256": "ac794af08ad6bf67f3af7dae7132ee95c76019d91963bbb421733f2a5be7eddb",
    "sha256": "2f14a61ccd2065a171de5e9a19815f0cea8f0984462e49a87017b801b0f5d153",
-   "frames": 450
+   "frames": 450,
+   "code_revision": null
   },
   {
    "file": "runs/supp/aell2_P0.1_100x60.npz",
@@ -48,7 +50,8 @@
    "command": "cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 100 60 600 280 1800 aell2_P0.1_100x60.npz $(seq 50 50 1800) > aell2_P0.1_small.log 2>&1",
    "source_sha256": "11d207d6553784dbc3e649c8ef7eae2351f67d33f32d5c0d3bd9bf3400bb0b63",
    "sha256": "0618be4e76ed16d040527e44bea0e4a406beeeb19e5a50c25e58f4ea5c781470",
-   "frames": 900
+   "frames": 900,
+   "code_revision": null
   },
   {
    "file": "runs/supp/aell2_P0.1_130x80.npz",
@@ -57,7 +60,8 @@
    "command": "cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 130 80 660 280 1800 aell2_P0.1_130x80.npz $(seq 50 50 1800) > aell2_P0.1.log 2>&1",
    "source_sha256": "e8e79db1d09efa9d0741cbd639aaa4ab372d333acc3307f0fc697ba316e5499f",
    "sha256": "86c4a0280dd592c378589003b170dbe5237443bcf0e20230ecb31b1eb4926af1",
-   "frames": 900
+   "frames": 900,
+   "code_revision": null
   },
   {
    "file": "runs/supp/acirc4_P0.1_c052.npz",
@@ -66,7 +70,8 @@
    "command": "cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 100 100 520 280 900 acirc4_P0.1_c052.npz > acirc4.log 2>&1",
    "source_sha256": "8f5519422cea8166bb4dfdb01570ad695a6c3a6fc6ffa613722e21a63472fe1c",
    "sha256": "60b935673b993c321b67fcc2119b459eed3476e87fda8c2727c39cee542aff2a",
-   "frames": 450
+   "frames": 450,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pellXR_gf0.8_24x15.npz",
@@ -75,7 +80,8 @@
    "command": "cd v2 && PAN_DX=0.3 python -u ../pan_ring.py 0.8 0.372 24 15 76 40 1000 pellXR_gf0.8_24x15.npz > pellXR.log 2>&1",
    "source_sha256": "772b9ff51ca77e435a6bc9f082aef5bc47b93abfcf4a4c3a072667e76232ebf4",
    "sha256": "fe97de46460c5cbe876a3aba63f25ecae285bc4de5f057ffb6656943a0141671",
-   "frames": 1002
+   "frames": 1002,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pellHR_gf0.8_24x15.npz",
@@ -84,7 +90,8 @@
    "command": "cd v2 && PAN_DX=0.4 python -u ../pan_ring.py 0.8 0.372 24 15 88 50 1100 pellHR_gf0.8_24x15.npz $(seq 20 20 1100) > pellHR.log 2>&1",
    "source_sha256": "041a511c402f1bff1043be8751c44dc753dff0fe2459a52fae45189102108d1d",
    "sha256": "c05dcbc416c4e57a0d0ba3c2367ca289b37d0c6031286fd56cd32a91d5c0f01e",
-   "frames": 1150
+   "frames": 1150,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pellBIG_gf0.8_24x15.npz",
@@ -93,7 +100,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.8 0.372 24 15 120 80 1100 pellBIG_gf0.8_24x15.npz > pellBIG.log 2>&1",
    "source_sha256": "4d0495a23d9074c0f0e680304453cd81c2d23ecdca03a34ed39c36b4dcc43e00",
    "sha256": "a5d5b7f8cca36118d68752abfc6df585caa70cce3e5044123ef8abd212882d22",
-   "frames": 1098
+   "frames": 1098,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pell_gf0.775_20x12.npz",
@@ -102,7 +110,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.775 0.330 20 12 80 50 1600 pell_gf0.775_20x12.npz $(seq 20 20 1600) > pell_gf0.775.log 2>&1",
    "source_sha256": "307f3a8af4a13b20567f8dd8311e7a451cd4d3c90a15390d1976c980395bf0ec",
    "sha256": "92af9dd7fed51c229d7b4b70975b3cd2a5c6d8b8e4811774e14c1e8d5f5d5994",
-   "frames": 1599
+   "frames": 1599,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pell_gf0.8_24x15.npz",
@@ -111,7 +120,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.8 0.372 24 15 88 50 1600 pell_gf0.8_24x15.npz $(seq 20 20 1600) > pell_gf0.8.log 2>&1",
    "source_sha256": "b734c8d67ee0a151a837bd79fd368f634fa509d1502d198583054ec175b31f33",
    "sha256": "fdbe0e4a00d9536f9df53a64f938e153d562927f9304999378c112d90e91a45d",
-   "frames": 1598
+   "frames": 1598,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pmode2_gf0.775.npz",
@@ -120,7 +130,8 @@
    "command": "cd v2 && PAN_MODE=2 PAN_AMP=0.15 python -u ../pan_ring.py 0.775 0.330 17 17 80 50 1600 pmode2_gf0.775.npz > pmode2.log 2>&1",
    "source_sha256": "f391fe6d027c7a03fe3617c5896774142215ac5c30a4a9cef889adc446e4c6ce",
    "sha256": "e925ca1261c834c5c3e7a27523234c4f521ab67d29455a031a4d4b0fa434ed87",
-   "frames": 1599
+   "frames": 1599,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pmode3_gf0.775.npz",
@@ -129,7 +140,8 @@
    "command": "cd v2 && PAN_MODE=3 PAN_AMP=0.15 python -u ../pan_ring.py 0.775 0.330 17 17 80 50 1600 pmode3_gf0.775.npz > pmode3.log 2>&1",
    "source_sha256": "98d0e1abd3be783c49026eb1c414d964a2aae08ba44fa9c2732f601dab376117",
    "sha256": "25143fa01e62c222dac8b292a69815d61cfb9aea5cd4c975a876b5d51f90d86d",
-   "frames": 1599
+   "frames": 1599,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcircXR_gf0.8_R14.npz",
@@ -138,7 +150,8 @@
    "command": "cd v2 && PAN_DX=0.3 python -u ../pan_ring.py 0.8 0.372 14 14 68 40 500 pcircXR_gf0.8_R14.npz > pcircXR.log 2>&1",
    "source_sha256": "96d8e586fbbbca036bc970a667f20a12bde319d1328b2c603cca5c6f7a7e3196",
    "sha256": "7c772cede4404abf60dd13ab966dfa5bea3ac1a801f3eea7959576f14f338f9f",
-   "frames": 500
+   "frames": 500,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcircHR_gf0.8_R14.npz",
@@ -147,7 +160,8 @@
    "command": "cd v2 && PAN_DX=0.4 python -u ../pan_ring.py 0.8 0.372 14 14 68 50 600 pcircHR_gf0.8_R14.npz > pcircHR.log 2>&1",
    "source_sha256": "6fdf0c68ed3c387b5a53bdf75a5f97b1575245a32841a172b3de8c31f2a82b29",
    "sha256": "3a55f69f858c95709df734316142c7e01ac650875a69cf86b2b66959c9271ad5",
-   "frames": 596
+   "frames": 596,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcirc_gf0.775_R14.npz",
@@ -156,7 +170,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.775 0.330 14 14 68 50 800 pcirc_gf0.775_R14.npz > pcirc_gf0.775_R14.log 2>&1",
    "source_sha256": "294d58ecdb4f97e5bf13d184223f315111405f3950934f2e0a761f9a1f2e413a",
    "sha256": "519d7a35b4021019c96c86d51037696ccbaa6af66cf67537f694d5044495a977",
-   "frames": 799
+   "frames": 799,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcirc_gf0.775_R22.npz",
@@ -165,7 +180,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.775 0.330 22 22 84 50 800 pcirc_gf0.775_R22.npz > pcirc_gf0.775_R22.log 2>&1",
    "source_sha256": "83911840aefa22bd2bd2e3ed6e522f351ace10a175a5c4bc91c6695f34c82ab1",
    "sha256": "f7f2c30d23a875a80867b282027c61eda340c495c438b0d9b6e2ae65c8e9d890",
-   "frames": 799
+   "frames": 799,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcirc_gf0.8_R14.npz",
@@ -174,7 +190,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.8 0.372 14 14 68 50 600 pcirc_gf0.8_R14.npz > pcirc_gf0.8_R14.log 2>&1",
    "source_sha256": "4281bf3e1c80ce6899f856a9dd76d39729c26827a9c6d4b1704a7ab255485b9b",
    "sha256": "0ad20b57d14e4a7e964ce4d294bbcc7e68c5efec21358f652755b5f078d760ec",
-   "frames": 598
+   "frames": 598,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcirc_gf0.8_R22.npz",
@@ -183,7 +200,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.8 0.372 22 22 84 50 600 pcirc_gf0.8_R22.npz > pcirc_gf0.8_R22.log 2>&1",
    "source_sha256": "4ca0d391247885310a99675b0a4b676cd63177003c2985c931c856ff83342325",
    "sha256": "2e236e2667cc35efac655404b1f9362164ac166e3bf4a4210735adc79f5da03b",
-   "frames": 598
+   "frames": 598,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcirc_gf0.825_R14.npz",
@@ -192,7 +210,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.825 0.383 14 14 68 50 600 pcirc_gf0.825_R14.npz > pcirc_gf0.825_R14.log 2>&1",
    "source_sha256": "2161d763366c33069f24bfe25e50b022336c5df47f38c4acfe11e1a73ab93ec3",
    "sha256": "7110771bddec55554b42fce17c137df4933a4a6fa44f12a9f2b686443c91f2a8",
-   "frames": 538
+   "frames": 538,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcirc_gf0.825_R22.npz",
@@ -201,7 +220,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.825 0.383 22 22 84 50 600 pcirc_gf0.825_R22.npz > pcirc_gf0.825_R22.log 2>&1",
    "source_sha256": "25350853bfe0804968a9b0137b4fbb9772c99d72135fd774621fb5df67f8260a",
    "sha256": "b36ac9f12f9441b2fc5f8bab5663b8ece691c07dc23c066c4272e8cca1aecc88",
-   "frames": 598
+   "frames": 598,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcirc_gf0.85_R14.npz",
@@ -210,7 +230,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.85 0.390 14 14 68 50 600 pcirc_gf0.85_R14.npz > pcirc_gf0.85_R14.log 2>&1",
    "source_sha256": "d7ca1a250c81028c7ca93f295361683ef41c6383bc7f2b65f83222daadc0a354",
    "sha256": "08f31dd90f605a561bee6e6e6982d84a63a25c3e9204b7921e6130503cf73632",
-   "frames": 398
+   "frames": 398,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcirc_gf0.85_R22.npz",
@@ -219,7 +240,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.85 0.390 22 22 84 50 600 pcirc_gf0.85_R22.npz > pcirc_gf0.85_R22.log 2>&1",
    "source_sha256": "8c36ffe69daaaedf1d71832d52d16058428d8e9b9f6eed8373dda3abf8bf6355",
    "sha256": "f9d14de9ffca0dc83cc537316c0973ea84a1be499e3eed9ba2acb782d521dcd9",
-   "frames": 598
+   "frames": 598,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcirc_gf0.9_R14.npz",
@@ -228,7 +250,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.9 0.390 14 14 68 50 600 pcirc_gf0.9_R14.npz > pcirc_gf0.9_R14.log 2>&1",
    "source_sha256": "3cfc6eea117ef4b8c542be52e288872cc227a6015ccfa0e0a7a313d93a939566",
    "sha256": "b29183a566edbc8c9839287bf42fff4f885c928064b27e64a8db011e714a880c",
-   "frames": 327
+   "frames": 327,
+   "code_revision": null
   },
   {
    "file": "runs/supp/pcirc_gf0.9_R22.npz",
@@ -237,7 +260,8 @@
    "command": "cd v2 && python -u ../pan_ring.py 0.9 0.390 22 22 84 50 600 pcirc_gf0.9_R22.npz > pcirc_gf0.9_R22.log 2>&1",
    "source_sha256": "1533883ebaf39102d01b06ca6279569064b1d76c3e1bf86afba41afaf4149eec",
    "sha256": "6620e8e3fac47ea69574437e0f02a43881217238662d93fdf5914e0bb13e2e02",
-   "frames": 597
+   "frames": 597,
+   "code_revision": null
   },
   {
    "file": "runs/supp/aellW_P0.1_100x88.npz",
@@ -246,7 +270,8 @@
    "command": "cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 100 88 600 280 2400 aellW_P0.1_100x88.npz $(seq 100 100 2400) > aellW_100x88.log 2>&1",
    "source_sha256": "4f6f9e96f39bf39b5b94cc7e9557be1a1c48dbec2ee92069f08db912ee9cbeb5",
    "sha256": "4bd216c5aa141e3e5d7ea247abad031701508cf41b8116d4a8947f840ec06450",
-   "frames": 1200
+   "frames": 1200,
+   "code_revision": null
   },
   {
    "file": "runs/supp/aellW_P0.1_120x105.npz",
@@ -255,7 +280,8 @@
    "command": "cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 120 105 660 280 2400 aellW_P0.1_120x105.npz $(seq 100 100 2400) > aellW_120x105.log 2>&1",
    "source_sha256": "9b322b2b6c95c26ae99b388a7c8b9be8526666f324d39e9604b0e0da6ff3130e",
    "sha256": "de67b86deb73a11c6a36614f163ba378c199d44d9dd096184ae66c5ba639efb1",
-   "frames": 1200
+   "frames": 1200,
+   "code_revision": null
   },
   {
    "file": "runs/supp/aell2_P0.095_130x80.npz",
@@ -264,7 +290,8 @@
    "command": "cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.578 python -u ../atri_ring.py 0.095 0.7466 130 80 660 280 1800 aell2_P0.095_130x80.npz $(seq 50 50 1800) > aell2_P0.095.log 2>&1",
    "source_sha256": "efa3335e193068a5601be38f3737cfe218011805eafa2742d3c33eeffe521fd4",
    "sha256": "3abf355f303422a02368fac7b2714b69457dc9e927572fae740451fbfaf8d896",
-   "frames": 900
+   "frames": 900,
+   "code_revision": null
   },
   {
    "file": "runs/supp/acirc2_R130.npz",
@@ -273,7 +300,8 @@
    "command": "cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.566 python -u ../atri_ring.py 0.095 0.747 130 130 520 240 1200 acirc2_R130.npz > acirc2_R130.log 2>&1",
    "source_sha256": "d678a7ae1179372dae81b702a96761fda917f37949faf97b88f632c1b95287f7",
    "sha256": "bf555602013f2bd2f032c4fc207fdcb793b696bf96001dd9238cdfc0c47d8f12",
-   "frames": 600
+   "frames": 600,
+   "code_revision": null
   },
   {
    "file": "runs/supp/acirc2_R80.npz",
@@ -282,7 +310,8 @@
    "command": "cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.566 python -u ../atri_ring.py 0.095 0.747 80 80 420 240 1200 acirc2_R80.npz > acirc2_R80.log 2>&1",
    "source_sha256": "7ba50030818a231ccc74e6ca28332c5f48ad990e205a37d90a9c9ebc4ea8fea5",
    "sha256": "fd489bece1e5228d4b3d6c2529b675de652aeb7af077852ed524ee3aec56d89d",
-   "frames": 600
+   "frames": 600,
+   "code_revision": null
   },
   {
    "file": "runs/supp/acirc3_P0.085.npz",
@@ -291,7 +320,8 @@
    "command": "cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.566 python -u ../atri_ring.py 0.085 0.759 100 100 520 280 900 acirc3_P0.085.npz > acirc3_P0.085.log 2>&1",
    "source_sha256": "1d27b9bf5e093b1e4fe2ae7c150c8ed0fe10484443845642d46408f26ad0c883",
    "sha256": "9cda55ebc5a6b65e4beaaddba8bd4f4e910fde72e3cd9d623ef85343bfae0215",
-   "frames": 450
+   "frames": 450,
+   "code_revision": null
   },
   {
    "file": "runs/supp/acirc3_P0.1.npz",
@@ -300,7 +330,8 @@
    "command": "cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.566 python -u ../atri_ring.py 0.1 0.754 100 100 520 280 900 acirc3_P0.1.npz > acirc3_P0.1.log 2>&1",
    "source_sha256": "967045942dd9b1e420e8598c67206e49c86714b59ed9a8289fa110b7fa0a41b2",
    "sha256": "3fe1d99ffa96ce2d727e247a27b63942b2f9187589e29bd2583a9c68988a704e",
-   "frames": 450
+   "frames": 450,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/circXXL_R0_38_snaps.npz",
@@ -309,7 +340,8 @@
    "command": "cd v2b/sf2 && python -u ../../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --Ax 38 --Ay 38 --Lxy 92 --Lz 24 --T 200 --every 0.25 --snaps $(seq 40 2.5 200) --out circXXL_R0_38_snaps.npz > circXXL_R0_38_snaps.log 2>&1",
    "source_sha256": "b004f418de219897c3fefa6b5dcbbad715920f38865796bc205835cd2cb4017f",
    "sha256": "94d2a79eea264baa63e4d15aae97c60637dcb1c7d6592b7333102e57f37a8c80",
-   "frames": 860
+   "frames": 860,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/sf2/circXL_R0_20.npz",
@@ -318,7 +350,8 @@
    "command": "cd v2b/sf2 && python -u ../../circle_run.py 1.1 0.17 0.02 20 60 24 200 circXL_R0_20.npz > circXL_R0_20.log 2>&1",
    "source_sha256": "ca808fa360c004f62830ee9e8169a40b8568b209dbc7e6ff596be7aad71f2ade",
    "sha256": "5ad586c1b85616d8fe01bfcb593a956ae10d2ddd06519b8a482a5e2d2ee1d0be",
-   "frames": 796
+   "frames": 796,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/sf2/circXL_R0_16.npz",
@@ -327,7 +360,8 @@
    "command": "cd v2b/sf2 && python -u ../../circle_run.py 1.1 0.17 0.02 16 52 24 200 circXL_R0_16.npz > circXL_R0_16.log 2>&1",
    "source_sha256": "3a8660ecc63c1757538e9b6bbcc264ad5b2de7b2aaa23524e481475166c1f929",
    "sha256": "e9c84dfe0649b3bc1182dc6a20c0dc1d84e6ed42ac0a568984db27420f6c5c52",
-   "frames": 796
+   "frames": 796,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/conv/ell_12x7.5_bigbox.npz",
@@ -336,7 +370,8 @@
    "command": "cd v2b/conv && python -u ../../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --Ax 12 --Ay 7.5 --Lxy 60 --Lz 30 --T 240 --every 0.25 --out ell_12x7.5_bigbox.npz > ell_12x7.5_bigbox.log 2>&1",
    "source_sha256": "7dafa3154e157991eb5b313404d2a8f0cfa5eb9a74aa7ae89cef741863b2e80f",
    "sha256": "7554425a6d2baf8baba87974abdd95799792e2c836e45fdc99c70fd993d4af34",
-   "frames": 956
+   "frames": 956,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/conv/ell_8x5_dx0.1.npz",
@@ -345,7 +380,8 @@
    "command": "cd v2b/conv && python -u ../../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --Ax 8 --Ay 5 --Lxy 28 --Lz 16 --dx 0.1 --T 120 --every 0.25 --out ell_8x5_dx0.1.npz > ell_8x5_dx0.1.log 2>&1",
    "source_sha256": "1d045120f66c917d22f24577de7c641f647771c8596bbfe9ca7d0196a77fdc91",
    "sha256": "47ee804b0b22e653e62b42f0c8d0404d23da29946d72082d717cde0912cf4d76",
-   "frames": 480
+   "frames": 480,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/sf2/L64_k025.npz",
@@ -354,7 +390,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 126 0.5 120 L64_k025.npz 64 > L64_k025.log 2>&1",
    "source_sha256": "cf8aa0b5ffbc170cb099c1df1a7ac4cb55e1717c07f7df7f26e81fc7ef4f21ad",
    "sha256": "38d9c2a69ba47346f88df73640f0875b19893d1aba778c1ffe8e7cfd67c032a0",
-   "frames": 1184
+   "frames": 1184,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/L64_k035.npz",
@@ -363,7 +400,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 90 0.5 120 L64_k035.npz 64 > L64_k035.log 2>&1",
    "source_sha256": "f2128412eacaf5f4b3cbfa9bfa9bd9dc349f4de4e62b7a740912ce89b7aa2ffa",
    "sha256": "fd0579b2292a7220e7b974bca3b538a2c183ef6839113cee31d615eb1934bc24",
-   "frames": 1184
+   "frames": 1184,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/L64_k045.npz",
@@ -372,7 +410,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 70 0.5 100 L64_k045.npz 64 > L64_k045.log 2>&1",
    "source_sha256": "1a92f7c83e4ae866081c1f067d9e2d44367a88ab6d43aa2f67f12c2b5d4eff61",
    "sha256": "615658f3b81959a2f07760079e9ea3e2539db0baa3adf3db4d3eca5f494b8097",
-   "frames": 986
+   "frames": 986,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/L32_k025.npz",
@@ -381,7 +420,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 126 0.5 120 L32_k025.npz 32 > L32_k025.log 2>&1",
    "source_sha256": "592fd010f4de7f1eab594def69f04090ca03a814673f17bac3d3b21c5266bdb1",
    "sha256": "a131e5bbbb734b53dadd92f0323040e490b22045f75a3a710538c4cdd658570c",
-   "frames": 1184
+   "frames": 1184,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/L64_k060.npz",
@@ -390,7 +430,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 52 0.5 80 L64_k060.npz 64 > L64_k060.log 2>&1",
    "source_sha256": "846a7ad7c8bb430686d77c92778580d3f4d900c98236d7c13463ec628a2a5fbc",
    "sha256": "f32dadc6483895f7126006634d620d717b8e35700694f30bc346a664bf5b89ed",
-   "frames": 789
+   "frames": 789,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/L32_k035.npz",
@@ -399,7 +440,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 90 0.5 120 L32_k035.npz 32 > L32_k035.log 2>&1",
    "source_sha256": "91a8b61934a6a25e6a4c33d00848820d122f4cf29fe0959a8b311573148dd087",
    "sha256": "d68c6c53101565a79e3da21c066bdef8fe01fc94e3daed0f4c1453018cd8876a",
-   "frames": 1184
+   "frames": 1184,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/L64_k079.npz",
@@ -408,7 +450,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 40 0.5 70 L64_k079.npz 64 > L64_k079.log 2>&1",
    "source_sha256": "235b7c3780064d0bb958fd8696e2a97554e695f71ac02bf0132d5b3c0cfa7585",
    "sha256": "589477149b3ab30e53700f9bea099340672a7c7e9df3855850842912bcd377e3",
-   "frames": 690
+   "frames": 690,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/L64_k0.npz",
@@ -417,7 +460,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 10 0 150 L64_k0.npz 64 > L64_k0.log 2>&1",
    "source_sha256": "e22849cebde66860b47f1ef5e54c4ec5cbfd3411c46e648759859e8fd2df7cbe",
    "sha256": "7993db93c9daf2c29c2e8b7195ddafac4dd21c5d45348a2836ebb220cd980b94",
-   "frames": 1480
+   "frames": 1480,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/L32_k045.npz",
@@ -426,7 +470,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 70 0.5 100 L32_k045.npz 32 > L32_k045.log 2>&1",
    "source_sha256": "d7324b72f153370239bf069d27b00b368e1b61281f29518bfcccb6b2c3ac0c40",
    "sha256": "f5f7b1a267fa8a0488e16ffd593a7c74923d732e7645e6f42e42a63f01bb0f8d",
-   "frames": 986
+   "frames": 986,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/L32_k060.npz",
@@ -435,7 +480,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 52 0.5 80 L32_k060.npz 32 > L32_k060.log 2>&1",
    "source_sha256": "836da5f0b92f1f968f4f15d8508c8460bc27cc8779b7684a0436cc0af727e2e9",
    "sha256": "d8295667ee65e9d4d50736ae7bcb409fc100a48f975e8a89cd6d2e34c303a058",
-   "frames": 789
+   "frames": 789,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/L32_k079.npz",
@@ -444,7 +490,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 40 0.5 70 L32_k079.npz 32 > L32_k079.log 2>&1",
    "source_sha256": "4d5825b3ba5afc205caa3c2073a6251d54ae69bc89b576998621aded0a2242d5",
    "sha256": "b2cbe01d9a8cbacca51b980b7240fa54d2008198a5a0d5f3b735687a7c203df1",
-   "frames": 690
+   "frames": 690,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf2/L32_k0.npz",
@@ -453,7 +500,8 @@
    "command": "cd v2b/sf2 && python -u ../../straight_filament.py 10 0 150 L32_k0.npz 32 > L32_k0.log 2>&1",
    "source_sha256": "1e69c4bf2c2de85bd472a262de73f74e5d83b195b73c93ff1dc267b44bb71106",
    "sha256": "1ecda6e591c27d766d01e9e0b8ae8746248035becd5efcb5032d2d37c5f789be",
-   "frames": 1480
+   "frames": 1480,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/circL_R0_13.npz",
@@ -462,7 +510,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 13 40 16 300 circL_R0_13.npz > circL_R0_13.log 2>&1",
    "source_sha256": "d7c41a58cc882b35d9e82c99ebe594a6bdb4fe0a6213d054d71915ebff3e59f5",
    "sha256": "a925478ba1322d43a46ffe4df1270fb94211db0527d844bb45b6df90ca9c3e8a",
-   "frames": 1195
+   "frames": 1195,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circL_R0_9.npz",
@@ -471,7 +520,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 9 32 16 300 circL_R0_9.npz > circL_R0_9.log 2>&1",
    "source_sha256": "487de27efeb8e085d9568c237338a29dbdf8bb417504e5e78339e37b3da6709b",
    "sha256": "a50b44f23813a94a98768ec26fb7b489b6d8b2e85185e7430056bc419cd043a9",
-   "frames": 1195
+   "frames": 1195,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circL_R0_6.npz",
@@ -480,7 +530,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 6 26 16 300 circL_R0_6.npz > circL_R0_6.log 2>&1",
    "source_sha256": "4443132d886c8fb0b049355e21b1459414d757fb2faf4e239a0cf9194d243ea9",
    "sha256": "12b39f606da9b12ef3ec76482ae712450f372a04ac5f24349e8a85ecaf06ec06",
-   "frames": 1195
+   "frames": 1195,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/ctrl_circ_R0_6.5_bigbox.npz",
@@ -489,7 +540,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 6.5 40 32 150 ctrl_circ_R0_6.5_bigbox.npz 0.2 > ctrl_circ_R0_6.5_bigbox.log 2>&1",
    "source_sha256": "2536971fd4ac3b91a93489cfc59f68bf283e8242fd41d31d714ae3a3a64b8603",
    "sha256": "63df864d9360d46f0538731489b41e00d86e0522d96e1eff203528108f4012ed",
-   "frames": 597
+   "frames": 597,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/ctrl_circ_R0_6.5_dx015.npz",
@@ -498,7 +550,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 6.5 28 18 150 ctrl_circ_R0_6.5_dx015.npz 0.15 > ctrl_circ_R0_6.5_dx015.log 2>&1",
    "source_sha256": "32fbebd05f6a759915ea2eefbe6b7e0b8a342e51babd09437ff58621671f4139",
    "sha256": "60b82939565ea4630ef1b25e2d2e0d55361ba884d03c9de917644b0c28fc7f62",
-   "frames": 601
+   "frames": 601,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/ctrl_circ_R0_9_dx015.npz",
@@ -507,7 +560,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 9 32 16 120 ctrl_circ_R0_9_dx015.npz 0.15 > ctrl_circ_R0_9_dx015.log 2>&1",
    "source_sha256": "240a540a8f14da6e0aa3928e68727dd2d074b5a1598296094bf63ba2974cb103",
    "sha256": "0aa92956eac70b0376d94631e16a57e91f2774aa5558beeb10a738bfb857f70e",
-   "frames": 480
+   "frames": 480,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/ctrl_ell_8x5_dx015.npz",
@@ -516,7 +570,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --Ax 8 --Ay 5 --Lxy 28 --Lz 16 --dx 0.15 --T 50 --every 0.25 --out ctrl_ell_8x5_dx015.npz > ctrl_ell_8x5_dx015.log 2>&1",
    "source_sha256": "00bb81f60c7f28fec3f801b36357932f6034d5c20c4d0ed9115dd3a05de39357",
    "sha256": "29f0a157766120644100182b82e7f2543fc4f34ef20a32d4c934a04ac49c31e8",
-   "frames": 199
+   "frames": 199,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circ_R0_11_Lz32.npz",
@@ -525,7 +580,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 11 36 32 90 circ_R0_11_Lz32.npz > circ_R0_11_Lz32.log 2>&1",
    "source_sha256": "7dbb4e90955bd0ca6217437ab8cf88493f8a348fb81668aaac863bd3d60735f6",
    "sha256": "d69b8631ee0633250780193877e8e44ca8688e33bc4428f75cf9403715d3024b",
-   "frames": 358
+   "frames": 358,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/rerun_r2/ell_a1.1_b0.17_12x7.5.npz",
@@ -534,7 +590,8 @@
    "command": "cd v2b/rerun_r2 && python -u ../../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --Ax 12 --Ay 7.5 --Lxy 40 --Lz 20 --T 240 --every 0.25 --snaps $(seq 4 4 240) --out ell_a1.1_b0.17_12x7.5.npz > ell_a1.1_b0.17_12x7.5.log 2>&1",
    "source_sha256": "be0c0e54d4bd401b431e1301d922b1ff670f58a99f6eb81d0a93995f4f39e5ea",
    "sha256": "4bb9f0c50b7fe614f30ef6278f454c05f1d1e0266dae6b8ca670f0cc48972649",
-   "frames": 1015
+   "frames": 1015,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/ellB_a1.1_b0.18_12x7.5.npz",
@@ -543,7 +600,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.18 --Ax 12 --Ay 7.5 --Lxy 40 --Lz 20 --T 220 --every 0.25 --snaps $(seq 4 4 220) --out ellB_a1.1_b0.18_12x7.5.npz > ellB_b0.18.log 2>&1",
    "source_sha256": "c678f6dfd4716fc57c1de62a05d898c40354cd734c338c7b64de4b8777fbc743",
    "sha256": "88c4ca2ef0ae9b6ac78924c24e71a1ae529e5b7543117f5cad755991611ccd24",
-   "frames": 930
+   "frames": 930,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/ellB_a1.1_b0.16_12x7.5.npz",
@@ -552,7 +610,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.16 --Ax 12 --Ay 7.5 --Lxy 40 --Lz 20 --T 220 --every 0.25 --snaps $(seq 4 4 220) --out ellB_a1.1_b0.16_12x7.5.npz > ellB_b0.16.log 2>&1",
    "source_sha256": "aa56fb50af1e7ebd8af8687f88e3ec3f017dd35279b778e32cba1a434d93d4c4",
    "sha256": "6956fec4cca645cc9bbe247248d393b2f9939e1787376d1847d51d3918a3c73e",
-   "frames": 930
+   "frames": 930,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/rerun_r2/ellP_a1.1_b0.15_12x7.5.npz",
@@ -561,7 +620,8 @@
    "command": "cd v2b/rerun_r2 && python -u ../../ellipse_ring.py --a 1.1 --b 0.15 --eps 0.02 --Ax 12 --Ay 7.5 --Lxy 40 --Lz 20 --T 92 --every 0.25 --snaps $(seq 4 4 92) --out ellP_a1.1_b0.15_12x7.5.npz > ellP_a1.1_b0.15_12x7.5.log 2>&1",
    "source_sha256": "e2b2e965641d464dbbf87fdb88501b40a58a9e2dd13a7ae527716ffbbd9424f4",
    "sha256": "af5d5131386a3eacfee9391363396731f9ed2ae4709a7fa516d4462183ba96b5",
-   "frames": 388
+   "frames": 388,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/rerun_r2/ell_b0.09_8x5.npz",
@@ -570,7 +630,8 @@
    "command": "cd v2b/rerun_r2 && python -u ../../ellipse_ring.py --a 0.8 --b 0.09 --eps 0.02 --Ax 8 --Ay 5 --Lxy 28 --Lz 16 --T 120 --every 0.25 --snaps $(seq 4 4 120) --out ell_b0.09_8x5.npz > ell_b0.09_8x5.log 2>&1",
    "source_sha256": "2366e52ceffb4d134472de49326eb9b854926a3bc1a6bb8e95bdc521e54467ea",
    "sha256": "a67695282fc2bb5392bd4226be428280b42e624f8f2f1453ade6c2afe30bebfa",
-   "frames": 507
+   "frames": 507,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/rerun_r2/ell_a1.1_b0.17_8x5.npz",
@@ -579,7 +640,8 @@
    "command": "cd v2b/rerun_r2 && python -u ../../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --Ax 8 --Ay 5 --Lxy 28 --Lz 16 --T 120 --every 0.25 --snaps $(seq 4 4 120) --out ell_a1.1_b0.17_8x5.npz > ell_a1.1_b0.17_8x5.log 2>&1",
    "source_sha256": "cd4771ada6f56f95945e1a9d2e1576a72e4eb0a896c71a8c8f31e958d053e0b9",
    "sha256": "7e735b41a8b6829a16a7d396c291706615b862884f3e77230b3905d691431af0",
-   "frames": 507
+   "frames": 507,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/rerun_r2/ellP_a0.8_b0.05_12x7.5.npz",
@@ -588,7 +650,8 @@
    "command": "cd v2b/rerun_r2 && python -u ../../ellipse_ring.py --a 0.8 --b 0.05 --eps 0.02 --Ax 12 --Ay 7.5 --Lxy 40 --Lz 20 --T 46 --every 0.25 --snaps $(seq 4 4 46) --out ellP_a0.8_b0.05_12x7.5.npz > ellP_a0.8_b0.05_12x7.5.log 2>&1",
    "source_sha256": "8e74527fc67518c6dbedb475419f1c8438fbb9384bb494701d72007881841c38",
    "sha256": "f912c24c1a3c23f1c1b02eb3f08f999d83533b63b5034a4c1ecf40cfdca7518e",
-   "frames": 192
+   "frames": 192,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/ell_a1.1_b0.17_12x7.5.npz",
@@ -597,7 +660,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --Ax 12 --Ay 7.5 --Lxy 40 --Lz 20 --T 240 --every 0.25 --snaps $(seq 4 4 240) --out ell_a1.1_b0.17_12x7.5.npz > ell_a1.1_b0.17_big.log 2>&1",
    "source_sha256": "be0c0e54d4bd401b431e1301d922b1ff670f58a99f6eb81d0a93995f4f39e5ea",
    "sha256": "4bb9f0c50b7fe614f30ef6278f454c05f1d1e0266dae6b8ca670f0cc48972649",
-   "frames": 1015
+   "frames": 1015,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/ellP_a1.1_b0.15_12x7.5.npz",
@@ -606,7 +670,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.15 --Ax 12 --Ay 7.5 --Lxy 40 --Lz 20 --T 220 --every 0.25 --snaps $(seq 4 4 220) --out ellP_a1.1_b0.15_12x7.5.npz > ellP_a1.1_b0.15.log 2>&1",
    "source_sha256": "47db8c6636bac91da0b310b821659d2337063834499e17ae4fc6be68ad83e490",
    "sha256": "1d6099de16c1bcd8e45fa0e2e69c128ce12cf46a97c41b37d9e426b5c448211c",
-   "frames": 389
+   "frames": 389,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/ell_b0.09_8x5.npz",
@@ -615,7 +680,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 0.8 --b 0.09 --Ax 8 --Ay 5 --Lxy 28 --Lz 16 --T 120 --every 0.25 --snaps $(seq 4 4 120) --out ell_b0.09_8x5.npz > ell_b0.09.log 2>&1",
    "source_sha256": "2366e52ceffb4d134472de49326eb9b854926a3bc1a6bb8e95bdc521e54467ea",
    "sha256": "a67695282fc2bb5392bd4226be428280b42e624f8f2f1453ade6c2afe30bebfa",
-   "frames": 507
+   "frames": 507,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/ellP_a0.8_b0.05_12x7.5.npz",
@@ -624,7 +690,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 0.8 --b 0.05 --Ax 12 --Ay 7.5 --Lxy 40 --Lz 20 --T 80 --every 0.25 --snaps $(seq 4 2 80) --out ellP_a0.8_b0.05_12x7.5.npz > ellP_a0.8_b0.05.log 2>&1",
    "source_sha256": "cbf45c5447168b067071e266c77f7e34f9662fbb7a09583167e82708cfd6dffd",
    "sha256": "b33274d26303ade9f2212057e50a94160d16fdc5eb3d52189643e59678e3e2c4",
-   "frames": 203
+   "frames": 203,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/ell_a1.1_b0.17_8x5.npz",
@@ -633,7 +700,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --Ax 8 --Ay 5 --Lxy 28 --Lz 16 --T 120 --every 0.25 --snaps $(seq 4 2 120) --out ell_a1.1_b0.17_8x5.npz > ell_a1.1_b0.17.log 2>&1",
    "source_sha256": "71e11e3255f8ca128866d0b08476f45916dcdbcde1c8eba4bd39cd958b445921",
    "sha256": "172af218df2c45261c02a26196cbf8a9d3b8caf8b406bdbd978afcb77fc44060",
-   "frames": 535
+   "frames": 535,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/modeL_m2.npz",
@@ -642,7 +710,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 2 --amp 0.08 --Ax 9.5 --Ay 9.5 --Lxy 34 --Lz 18 --T 150 --every 0.2 --out modeL_m2.npz > modeL_m2.log 2>&1",
    "source_sha256": "c761af210f836a00340ed2c2a26531253bd41442804a92e8a8eed92c46f32160",
    "sha256": "6ecd0ac28e95c218e52b803e2418b2b16441138386bb553df6c25801afd7c3a6",
-   "frames": 758
+   "frames": 758,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/modeL_m3.npz",
@@ -651,7 +720,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 3 --amp 0.10 --Ax 9.5 --Ay 9.5 --Lxy 34 --Lz 18 --T 100 --every 0.2 --out modeL_m3.npz > modeL_m3.log 2>&1",
    "source_sha256": "098b996d90c4355a41c5dcd5424b77c7975462ff67fb900317671f6157bc68e6",
    "sha256": "a4c0c4be7b9bd2a5cb968d9a8462694b1a4c061c903622f703ad8aa2c49578d1",
-   "frames": 504
+   "frames": 504,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/modeR_m2_a0.08.npz",
@@ -660,7 +730,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 2 --amp 0.08 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --T 130 --every 0.2 --out modeR_m2_a0.08.npz > modeR_m2_a0.08.log 2>&1",
    "source_sha256": "7b922699a5cba1d17529446451073085a857a29987de5d28e2f78fdab12912e8",
    "sha256": "5e7e7d93104b669d8b2d9f25928dcd50e2722ac8d17f4bdcf2dabf3942d1d702",
-   "frames": 656
+   "frames": 656,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/modeR_m2_a0.15.npz",
@@ -669,7 +740,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 2 --amp 0.15 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --T 130 --every 0.2 --out modeR_m2_a0.15.npz > modeR_m2_a0.15.log 2>&1",
    "source_sha256": "5289d937830d3a614b7aa698c292f18589bb0cfa3300784604ce15452d7dd099",
    "sha256": "3448262ea5fa479c8f3c1df1a92047e30531789b049556d1151f4e6e118a0c56",
-   "frames": 656
+   "frames": 656,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/modeR_m3_a0.08.npz",
@@ -678,7 +750,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 3 --amp 0.08 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --T 130 --every 0.2 --out modeR_m3_a0.08.npz > modeR_m3_a0.08.log 2>&1",
    "source_sha256": "7e9df6fbf72079d8bb96c1e17632a51554c7abcfe8714acd95a7825938f4af9d",
    "sha256": "1e904f3d91912ad4a626e429639de42b636e27c51ca2803933ca8054d44fb6a7",
-   "frames": 656
+   "frames": 656,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/modeR_m3_a0.15.npz",
@@ -687,7 +760,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 3 --amp 0.15 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --T 130 --every 0.2 --out modeR_m3_a0.15.npz > modeR_m3_a0.15.log 2>&1",
    "source_sha256": "d34c498cc0bfc466ef163be312c834ad3f937025393ebaae9a7a953983c1e4a1",
    "sha256": "ed2956b44fd0c4b2373fdad76d63a9c9b77e468d7c119a25cb2a938af76f2e71",
-   "frames": 656
+   "frames": 656,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/tilt_m1.npz",
@@ -696,7 +770,8 @@
    "command": "cd v2b && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --Ax 6.7 --Ay 6.7 --tilt 12 --Lxy 28 --Lz 20 --T 60 --every 0.2 --out tilt_m1.npz > tilt_m1.log 2>&1",
    "source_sha256": "fe76b998237fe9ebe7544fcffedbcc15ca5d666c6cecc7c9fa0d7956246cb1d7",
    "sha256": "e9353cbeac7aa5d36428ef05ace26f031a877a0d79423a2dcc8fcce0e6d4284d",
-   "frames": 304
+   "frames": 304,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circS_R0_7.5.npz",
@@ -705,7 +780,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 7.5 30 18 160 circS_R0_7.5.npz > circS_R0_7.5.log 2>&1",
    "source_sha256": "15515ce2071fa7c62e64c3ae9049e3f136fb91d1653b12076b7839fe00e91203",
    "sha256": "5e2516bb75c8bb85c2aba97feec391a744bbc9b1b1ae4dbd8589c3d27c70be32",
-   "frames": 637
+   "frames": 637,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circS_R0_6.5.npz",
@@ -714,7 +790,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 6.5 28 18 160 circS_R0_6.5.npz > circS_R0_6.5.log 2>&1",
    "source_sha256": "5c32a1440494ebe24f71b565f444040bc8bc835cc8e332a13111d0cd436b61f5",
    "sha256": "b2417ed1e4558d43cfc17827dbf96af9118fc6a6f4e0eb9d86d9006fcd08a017",
-   "frames": 637
+   "frames": 637,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circS_R0_5.5.npz",
@@ -723,7 +800,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 5.5 26 18 160 circS_R0_5.5.npz > circS_R0_5.5.log 2>&1",
    "source_sha256": "03d4093815ca08377ed48de3b67cc3976c57ae37c87337341a0220527044197f",
    "sha256": "469c6736f37da172de33a54ff2ccf00e1d90941ae4fbd2d26023dbfe0da3883e",
-   "frames": 637
+   "frames": 637,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circS_R0_4.5.npz",
@@ -732,7 +810,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 4.5 26 18 160 circS_R0_4.5.npz > circS_R0_4.5.log 2>&1",
    "source_sha256": "28de8766d22fae1568622f0d05e898d31e21a06462784a7813321e176447c20b",
    "sha256": "e66aa4247079b6c1685f19d6ecb5e1485ee1733deeb3dd8f4eb45268e6036e42",
-   "frames": 637
+   "frames": 637,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circHB_R0_5.0.npz",
@@ -741,7 +820,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 5.0 30 24 150 circHB_R0_5.0.npz > circHB_R0_5.0.log 2>&1",
    "source_sha256": "6a83480d5b311d0627cfe704b6db4bf200ee70e18ace0fcff05fb7fe60599098",
    "sha256": "892f721c49cd0d094c873b27d1b47ee12f8fa65414c48bda7a8b438b6d3e7e89",
-   "frames": 597
+   "frames": 597,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circ_R0_11.npz",
@@ -750,7 +830,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 11 36 16 90 circ_R0_11.npz > circ_R0_11.log 2>&1",
    "source_sha256": "a0d5d0c8e327cc7d1bf695c94cde099af73775965d902724fafdf2d3d6c67c45",
    "sha256": "04ef1d7708db73a5a53055b7b750e35ce4a51eee4b4cd4d05dfdc3ab28af1e66",
-   "frames": 358
+   "frames": 358,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circ_a1.1_b0.17_R9.npz",
@@ -759,7 +840,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 9.5 34 16 100 circ_a1.1_b0.17_R9.npz > circ_R9.log 2>&1",
    "source_sha256": "9d153e09690fd91d9d8ae840d25ba4c74a9a6f00cff7f9f6c7bbfda3ca269254",
    "sha256": "105d0dcd0b464c1072fd6018091bac1da9d6e7f00cea1d6c4024089ae93adf4a",
-   "frames": 397
+   "frames": 397,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circ_a1.1_b0.17.npz",
@@ -768,7 +850,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 7 26 16 120 circ_a1.1_b0.17.npz > confirm3d_a1.1_b0.17.log 2>&1",
    "source_sha256": "838d438db946461de92d99b200f95a5acc2bcc73b00838c0ad56711f0ad9370f",
    "sha256": "3236620fd32569b2d4827f1e661eb5beab47eeaa6a979d3e17652501018f4903",
-   "frames": 477
+   "frames": 477,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circHB_R0_4.0.npz",
@@ -777,7 +860,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 4.0 30 24 150 circHB_R0_4.0.npz > circHB_R0_4.0.log 2>&1",
    "source_sha256": "55a8027a5601d50320cd5f55108f19824accf38727811e4c540b4392a4a68971",
    "sha256": "2d21bc04ced8a551adb73c54f20462f61de5c4f3b11ec48c26c1a920d1d5b10c",
-   "frames": 109
+   "frames": 109,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/circ_R0_4.npz",
@@ -786,7 +870,8 @@
    "command": "cd v2b && python -u ../circle_run.py 1.1 0.17 0.02 4 24 16 90 circ_R0_4.npz > circ_R0_4.log 2>&1",
    "source_sha256": "8ce28ba37f4ecb18f4f4127fbe693360cd589b37f859e08eda396c162edee4bd",
    "sha256": "9fc7ac06a61e376ab3d778ecbd7facc246e3ad935d4317b00f8c5f0f4cf21fa6",
-   "frames": 109
+   "frames": 109,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/sf_k025.npz",
@@ -795,7 +880,8 @@
    "command": "cd v2b && python -u ../straight_filament.py 126 1.0 80 sf_k025.npz 32 > sf_k025.log 2>&1",
    "source_sha256": "7e3495af148ef2f25c3d17475b9b2c70014c37130fd0a1140ec85e76095ff8e8",
    "sha256": "7f4faf669b3d3fdf2f95c803eebd4d2f3dcc74356b87d86dc033e56fbb8c3ce2",
-   "frames": 789
+   "frames": 789,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf_k035.npz",
@@ -804,7 +890,8 @@
    "command": "cd v2b && python -u ../straight_filament.py 90 1.0 70 sf_k035.npz 32 > sf_k035.log 2>&1",
    "source_sha256": "029f670dd5eaa54889f2486fe3d38d2b8cae68b67d53b7d0ad2a8fc3d438144f",
    "sha256": "1ec49b0cbadc42b17dbb33a21d1914aefa2b83ee0a3bd3088f7679f8e632f872",
-   "frames": 690
+   "frames": 690,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf_k045.npz",
@@ -813,7 +900,8 @@
    "command": "cd v2b && python -u ../straight_filament.py 70 1.5 60 sf_k045.npz 32 > sf_k045.log 2>&1",
    "source_sha256": "92d46ddaa482c55e29b7da7c944575883159188002009076482c9cfb74ae0c4a",
    "sha256": "25baff3c40708493d73d677764b7cb14acf23d891735bac3cef97fbfe9b48b6f",
-   "frames": 592
+   "frames": 592,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf_k060.npz",
@@ -822,7 +910,8 @@
    "command": "cd v2b && python -u ../straight_filament.py 52 1.5 40 sf_k060.npz 32 > sf_k060.log 2>&1",
    "source_sha256": "d274dad0fa0dabe0b0b8fa52ecca1762475e0cd5b8a88231f59a170b248aa8f5",
    "sha256": "ae8c293904e502aa8a42ff3e6ef8392f88c6dbc7b387acc597868c1df661281d",
-   "frames": 394
+   "frames": 394,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/sf_k079.npz",
@@ -831,7 +920,8 @@
    "command": "cd v2b && python -u ../straight_filament.py 40 1.5 30 sf_k079.npz 32 > sf_k079.log 2>&1",
    "source_sha256": "24af5a6f09692d99191b91e0cc2ac0adbd46d42cc95a42de174443056b489f34",
    "sha256": "d51d365fdccd91b8545af9443d94e17b9eb826e2f86853957fdb30da1664b200",
-   "frames": 296
+   "frames": 296,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/movie/ell8x5_movie.npz",
@@ -840,7 +930,8 @@
    "command": "cd v2b/movie && python -u ../../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --Ax 8 --Ay 5 --Lxy 28 --Lz 16 --T 40.1 --every 0.2 --snaps $(seq -f %.1f 3 0.2 40) --fields --uonly --out ell8x5_movie.npz > ell8x5_movie.log 2>&1",
    "source_sha256": "2727cf6797bdb474a694510d1e00fc01559e16b60e8198dc862901da492d2c9e",
    "sha256": "165a9fd90c967e6e30f01308e6c955791bf25287b63f7223f2646d0333206fa2",
-   "frames": 383
+   "frames": 383,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/twist_8x5.npz",
@@ -849,7 +940,8 @@
    "command": "cd v2b && python -u ../twist_run.py 1.1 0.17 8 5 75 twist_8x5.npz > twist_8x5.log 2>&1",
    "source_sha256": "2dd78471e2ea54989f02520c5a28f7a09cb486e570341e3fe30fb381a8ee1f0e",
    "sha256": "245ad762b23d83b4acdad8cc9b2dae3905d818218e5371d5fbafe9386c4b1c1c",
-   "frames": 142
+   "frames": 142,
+   "code_revision": null
   },
   {
    "file": "runs/barkley/fig1_fields/handed.npz",
@@ -858,7 +950,8 @@
    "command": "cd v2b/fig1_fields && python -u ../../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --Ax 8 --Ay 5 --Lxy 28 --Lz 16 --T 13.1 --every 0.1 --snaps 12.0 12.1 12.2 12.3 12.4 12.5 12.6 12.7 12.8 12.9 13.0 --fields --out handed.npz > handed.log 2>&1",
    "source_sha256": "65a6f312278f6d232ffef6c8459adebe96b0634fa2e076fd8f7c03c80a8e51e9",
    "sha256": "ead49fd11340c905287804e7f0c0c719a09cf8923333de2052aba0327dfcb103",
-   "frames": 137
+   "frames": 137,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/barkley/fig1_fields/ell8x5_fields.npz",
@@ -867,7 +960,8 @@
    "command": "cd v2b/fig1_fields && python -u ../../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --Ax 8 --Ay 5 --Lxy 28 --Lz 16 --T 40 --every 0.5 --snaps 4 6 8 10 12 14 16 18 20 22 24 28 32 36 --fields --out ell8x5_fields.npz > ell8x5_fields.log 2>&1",
    "source_sha256": "abf3637ef7a4edc5ce4911eb1eb91d8df2cd2eb3a27fb60159e76aeaa1a18f87",
    "sha256": "095e20ce2d72fe703c250b59c65868ee887b36e5c8792063650619b721c165c6",
-   "frames": 93
+   "frames": 93,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/refine/modeR_m2_a0.08.npz",
@@ -876,7 +970,8 @@
    "command": "cd v5r && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 2 --amp 0.08 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --dx 0.15 --T 130 --every 0.2 --out modeR_m2_a0.08.npz > modeR_m2_a0.08.log 2>&1",
    "source_sha256": "cfc9775d93a8a7ccffcb93b1107efe060a00fdd8f04668715ad2445f43a587e4",
    "sha256": "d39e3415c61ebb18c91b039db64047e9d16f8b713d32cde7f3f4e830c1662d6e",
-   "frames": 644
+   "frames": 644,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/refine/modeR_m2_a0.15.npz",
@@ -885,7 +980,8 @@
    "command": "cd v5r && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 2 --amp 0.15 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --dx 0.15 --T 130 --every 0.2 --out modeR_m2_a0.15.npz > modeR_m2_a0.15.log 2>&1",
    "source_sha256": "7474e78a649b6f6dc02117975c1fef69792ef4f2fea5ce770b3cad80d90aa7fe",
    "sha256": "3824e97013abc8358bb6ff8a150de2db80c0df1837a841da95f0990175e643d3",
-   "frames": 644
+   "frames": 644,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/refine/modeR_m3_a0.08.npz",
@@ -894,7 +990,8 @@
    "command": "cd v5r && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 3 --amp 0.08 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --dx 0.15 --T 130 --every 0.2 --out modeR_m3_a0.08.npz > modeR_m3_a0.08.log 2>&1",
    "source_sha256": "f75cd02eaa16865b282f6afefc557834f8ea984a1034dd248e751b61f97f3834",
    "sha256": "90f7bfe65c4098896bfcc759a19802794c3890928783e0d5a5dc558ce7569cef",
-   "frames": 644
+   "frames": 644,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/refine/modeR_m3_a0.15.npz",
@@ -903,7 +1000,8 @@
    "command": "cd v5r && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 3 --amp 0.15 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --dx 0.15 --T 130 --every 0.2 --out modeR_m3_a0.15.npz > modeR_m3_a0.15.log 2>&1",
    "source_sha256": "dbe7288b3ac4e059eef953caf14946cb90a337cd5548d486831b070042ac5066",
    "sha256": "c34af213d5e6e7df741c625771b186080229cb246c0f3a150278c404f3ea8dd5",
-   "frames": 644
+   "frames": 644,
+   "code_revision": "unknown"
   },
   {
    "file": "runs/refine/sf2/L32_k035_dx015.npz",
@@ -912,7 +1010,288 @@
    "command": "cd v5r/sf2 && python -u ../../straight_filament.py 120 0.5 120 L32_k035_dx015.npz 32 1.1 0.17 0.02 0.15 > L32_k035_dx015.log 2>&1",
    "source_sha256": "a702db14b1579feb2d446e34f06366f8908d02277c407bbebd458d716da08719",
    "sha256": "5b782aea16c21c25771adbdff8b492cec479bd028f1ae900ed7e1cc54e23e0ed",
-   "frames": 1212
+   "frames": 1212,
+   "code_revision": null
+  },
+  {
+   "file": "runs/revision/circ17_R0_26.npz",
+   "group": "revision",
+   "source": "circ17_R0_26.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.17 0.02 26 66 16 150 circ17_R0_26.npz > circ17_R0_26.log 2>&1",
+   "source_sha256": "0e588feddd9c5397b1ca5d0a2b8bba845a5a8ee0985fd48505185ee3ece1b068",
+   "sha256": "d2d0d2db1c6d3256f6517190888334b5d464525491c8c7a8923c5ed4d9635b76",
+   "frames": 597,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/modeL_m2_lv.npz",
+   "group": "revision",
+   "source": "modeL_m2_lv.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 2 --amp 0.08 --Ax 9.5 --Ay 9.5 --Lxy 34 --Lz 18 --T 150 --every 0.2 --levels 0.3,0.16 0.7,0.60 0.5,0.28 0.5,0.48 --twist --out modeL_m2_lv.npz > modeL_m2_lv.log 2>&1",
+   "source_sha256": "d37e1828076ccd8b2f1f5aa6f0c27ac97c097c7e808b718d4e72bc9b2fae0b1e",
+   "sha256": "7862407b1e77bd8b3f9a9d2e04fd021e23929fa9752d912cbc03fe780e47cafc",
+   "frames": 758,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/modeL_m3_lv.npz",
+   "group": "revision",
+   "source": "modeL_m3_lv.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 3 --amp 0.10 --Ax 9.5 --Ay 9.5 --Lxy 34 --Lz 18 --T 100 --every 0.2 --levels 0.3,0.16 0.7,0.60 0.5,0.28 0.5,0.48 --twist --out modeL_m3_lv.npz > modeL_m3_lv.log 2>&1",
+   "source_sha256": "4a98929b2f7bc8ff1f9cb8344cba97e03b6dfc6682668a2c1f7259021288c37c",
+   "sha256": "c3d8aca983b23614465767e7b22e5fafe29ec5ccd233ba756c7af624ff3af752",
+   "frames": 504,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ18_R0_12.npz",
+   "group": "revision",
+   "source": "circ18_R0_12.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.18 0.02 12 46 16 100 circ18_R0_12.npz > circ18_R0_12.log 2>&1",
+   "source_sha256": "1a742bc44e54ad51b0b1373cac92d4c12e207a9f3d89d6958907f58995dcba6f",
+   "sha256": "434abdffcb2b60dc49c7c67e8bab300190dd54c54f5c63beea7bc43f5e45f4e4",
+   "frames": 397,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ18_R0_10.npz",
+   "group": "revision",
+   "source": "circ18_R0_10.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.18 0.02 10 42 16 100 circ18_R0_10.npz > circ18_R0_10.log 2>&1",
+   "source_sha256": "a5ed056df0cfadcb231a2da20a8145581f97a176c6951e591b8b75831a206f40",
+   "sha256": "f6a5f96faa9a2c8b89d6d0fe53da141b9e688ebfcc23a50670e6e68c5a2f3fc8",
+   "frames": 397,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ18_R0_8.npz",
+   "group": "revision",
+   "source": "circ18_R0_8.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.18 0.02 8 38 16 100 circ18_R0_8.npz > circ18_R0_8.log 2>&1",
+   "source_sha256": "4e032423c3b9fb8ed59f338917082a24d51fac896251d208bcb1a16487595545",
+   "sha256": "1947a939af46f36177b9718cc5fddca6cbcb369b44126b83011aaab667932a46",
+   "frames": 397,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ16_R0_10.npz",
+   "group": "revision",
+   "source": "circ16_R0_10.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.16 0.02 10 34 16 200 circ16_R0_10.npz > circ16_R0_10.log 2>&1",
+   "source_sha256": "1d4451e5f0ce1254f7ea960100dfa44e8cddb78adce9fec68be298c2ab9d0eea",
+   "sha256": "bbd1fd5ffd963ae713fefff3bd044dd35ed4474cd700848c9c79b20dd4ecf344",
+   "frames": 796,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ16_R0_8.npz",
+   "group": "revision",
+   "source": "circ16_R0_8.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.16 0.02 8 30 16 200 circ16_R0_8.npz > circ16_R0_8.log 2>&1",
+   "source_sha256": "fef1a705ffaa4be70edfcba07f47418032d9922a882568d25ca7464ed0e83729",
+   "sha256": "ed7cfbe52df6fc4f3ce4d6f0542ad9830df3b77c6deb35e1bbb0a44b6857506f",
+   "frames": 796,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ16_R0_6.5.npz",
+   "group": "revision",
+   "source": "circ16_R0_6.5.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.16 0.02 6.5 28 16 200 circ16_R0_6.5.npz > circ16_R0_6.5.log 2>&1",
+   "source_sha256": "8ce7adb817830a23e46a642d0cbb81079d0646923eddb42f52f34b0a5769e89a",
+   "sha256": "bc0df40482a2d2524a02d605d811bc251a8a5f6f4b89f719ca6236b255085968",
+   "frames": 796,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ16_R0_5.npz",
+   "group": "revision",
+   "source": "circ16_R0_5.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.16 0.02 5 24 16 200 circ16_R0_5.npz > circ16_R0_5.log 2>&1",
+   "source_sha256": "02795e9f3f97f8fd36d4b9f0986c2b3d0d7dc4936f3a03861bc1ec300060db95",
+   "sha256": "0937f8622a5557ee1de7ea54e7fb3737520467d80a6a40170d0caecbb8bea331",
+   "frames": 796,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ16_R0_4.npz",
+   "group": "revision",
+   "source": "circ16_R0_4.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.16 0.02 4 24 16 200 circ16_R0_4.npz > circ16_R0_4.log 2>&1",
+   "source_sha256": "aee92c1d4dd6435c70984c9dfd9f6274e27f13cf70bea3f92b040ec887186c18",
+   "sha256": "71a07e876100dc1f5510c609abbfce8b7f9e926ae7133064a79d92f6922d0954",
+   "frames": 79,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ15_R0_10.npz",
+   "group": "revision",
+   "source": "circ15_R0_10.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.15 0.02 10 34 16 120 circ15_R0_10.npz > circ15_R0_10.log 2>&1",
+   "source_sha256": "2422bff965bc7181cea9a9d428b92790e5af0eb8b8e3b9d7455b5bba3a799958",
+   "sha256": "edc2616789adae94dc5e7b3430a3a2077ec1f8e235de8cf8334b7c57178b3101",
+   "frames": 368,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ15_R0_8.npz",
+   "group": "revision",
+   "source": "circ15_R0_8.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.15 0.02 8 30 16 120 circ15_R0_8.npz > circ15_R0_8.log 2>&1",
+   "source_sha256": "bb3f2826b65bdc9c05ce100c13c79fbf2d42dd8e019351013631b91796b34ad0",
+   "sha256": "8c519ea47312168f05817435d0128a1f18890cb748cd2282cd01f233291d9f20",
+   "frames": 284,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ15_R0_6.5.npz",
+   "group": "revision",
+   "source": "circ15_R0_6.5.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.15 0.02 6.5 28 16 120 circ15_R0_6.5.npz > circ15_R0_6.5.log 2>&1",
+   "source_sha256": "cac5f687e7c8666bcb8f6194a53921045457375fc94f696d37ee40e2d969ebfe",
+   "sha256": "392000d462e5dfb535084bd0af4c3f01c4b7c8076972973852f6113fe42d9e07",
+   "frames": 199,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ15_R0_5.npz",
+   "group": "revision",
+   "source": "circ15_R0_5.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.15 0.02 5 24 16 120 circ15_R0_5.npz > circ15_R0_5.log 2>&1",
+   "source_sha256": "ebbf6294f4f89afe4cdb9d82464884f05424343d679674231578696ab981343f",
+   "sha256": "b79a98267c0693bead4362d4fb3b25354dac31310fcdbdc60e4bb68bf5911298",
+   "frames": 128,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/circ15_R0_4.npz",
+   "group": "revision",
+   "source": "circ15_R0_4.npz",
+   "command": "cd v6 && python -u ../circle_run.py 1.1 0.15 0.02 4 24 16 120 circ15_R0_4.npz > circ15_R0_4.log 2>&1",
+   "source_sha256": "1de95b2cfca9d2a513ceb80598db794182fa1c928845635559b7844c738005e5",
+   "sha256": "bfe18c7c1fa6205fb194c2ecbfd19e958052d61d47b3682fee580da3cd5825df",
+   "frames": 57,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/modeR_m2_a0.08_lv.npz",
+   "group": "revision",
+   "source": "modeR_m2_a0.08_lv.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 2 --amp 0.08 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --T 130 --every 0.2 --levels 0.3,0.16 0.7,0.60 0.5,0.28 0.5,0.48 --twist --out modeR_m2_a0.08_lv.npz > modeR_m2_a0.08_lv.log 2>&1",
+   "source_sha256": "115de2e5ff6585cf0ea72edd6ec82f0d65fda71ba045816b0cdfb003ac77bc3d",
+   "sha256": "2f7b1c45f94b3b16432a0654b9076c457bdc2fd43df7ded2470741d82ed17838",
+   "frames": 656,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/modeR_m2_a0.15_lv.npz",
+   "group": "revision",
+   "source": "modeR_m2_a0.15_lv.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 2 --amp 0.15 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --T 130 --every 0.2 --levels 0.3,0.16 0.7,0.60 0.5,0.28 0.5,0.48 --twist --out modeR_m2_a0.15_lv.npz > modeR_m2_a0.15_lv.log 2>&1",
+   "source_sha256": "ca96447d121ed4eeb84721dda43b0a70066f9c4cfca2aec338a89b9ac495bb8e",
+   "sha256": "142722c533f4a4c9b96fc18b41f0eefd7d034ba53892df464d09db58e92c462e",
+   "frames": 656,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/modeR_m3_a0.08_lv.npz",
+   "group": "revision",
+   "source": "modeR_m3_a0.08_lv.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 3 --amp 0.08 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --T 130 --every 0.2 --levels 0.3,0.16 0.7,0.60 0.5,0.28 0.5,0.48 --twist --out modeR_m3_a0.08_lv.npz > modeR_m3_a0.08_lv.log 2>&1",
+   "source_sha256": "78ec6fdd2fc26413ba4c0e2111dd40de38ee0a49ebec5c4525a9f32cae3d73ce",
+   "sha256": "3758e5c66a5e9aa779b2e138151435072dbb1d075cb5136383eea605b49e0f54",
+   "frames": 656,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/modeR_m3_a0.15_lv.npz",
+   "group": "revision",
+   "source": "modeR_m3_a0.15_lv.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 3 --amp 0.15 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --T 130 --every 0.2 --levels 0.3,0.16 0.7,0.60 0.5,0.28 0.5,0.48 --twist --out modeR_m3_a0.15_lv.npz > modeR_m3_a0.15_lv.log 2>&1",
+   "source_sha256": "7d5e39409f5a5bddc688573e33da3f5ebf05edf590abca18c393c5035b5930e8",
+   "sha256": "08c74d998bbf773f303c25acadf88877ee0d24326250ab84773fa7321248a091",
+   "frames": 656,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/modeR_m4_a0.10_lv.npz",
+   "group": "revision",
+   "source": "modeR_m4_a0.10_lv.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 4 --amp 0.10 --Ax 6.5 --Ay 6.5 --Lxy 26 --Lz 18 --T 70 --every 0.1 --levels 0.3,0.16 0.7,0.60 0.5,0.28 0.5,0.48 --twist --out modeR_m4_a0.10_lv.npz > modeR_m4_a0.10_lv.log 2>&1",
+   "source_sha256": "afbf4121cd576e401d0bd120a12fd6b913b8daad14424560a5e429266516ac5e",
+   "sha256": "51b7db88c5578ccdbe7a9999edf428d02a4219fa97054949941602c14975c63f",
+   "frames": 688,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/modeR_m2_a0.08_bigbox.npz",
+   "group": "revision",
+   "source": "modeR_m2_a0.08_bigbox.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --m 2 --amp 0.08 --Ax 6.5 --Ay 6.5 --Lxy 36 --Lz 24 --T 130 --every 0.2 --out modeR_m2_a0.08_bigbox.npz > modeR_m2_a0.08_bigbox.log 2>&1",
+   "source_sha256": "4026e6c2fa0034c998727e3e55b398cb7d9a7dc13fa1fd4e60c6b9a36ee1a70f",
+   "sha256": "24109cb5c2118ad6f67a313d7385f72ee23d19448170c21535c6420b36940c34",
+   "frames": 656,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/ell_8x5_dt04.npz",
+   "group": "revision",
+   "source": "ell_8x5_dt04.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --Ax 8 --Ay 5 --Lxy 28 --Lz 16 --T 80 --every 0.25 --dtfac 0.4 --out ell_8x5_dt04.npz > ell_8x5_dt04.log 2>&1",
+   "source_sha256": "a9a8f6a26b4468cbb9184b6f660d1a363f3baf37876eab5867b05a79c4dcab69",
+   "sha256": "dff1ea1508c21fe619ee39fa1248aafe3d351d7d9074e8c1cd2aaa7496b3de9a",
+   "frames": 318,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/ell_8x5_rot45.npz",
+   "group": "revision",
+   "source": "ell_8x5_rot45.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --Ax 8 --Ay 5 --Lxy 28 --Lz 16 --T 80 --every 0.25 --rot 45 --out ell_8x5_rot45.npz > ell_8x5_rot45.log 2>&1",
+   "source_sha256": "733d0bc73c90df7210ae07b20e8a5cbce76c391b936386a573e592676b82b8df",
+   "sha256": "cb1ff7bbd28f5c961146eb02f50c0dc100a25648bd419d37ca0c6876aa96ed30",
+   "frames": 318,
+   "code_revision": "tree:d1f79dc6049cc5559eec56b974ec4bc09c3742ca67e395173f086fac9535eee2"
+  },
+  {
+   "file": "runs/revision/sf2/b015_k035.npz",
+   "group": "revision",
+   "source": "sf2/b015_k035.npz",
+   "command": "cd v6/sf2 && python -u ../../straight_filament.py 90 0.5 120 b015_k035.npz 32 1.1 0.15 0.02 0.2 > b015_k035.log 2>&1",
+   "source_sha256": "bfa72c5812b6b7ba276a8deba6bede2c24cdb83a88ed26d220099432bdca0f83",
+   "sha256": "27b3c5d8c607f2e271f69d02333576918704039e35b4fabee95eff7d8815fd48",
+   "frames": 1184,
+   "code_revision": null
+  },
+  {
+   "file": "runs/revision/sf2/b015_k045.npz",
+   "group": "revision",
+   "source": "sf2/b015_k045.npz",
+   "command": "cd v6/sf2 && python -u ../../straight_filament.py 70 0.5 100 b015_k045.npz 32 1.1 0.15 0.02 0.2 > b015_k045.log 2>&1",
+   "source_sha256": "9184d9e85512649704196ce02e77edbcdcb571b9ffc08948f0ee1a231d0a72b6",
+   "sha256": "4c635a0d412717736f1ac8a306b79e60aab131092c4ac2efa545bdd30f8d27db",
+   "frames": 986,
+   "code_revision": null
+  },
+  {
+   "file": "runs/revision/sf2/b015_k060.npz",
+   "group": "revision",
+   "source": "sf2/b015_k060.npz",
+   "command": "cd v6/sf2 && python -u ../../straight_filament.py 52 0.5 80 b015_k060.npz 32 1.1 0.15 0.02 0.2 > b015_k060.log 2>&1",
+   "source_sha256": "7314f089e77cf5a55e7fa57f3c9f60fe89ab5aca405dca6750c7006573145de2",
+   "sha256": "b2f8ee652d64d7bba56e1f615e7bb3ef738f3a996451fafd74cc0ee23eb67b64",
+   "frames": 789,
+   "code_revision": null
+  },
+  {
+   "file": "runs/revision/sf2/b016_k045.npz",
+   "group": "revision",
+   "source": "sf2/b016_k045.npz",
+   "command": "cd v6/sf2 && python -u ../../straight_filament.py 70 0.5 100 b016_k045.npz 32 1.1 0.16 0.02 0.2 > b016_k045.log 2>&1",
+   "source_sha256": "112bb660a25b5eae75f6486259cc203955b1f15703243b10abbd766e0b023b90",
+   "sha256": "8fa29cd6887026731aeb573555ebb17652f02929af9bcd1ba6afc90d4157f5d4",
+   "frames": 986,
+   "code_revision": null
   }
  ],
  "products": [
@@ -920,7 +1299,7 @@
    "file": "analysis/barkley/period_table_r2.csv",
    "group": "barkley",
    "command": "cd BARKLEY && python period_analysis_r2.py",
-   "sha256": "d41db114e2782c678cc6103e1418dab02a8334ef947ff7b04404e1351d5078b9"
+   "sha256": "f1c0f30c507c76317f6e90acc9df917886026f9f7fc42563c2b41297cec7de04"
   },
   {
    "file": "analysis/barkley/mode_decompose.npy",
@@ -962,7 +1341,7 @@
    "file": "analysis/barkley/amp_factor.npy",
    "group": "barkley",
    "command": "cd BARKLEY && python period_analysis_r2.py (amplitude_factor cache)",
-   "sha256": "1fa3a090c6472efad53ae74bbb486d09ac2d82a6b591922bf7d8991f0a055322"
+   "sha256": "2cba3f90064fb9242bb65eebd4288bf07dc50faa607758b9fcaac1865c044fad"
   },
   {
    "file": "analysis/barkley/diffrot.npz",
@@ -971,16 +1350,40 @@
    "sha256": "269a4863416881e1a077021202194c0d956ea39d1ad52ee7f5c0034f1df38676"
   },
   {
+   "file": "analysis/barkley/period_table_baselines.csv",
+   "group": "barkley",
+   "command": "cd BARKLEY && python period_baselines.py",
+   "sha256": "9aa7c7157c7be397d48428c6cab93f43d36685140e837b8d5f66ea9e3ac014fa"
+  },
+  {
+   "file": "analysis/barkley/mode_refit.json",
+   "group": "barkley",
+   "command": "cd BARKLEY && python mode_refit.py",
+   "sha256": "25b416e205e233bc90ee1b73a557393ea07607b1535c329285497418559c4a12"
+  },
+  {
+   "file": "analysis/barkley/rigidity_test.json",
+   "group": "barkley",
+   "command": "cd BARKLEY && python rigidity_test.py",
+   "sha256": "843ff3ebf6e97cef044e23fe7e22aa243cdb78f9da1999d0d07b2faf80be0e6e"
+  },
+  {
+   "file": "analysis/barkley/local_law_halfcycles.csv",
+   "group": "barkley",
+   "command": "cd BARKLEY && python local_law_halfcycles.py local_law_halfcycles.csv",
+   "sha256": "14e39bc18132ae75a2d34f674a068b685ec72d78d1ea5e25740eb2b111744d51"
+  },
+  {
    "file": "analysis/barkley/paper_numbers.json",
    "group": "barkley",
-   "command": "cd BARKLEY && python paper_numbers.py SUPP BARKLEY",
-   "sha256": "416c33a4e9b8fa16d0f942995da18b703a01abe89b085614f8991411a46c31af"
+   "command": "cd BARKLEY && python paper_numbers.py SUPP BARKLEY REFINE REVISION",
+   "sha256": "c01b0038b17318f1d63f3afcebda03618a6957e75c6602ecba1c33209558792e"
   },
   {
    "file": "analysis/supp/halfcycles_panfilov.csv",
    "group": "supp",
    "command": "cd SUPP && python halfcycle_tables.py SUPP",
-   "sha256": "615f80c6994a38aed0b800f1e53bd4502f97f3a379bb1dec3c55a258320d0e94"
+   "sha256": "881c6ab3f023c51e8b43d04b89efaae7c5448cc726b7ee2278e077707307fd7d"
   },
   {
    "file": "analysis/supp/halfcycles_panfilov.csv.meta.json",
@@ -992,7 +1395,7 @@
    "file": "analysis/supp/halfcycles_atri.csv",
    "group": "supp",
    "command": "cd SUPP && python halfcycle_tables.py SUPP",
-   "sha256": "2899100317e7f0809b36a1d78d4a5fe1c032ac5f627760baa6a3ec1a147bc3d4"
+   "sha256": "d292f79989da0e166d22ef696d240e1d950b3ed92b2740f8932aaa34f6584c5d"
   },
   {
    "file": "analysis/supp/halfcycles_atri.csv.meta.json",
@@ -1017,6 +1420,60 @@
    "group": "refine",
    "command": "cd REFINE && python refine_compare.py BARKLEY REFINE",
    "sha256": "d99890dfa1a8c21851c1f7bef04764b5c832f7d4d193019613b3894bc16857e8"
+  },
+  {
+   "file": "analysis/revision/uniform_halfcycles.csv",
+   "group": "revision",
+   "command": "cd REVISION && python halfcycle_uniform.py uniform_halfcycles.csv",
+   "sha256": "c4d3e492195a70fa490cadf003f4ff86efa57c038f968c531fe56f0554df5cd5"
+  },
+  {
+   "file": "analysis/revision/mode_definitions.json",
+   "group": "revision",
+   "command": "cd REVISION && python mode_definitions.py",
+   "sha256": "73305b2a3ebafd534ef213cb78e29cbcb97c2527364376c9e6727d035b740c76"
+  },
+  {
+   "file": "analysis/revision/controls.json",
+   "group": "revision",
+   "command": "cd REVISION && python controls_check.py",
+   "sha256": "de705fd1cbf859c240155a1d232c95e8c3f44eabbfcca9550327a0c50b126910"
+  },
+  {
+   "file": "analysis/revision/spiral2d/barkley_b0.15.json",
+   "group": "revision",
+   "command": "cd REVISION && runs_revision.sh (wavelength2d.py)",
+   "sha256": "ff9b0f7a1461429fcf371fdbf89b2da2449891f2e71d60e943f7dba7926ec877"
+  },
+  {
+   "file": "analysis/revision/spiral2d/barkley_b0.16.json",
+   "group": "revision",
+   "command": "cd REVISION && runs_revision.sh (wavelength2d.py)",
+   "sha256": "187f6603a31113501439e858fe7be2c8fb7917df7ee9e566bc375f77566b1d2a"
+  },
+  {
+   "file": "analysis/revision/spiral2d/barkley_b0.17.json",
+   "group": "revision",
+   "command": "cd REVISION && runs_revision.sh (wavelength2d.py)",
+   "sha256": "8d18713856072e62fed636b2f09bf4721cc7c85cd3b665435e9ee649b16ef389"
+  },
+  {
+   "file": "analysis/revision/spiral2d/barkley_b0.18.json",
+   "group": "revision",
+   "command": "cd REVISION && runs_revision.sh (wavelength2d.py)",
+   "sha256": "d33fc3cde8816929bd3c0195afb584ef051139c5fbf1b119920035640e8f0fe6"
+  },
+  {
+   "file": "analysis/revision/spiral2d/panfilov_gf0.775.json",
+   "group": "revision",
+   "command": "cd REVISION && runs_revision.sh (wavelength2d.py)",
+   "sha256": "0c0e571964c4ebe7570a7caa6bc0c39ab8c2aa543c85e1a6b79649f6850971b0"
+  },
+  {
+   "file": "analysis/revision/spiral2d/panfilov_gf0.8.json",
+   "group": "revision",
+   "command": "cd REVISION && runs_revision.sh (wavelength2d.py)",
+   "sha256": "d8a3bc2b48bbcd8bd4d05cdb431dba074bcdbc77223ddb327727b6956581b54e"
   }
  ]
 }

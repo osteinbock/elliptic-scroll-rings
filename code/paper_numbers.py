@@ -1,10 +1,12 @@
 """Every number quoted in the manuscript and SI that follows from the simulations, recomputed
 from the production data and analysis products; written to <BARKLEY>/paper_numbers.json.
-    python paper_numbers.py SUPP BARKLEY [REFINE]   (after build_all.sh has produced the tables)
+    python paper_numbers.py SUPP BARKLEY [REFINE [REVISION]]   (after build_all.sh has produced the tables)
+The four folders are also passed to folders.py (environment variables SUPP, BARKLEY, REFINE, REVISION).
 """
 import os
 import sys
 import csv
+import glob
 import json
 import numpy as np
 
@@ -14,8 +16,12 @@ import ellipse_compare as C          # noqa: E402
 import filament_flow as F            # noqa: E402
 import halfcycle as H                # noqa: E402
 
-S, B = sys.argv[1], sys.argv[2]
-RF = sys.argv[3] if len(sys.argv) > 3 else None
+S, B = (os.path.abspath(p) for p in sys.argv[1:3])
+RF = os.path.abspath(sys.argv[3]) if len(sys.argv) > 3 else None
+RV = os.path.abspath(sys.argv[4]) if len(sys.argv) > 4 else None
+for _name, _path in (("SUPP", S), ("BARKLEY", B), ("REFINE", RF), ("REVISION", RV)):
+    if _path:
+        os.environ[_name] = _path
 OUT = {}
 
 
@@ -333,10 +339,588 @@ def refine():
     put("refine.straight_k0.35.beta_change_percent", round(100 * (sf["beta"] / sc["beta"] - 1), 1))
 
 
+# ----------------------------------------------------------------------------- revision (referee reports of 20 October 2026)
+def _rows(path):
+    return H.read_csv(path)
+
+
+def _ms(v, nd=3):
+    v = np.asarray(v, float)
+    return [round(v.mean(), nd), round(v.std(ddof=1), nd) if len(v) > 1 else None, len(v)]
+
+
+def _rng(v, nd=2):
+    v = np.asarray(v, float)
+    return [round(v.min(), nd), round(v.max(), nd)]
+
+
+def _uniform():
+    return _rows(os.path.join(RV, "uniform_halfcycles.csv"))
+
+
+def rev_halfcycles():
+    """Sec. IV C, the abstract, Sec. V, SI Sec. II: the half-cycle analysis with the circular-ring baseline."""
+    import halfcycle_uniform as HU
+    U = _uniform()
+    r2 = [r for r in U if r["model"] == "barkley" and r["event"] == "r2"]
+    put("rev.fig5a.n_halfcycles_and_runs", [len(r2), len({r["run"] for r in r2})])
+    b17 = [r for r in r2 if "b=0.17" in r["run"]]
+    q = np.array([r["ratio_c"] for r in b17])
+    put("rev.b017.ratio_c.mean_sd_n", _ms(q))
+    put("rev.b017.ratio_c.range", _rng(q))
+    put("rev.b017.ratio_c.percent_longer", round(100 * (q.mean() - 1)))
+    put("rev.b017.Rbar.range", _rng([r["Rbar"] for r in b17], 1))
+    put("rev.b017.eq5_factor.mean_sd", _ms([r["eq5_factor"] for r in b17])[:2])
+    put("rev.b017.residual.mean_sd", _ms([r["residual"] for r in b17])[:2])
+    cal = HU.barkley_calibration(0.17)
+    put("rev.b017.beta_r_over_beta_at_Rbar.range", _rng([float(cal.ratio_r(r["Rbar"])) for r in b17]))
+    put("rev.b017.beta_r_over_beta_from_eq5.range", _rng([1 / r["eq5_factor"] ** 2 for r in b17]))
+    put("rev.b017.ratio_own.mean_sd", _ms([r["ratio_own"] for r in b17], 2)[:2])
+    put("rev.b017.drift_per_switch_over_Rbar", round(float(np.mean([r["ratio_own"] for r in b17])) * np.pi / (2 * np.sqrt(3)), 2))
+    deficit = lambda rows: _rng([100 * (1 - r["own_over_c"]) for r in rows], 0)
+    put("rev.own_drift_deficit_percent.b017.range", deficit(b17))
+    b1516 = [r for r in r2 if "b=0.15" in r["run"] or "b=0.16" in r["run"]]
+    b18 = [r for r in r2 if "b=0.18" in r["run"]]
+    put("rev.own_drift_deficit_percent.b015_b016.range", deficit(b1516))
+    put("rev.own_drift_deficit_percent.b018", deficit(b18))
+    put("rev.b015_b016.ratio_c.range", _rng([r["ratio_c"] for r in b1516]))
+    put("rev.b018.ratio_c", [round(r["ratio_c"], 2) for r in b18])
+    big = [r for r in b1516 if r["Rbar"] >= 3.6]
+    small = [r for r in b1516 if r["Rbar"] < 3.6]
+    put("rev.b015_b016.Rbar_ge_3.6.eq5_factor.range", _rng([r["eq5_factor"] for r in big]))
+    put("rev.b015_b016.Rbar_ge_3.6.residual.range", _rng([r["residual"] for r in big]))
+    put("rev.b015_b016.smallest.residual_and_Rbar", [_rng([r["residual"] for r in small]), _rng([r["Rbar"] for r in small], 1)])
+    put("rev.b015_b016.eq5_local_vs_global.max_abs_difference", round(max(abs(r["eq5_factor"] - r["eq5_global"]) for r in b1516), 3))
+    put("rev.fig5a.T_obs.range", [round(min(r["T_obs"] for r in r2), 1), round(max(r["T_obs"] for r in r2))])
+    put("rev.fig5a.max_shrink_within_halfcycle_percent", round(100 * max(1 - r["R_end_over_start"] for r in r2)))
+    put("rev.fig5a.factor.range", _rng([r["factor"] for r in r2]))
+    put("rev.fig5a.max_amplitude_correction_percent", round(100 * max(abs(1 - r["factor"]) for r in r2), 1))
+    put("rev.fig5a.max_tension_correction_percent",
+        round(100 * max(1 - np.sqrt(1 - r["alpha_c"] ** 2 / (48 * r["beta_c"] ** 2)) for r in r2), 3))
+    # planar-moment half-cycles (cross-model comparison)
+    z2 = lambda model, sel, rad="Rm": [r for r in U if r["model"] == model and r["event"] == "z2" and r["radius"] == rad and sel(r)]
+    weak = lambda r: "mode" in r["run"]
+    b17z = lambda r: "b=0.17" in r["run"] and "mode" not in r["run"]
+    for rad in ("Rm", "L"):
+        put(f"rev.b017.all.z2.{rad}.ratio_c.mean_sd_n", _ms([r["ratio_c"] for r in z2("barkley", lambda r: "b=0.17" in r["run"], rad)], 3))
+        put(f"rev.b017.weak_modes.z2.{rad}.ratio_c.mean_sd_n", _ms([r["ratio_c"] for r in z2("barkley", weak, rad)], 3))
+        put(f"rev.b017.elliptic.z2.{rad}.ratio_c.mean_sd_n", _ms([r["ratio_c"] for r in z2("barkley", b17z, rad)], 3))
+    for gf in ("0.775", "0.8"):
+        rows = z2("panfilov", lambda r: f"gf={gf} " in r["run"])
+        put(f"rev.panfilov.gf{gf}.ratio_c.mean_sd_n_runs", _ms([r["ratio_c"] for r in rows]) + [len({r["run"] for r in rows})])
+        put(f"rev.panfilov.gf{gf}.eq5_factor.mean", round(float(np.mean([r["eq5_factor"] for r in rows])), 3))
+        put(f"rev.panfilov.gf{gf}.residual.mean", round(float(np.mean([r["residual"] for r in rows])), 3))
+    rm, rl = z2("panfilov", lambda r: True), z2("panfilov", lambda r: True, "L")
+    put("rev.panfilov.L_vs_Rm_ratio_change_percent.range",
+        _rng([100 * (b["ratio_c"] / a["ratio_c"] - 1) for a, b in zip(rm, rl)], 1))
+    A = z2("atri", lambda r: True)
+    AL = z2("atri", lambda r: True, "L")
+    qa = np.array([r["ratio_c"] for r in A])
+    put("rev.atri.excess_percent.mean_sd_n_runs", [round(100 * (qa.mean() - 1), 1), round(100 * qa.std(ddof=1), 1), len(qa),
+                                                     len({r["run"] for r in A})])
+    low = np.array([r["ratio_c"] for r in A if r["aspect"] < 1.3])
+    put("rev.atri.aspect_below_1.3.excess_percent.mean_sd_n", [round(100 * (low.mean() - 1), 1), round(100 * low.std(ddof=1), 1), len(low)])
+    put("rev.atri.Rbar.range_um", _rng([r["Rbar"] for r in A], 0))
+    i0, i1 = int(np.argmin([r["Rbar"] for r in A])), int(np.argmax([r["Rbar"] for r in A]))
+    put("rev.atri.ratio_at_smallest_and_largest_Rbar", [round(A[i0]["ratio_c"], 2), round(A[i1]["ratio_c"], 2)])
+    dconv = [abs(b["ratio_c"] / a["ratio_c"] - 1) * 100 for a, b in zip(A, AL)]
+    put("rev.atri.L_vs_Rm.max_change_percent.eccentric_and_aspect_below_1.3",
+        [round(max(d for d, a in zip(dconv, A) if a["aspect"] >= 1.3), 1), round(max(d for d, a in zip(dconv, A) if a["aspect"] < 1.3), 1)])
+    put("rev.atri.factor.max_deviation_percent.aspect_below_1.3", round(100 * max(abs(r["factor"] - 1) for r in A if r["aspect"] < 1.3), 1))
+    m3 = np.mean([r["ratio_c"] for r in A if r["run"] == "dx=3.0 600^2 x 280 seed 100 x 60"])
+    m2 = np.mean([r["ratio_c"] for r in A if r["run"] == "dx=2.0 600^2 x 280 seed 100 x 60"])
+    put("rev.atri.dx2_vs_dx3.ratio_change_percent", round(100 * (m2 / m3 - 1), 1))
+    # clearance of the Atri half-cycles from their periodic images (as in supp())
+    import halfcycle_tables as HT
+    files = {f"dx={dx} {dom} seed {seed}": fn for fn, dx, dom, seed, circ in HT.ATRI}
+    cl = []
+    for r in A:
+        d = np.load(os.path.join(S, files[r["run"]]))
+        k = single(d) & (d["t"] >= r["t_start"]) & (d["t"] <= r["t_end"])
+        cl.append(float(d["Lxy"]) - 2 * np.maximum(d["hx"][k], d["hy"][k]).max())
+    cl = np.array(cl)
+    dx3 = np.array(["dx=3.0" in r["run"] for r in A])
+    keep = dx3 & (cl >= 260)
+    put("rev.atri.dx3.clearance_ge_260.n_mean_vs_others_mean",
+        [int(keep.sum()), round(qa[keep].mean(), 3), round(qa[~keep].mean(), 3)])
+    put("rev.atri.min_clearance_um", round(cl.min()))
+    import atri_alpha as AA
+    beta = abs(float(AA.fit(os.path.join(S, "acirc4_P0.1_c052.npz"), 16.58)[0][:, 3].mean()))
+    put("rev.atri.switch_interval_min_for_R_95_145_um",
+        [round(qa.mean() * np.pi * R ** 2 / (2 * np.sqrt(3) * beta) / 60, 1) for R in (95.0, 145.0)])
+    # the Atri ring at P = 0.095 uM: closest approach to its periodic images
+    d = np.load(os.path.join(S, "aell2_P0.095_130x80.npz"))
+    ok = single(d)
+    c = C.smooth(d["t"][ok], float(d["Lxy"]) - 2 * np.maximum(d["hx"][ok], d["hy"][ok]), 17.5)
+    put("rev.atri.P0.095.min_clearance_um", round(float(np.nanmin(c))))
+
+
+def rev_procedures():
+    """SI Sec. II A: finite-amplitude factors, eccentric binormal flow, the bias of a mean R^2."""
+    put("rev.factor.L.at_aspect_1.17_1.5_1.77_2.06_2.43",
+        [round(H.model_factor(5 * np.sqrt(a), 5 / np.sqrt(a), 1.0, radius="L"), 3) for a in (1.17, 1.5, 1.77, 2.06, 2.43)])
+    put("rev.factor.Rm.at_aspect_1.17_1.5_1.77_2.06_2.43",
+        [round(H.model_factor(5 * np.sqrt(a), 5 / np.sqrt(a), 1.0, radius="Rm"), 3) for a in (1.17, 1.5, 1.77, 2.06, 2.43)])
+    a = 2.4
+    T0 = np.pi * 25 / (2 * np.sqrt(3))
+    r = F.run(5 * np.sqrt(a), 5 / np.sqrt(a), 0.0, 1.0, 6.2 * T0, n=48, dt=None, every=T0 / 400)
+    x = np.r_[0.0, [c for c in C.crossings(r["t"], r["h2c"]) if c > 0.2 * T0]]
+    hc = np.diff(x)                                     # planar moment to planar moment, from the planar start
+    put("rev.eccentric_2.4.later_halfcycles_shorter_percent.range", _rng(100 * (1 - hc[1:] / hc[0]), 1))
+    s = 1 - 0.7 ** 2                                    # R^2 linear in time, shrinking by 30%
+    exact = -np.log(1 - s) / s                          # int dt / R^2 (units R0 = 1, half-cycle = 1)
+    put("rev.mean_R2_bias_percent_for_30_percent_shrink", round(100 * abs(1 / (1 - s / 2) / exact - 1), 1))
+
+
+def rev_barkley_rings():
+    """Secs. IV A, B: Figs. 2 and 3, circular rings, calibrations, spirals."""
+    import make_figs as MF
+    import halfcycle_uniform as HU
+    cwd = os.getcwd(); os.chdir(B)
+    try:
+        t, S2 = MF.smooth_all("rerun_r2/ell_a1.1_b0.17_8x5.npz", 4.44)
+        put("rev.fig2.halfwidths_t4", [round(float(np.interp(4.0, t, S2["hx"])), 1), round(float(np.interp(4.0, t, S2["hy"])), 1)])
+        put("rev.fig2.planar_moments_after_t6", [round(x, 1) for x in C.crossings(t, S2["z2c"]) if x > 6][:2])
+        put("rev.fig2.circle_beta_c_at_first_last_window",
+            [round(float(HU.barkley_calibration(0.17).beta(np.mean(S2["length"][(t >= a) & (t < a + 10)]) / (2 * np.pi))), 2) for a in (8, 108)])
+        cal = HU.barkley_calibration(0.17)
+        X0 = MF.measured_shape(t, S2, 4.0)
+        M = MF.follow_size(t, S2, 4.0, X0, cal)
+        sw = [x for x in C.crossings(t, S2["r2c"]) if x > 4]
+        sm = [x for x in C.crossings(M["t"], M["hx"] - M["hy"]) if x > 4]
+        n = min(len(sw), len(sm)) - 1
+        put("rev.fig2.model_halfcycle_ratios.range", _rng(np.diff(sw)[:n] / np.diff(sm)[:n]))
+        r = F.run(0, 0, 0.0, -1.0, 20.0, n=96, every=0.05, X0=X0)       # constant beta = 1 from the measured shape
+        RL = r["length"] / (2 * np.pi)
+        f = []
+        for a in (0, 5, 10):
+            m = (r["t"] >= a) & (r["t"] < a + 10)
+            f.append(abs(np.polyfit(r["t"][m], r["z"][m], 1)[0]) * RL[m].mean())
+        put("rev.fig2.model_drift_deficit_percent.windows_0_5_10", [round(100 * (1 - v), 1) for v in f])
+        # Fig. 3
+        t, S3 = MF.smooth_all("rerun_r2/ellP_a1.1_b0.15_12x7.5.npz", 4.13)
+        cal15 = HU.barkley_calibration(0.15)
+        X0 = MF.measured_shape(t, S3, 4.0)
+        rr = MF.lowest_order_run(X0, cal15, 88.0)
+        RLm = rr["length"] / (2 * np.pi)
+        keep = np.cumsum(~(RLm > 2.5)) == 0
+        RL = S3["length"] / (2 * np.pi)
+        R0 = float(np.interp(4.0, t, RL))
+        put("rev.fig3.R_at_t4", round(R0, 2))
+        xs = [c for c in C.crossings(t, S3["hx"] - S3["hy"]) if c > 4.0]
+        sim = [(c, np.log(R0 / np.interp(c, t, RL))) for c in xs if np.interp(c, t, RL) > 3.0]
+        tvalid = rr["t"][keep][-1]
+        ms_ = [c for c in C.crossings(rr["t"], rr["hx"] - rr["hy"]) if 0.5 < c < tvalid]
+        low = [(c + 4.0, np.log(RLm[0] / np.interp(c, rr["t"], RLm))) for c in ms_ if np.interp(c, rr["t"], RLm) > 3.0]
+        put("rev.fig3.sim_lnR_spacings", [round(sim[i + 1][1] - sim[i][1], 2) for i in range(len(sim) - 1)])
+        put("rev.fig3.model_vs_sim_lnR_deviation_first_two", [round(abs(low[i][1] - sim[i][1]), 2) for i in range(2)])
+        put("rev.fig3.sim_over_model_time_to_switch_first_two", [round((sim[i][0] - 4.0) / (low[i][0] - 4.0), 2) for i in range(2)])
+        put("rev.fig3.third_switch_lnR_model_sim", [round(low[2][1], 2), round(sim[2][1], 2)])
+        put("rev.fig3.R_at_t44_model_sim", [round(float(np.interp(40.0, rr["t"], RLm)), 1), round(float(np.interp(44.0, t, RL)), 1)])
+        al, be, _, _ = MF.fit_shrink_drift("ellP_a0.8_b0.05_12x7.5.npz", 3.39, 6.0)
+        put("rev.fig3.b005.alpha_abs_beta", [round(al, 2), round(abs(be), 2)])
+        # circular rings at b = 0.17: the calibration of Fig. 4
+        files = [f for f in MF.VALID_CIRCLES + MF.LARGE_CIRCLES] + [os.path.join(RV, "circ17_R0_26.npz")]
+        used = [f for f in files if len(HU.circle_windows(f, 4.44, 10.0, 5.0, 20.0))]
+        put("rev.fig4.calibration_rings_and_seed_radii", [len(used), _rng([MF.seed_radius(f) for f in used], 1)])
+        put("rev.fig4.calibration_K_range", _rng(cal.Krange))
+        K0, K1 = cal.Krange
+        Ks = np.linspace(K0, K1, 4001)
+        put("rev.fig4.alpha_at_K_range_ends_and_zero", [round(float(np.polyval(cal.pa, K0)), 2), round(float(np.polyval(cal.pa, K1)), 2),
+                                                        round(float(Ks[np.argmin(np.abs(np.polyval(cal.pa, Ks)))]), 2)])
+        put("rev.fig4.beta_at_K_range_ends", [round(float(np.polyval(cal.pb, K0)), 1), round(float(np.polyval(cal.pb, K1)), 1)])
+        w = HU.circle_windows("sf2/circXXL_R0_38_snaps.npz", 4.44, 10.0, 5.0, 20.0)
+        w = w[: int(np.searchsorted(np.arange(20, 200, 5.0) + 5, 145))]
+        put("rev.fig4.R0_38_windows_K.range", _rng(w[:, 0], 3))
+        fin = {}
+        for f in ("circS_R0_4.5.npz", "circHB_R0_5.0.npz", "circS_R0_5.5.npz", "circL_R0_6.npz", "circS_R0_6.5.npz"):
+            tt, s, _ = smoothed(f, 4.44, ("Rm", "length"))
+            g = np.isfinite(s["Rm"]) & np.isfinite(s["length"])
+            fin[f] = (s["Rm"][g][-1], s["length"][g][-1] / (2 * np.pi))
+        put("rev.fig4.final_radii_near_Rstar.Rm_and_L2pi", [_rng([v[0] for v in fin.values()]), _rng([v[1] for v in fin.values()])])
+        slope, ends = [], []
+        for f in ("circS_R0_7.5.npz", "circL_R0_9.npz", "circL_R0_13.npz"):
+            tt, s, d = smoothed(f, 4.44, ("Rm",))
+            g = np.isfinite(s["Rm"])
+            m = g & (tt > tt[g][-1] - 20)
+            slope.append(round(float(np.polyfit(tt[m], s["Rm"][m], 1)[0]), 4))
+        put("rev.fig4.final_dR_dt.R0_7.5_9_13", slope)
+        d = np.load("circ_R0_4.npz")
+        put("rev.fig4.R0_4.last_filament_t_and_run_end", [round(float(d["t"][np.isfinite(d["Rm"])][-1]), 1), round(float(d["t"][-1]), 1)])
+        Tmax = max(float(np.load(f)["t"][-1]) for f in MF.VALID_CIRCLES)
+        put("rev.fig4.longest_circle_run", round(Tmax))
+    finally:
+        os.chdir(cwd)
+    # calibrations at b = 0.15, 0.16, 0.18 (SI Sec. III, Table S3)
+    c15 = HU.barkley_calibration(0.15)
+    P = c15.P[(c15.P[:, 0] >= 0.13) & (c15.P[:, 0] <= 0.33)]
+    put("rev.b015.beta_windows_K_0.13_0.33.range", _rng(P[:, 2]))
+    put("rev.b015.beta_fit_K_0.13_0.33.range", _rng(np.polyval(c15.pb, np.linspace(0.13, 0.33, 201))))
+    c16 = HU.barkley_calibration(0.16)
+    Ks = np.linspace(*c16.Krange, 2000)
+    put("rev.b016.Rstar_from_fit", round(float(1 / Ks[np.argmin(np.abs(np.polyval(c16.pa, Ks)))]), 1))
+    fin16 = []
+    for R0 in ("5", "8", "10"):
+        d = np.load(os.path.join(RV, f"circ16_R0_{R0}.npz"))
+        ok = np.isfinite(d["Rm"]) & (d["ncurves"] == 1)
+        Rs = C.smooth(d["t"][ok], d["Rm"][ok], 4.318)
+        fin16.append(Rs[np.isfinite(Rs)][-1])
+    put("rev.b016.final_Rm.R0_5_8_10", _rng(fin16, 1))
+    coll = []
+    for f in sorted(glob.glob(os.path.join(RV, "circ15_R0_*.npz"))):
+        d = np.load(f)
+        ok = np.isfinite(d["Rm"]) & (d["ncurves"] == 1)
+        Rs = C.smooth(d["t"][ok], d["Rm"][ok], 4.13)
+        coll.append(bool(Rs[np.isfinite(Rs)][-1] < 2.5 and d["t"][-1] < float(d["T"]) - 1) if "T" in d.files else bool(Rs[np.isfinite(Rs)][-1] < 2.5))
+    put("rev.b015.all_rings_collapse", bool(all(coll)))
+    c18 = HU.barkley_calibration(0.18)
+    put("rev.b018.max_window_alpha", round(float(c18.P[:, 1].max()), 3))
+    grow = []
+    for f in sorted(glob.glob(os.path.join(RV, "circ18_R0_*.npz"))):
+        d = np.load(f)
+        ok = np.isfinite(d["Rm"]) & (d["ncurves"] == 1)
+        Rs = C.smooth(d["t"][ok], d["Rm"][ok], 4.75)
+        g = np.isfinite(Rs)
+        grow.append(bool(Rs[g][-1] > Rs[g][0]))
+    put("rev.b018.all_rings_expand", bool(all(grow)))
+    # two-dimensional spirals (Table S4)
+    sp = {}
+    for f in glob.glob(os.path.join(RV, "spiral2d", "*.json")):
+        d = json.load(open(f))
+        sp[d["model"] + (f"{d['b']}" if d["model"] == "barkley" else ("0.775" if "0.775" in d["fields"] else "0.8"))] = d
+    put("rev.spirals.barkley.core_radius_b0.15_0.16_0.17_0.18", [round(sp[f"barkley{b}"]["core_radius"], 2) for b in (0.15, 0.16, 0.17, 0.18)])
+    put("rev.spirals.barkley.wavelength_b0.15_0.16_0.17_0.18", [round(sp[f"barkley{b}"]["wavelength"], 1) for b in (0.15, 0.16, 0.17, 0.18)])
+    put("rev.spirals.panfilov.core_radius_wavelength_gf0.775_0.8",
+        [[round(sp[f"panfilov{g}"]["core_radius"], 2), round(sp[f"panfilov{g}"]["wavelength"], 1)] for g in ("0.775", "0.8")])
+
+
+def rev_modes():
+    """Sec. IV D, SI Sec. IV: ring modes, filament definitions, twist, rigidity, straight filaments."""
+    import make_figs as MF
+    import halfcycle_uniform as HU
+    MR = json.load(open(os.path.join(B, "mode_refit.json")))
+    MDf = json.load(open(os.path.join(RV, "mode_definitions.json")))
+    RT = json.load(open(os.path.join(B, "rigidity_test.json")))
+    quad = lambda a: float(min(abs(a) % 180, 180 - abs(a) % 180))     # departure from quadrature
+    std4 = [r for r in MDf["rstar"] if r["m"] == 4 and "standard" in r["definition"]][0]
+    put("rev.modes.Rm_at_Rstar.range", _rng([r["R"] for r in MR["rstar"]] + [std4["R"]], 2))
+    full = [r for r in MR["tau_fits"] if r["run"] == "larger ring" and r["t0"] == 15.0 and r["t1"] in (150.0, 100.0)]
+    put("rev.modes.larger_ring.R_mean_m2_m3", [round(r["R"], 1) for r in full])
+    put("rev.modes.larger_ring.m2.R_start_end", [round(full[0]["R_start"], 1), round(full[0]["R_end"], 1)])
+    put("rev.modes.quadrature_deg.standard_max", round(max([quad(r["dphase_deg"]) for r in MR["rstar"]] + [quad(r["dphase_deg"]) for r in full]), 1))
+    other = [r for r in MDf["rstar"] + MDf["large"] if r["m"] in (2, 3) and "standard" not in r["definition"]]
+    put("rev.modes.quadrature_deg.other_definitions_max", round(max(quad(r["dphase_deg"]) for r in other), 1))
+    put("rev.modes.quadrature_deg.m4.range", _rng([quad(r["dphase_deg"]) for r in MDf["rstar"] if r["m"] == 4], 0))
+    cwd = os.getcwd(); os.chdir(B)
+    try:
+        rows = MF.mode_ranges()
+    finally:
+        os.chdir(cwd)
+    for r in rows:
+        key = f"rev.modes.{'Rstar' if r['ring'] == 'R*' else 'larger'}.m{r['m']}"
+        put(key + ".k", round(r["k"], 2))
+        put(key + ".bz_over_drift.main_range", [round(r["bz"], 2)] + _rng(r["bz_rng"]))
+        put(key + ".br_over_drift.main_range", [round(r["br"], 2)] + _rng(r["br_rng"]))
+    m2 = [r for r in rows if r["m"] == 2]
+    put("rev.modes.m2.halfperiod_ratio_from_couplings.Rstar_larger", [round(1 / np.sqrt(r["bz"] * r["br"]), 3) for r in m2])
+    put("rev.modes.m2.halfperiod_ratio_vs_circle.Rstar_larger",
+        [round(float(HU.barkley_calibration(0.17).beta(R)) / r["W"], 3) for r, R in zip(m2, (np.mean([x["R"] for x in MR["rstar"] if x["m"] == 2]), full[0]["R"]))])
+    st = sorted(rows, key=lambda r: r["k"])
+    sl = np.load(os.path.join(B, "sf2", "sf2_linear.npy"))
+    ib = lambda k: np.interp(k, sl[:, 0], sl[:, 3])
+    put("rev.modes.ringmodes_below_straight_percent.range_all_six", _rng([100 * (1 - r["W"] / ib(r["k"])) for r in st], 0))
+    put("rev.modes.ringmodes_below_straight_percent.range_m2_m3", _rng([100 * (1 - r["W"] / ib(r["k"])) for r in st if r["m"] < 4], 0))
+    bk = np.load(os.path.join(B, "sf2", "buckle.npz"))["fits"]
+    put("rev.buckle.m_k_R", [[int(bk[:, 0].min()), int(bk[:, 0].max())], _rng(bk[:, 2]), round(float(bk[:, 1].mean()))])
+    lam = [2 * np.pi * r["R"] / r["m"] for r in MR["rstar"]] + [2 * np.pi * std4["R"] / 4] + [2 * np.pi * r["R_start"] / r["m"] for r in full]
+    put("rev.modes.deformation_wavelengths.range", _rng(lam, 0))
+    # the local (curvature-only) law at R*
+    R2 = [r for r in MR["rstar"] if r["m"] == 2]
+    R3 = [r for r in MR["rstar"] if r["m"] == 3]
+    put("rev.modes.local_law.alpha_c_and_alpha_r_at_Rstar", [round(float(np.mean([r["alpha_zeta_loc"] for r in MR["rstar"]])), 3),
+                                                           round(float(np.mean([r["alpha_r_loc"] for r in MR["rstar"]])), 2)])
+    put("rev.modes.local_law.growth_m2_m3", [round(float(np.mean([r["growth_loc"] for r in R2])), 3), round(float(np.mean([r["growth_loc"] for r in R3])), 3)])
+    put("rev.modes.decay_m2_m3", [round(float(np.mean([r["gamma"] for r in R2])), 3), round(float(np.mean([r["gamma"] for r in R3])), 3)])
+    put("rev.modes.local_law.beta_r_over_drift_at_Rstar", round(float(HU.barkley_calibration(0.17).ratio_r(np.mean([r["R"] for r in R2]))), 2))
+    for m in (2, 3):
+        a = [r for r in MR["rstar"] if r["m"] == m]
+        dfn = [r for r in MDf["rstar"] if r["m"] == m]
+        put(f"rev.modes.m{m}.alpha_r.range_amps", _rng([r["alpha_r"] for r in a]))
+        put(f"rev.modes.m{m}.alpha_zeta.range_amps", _rng([r["alpha_zeta"] for r in a]))
+        put(f"rev.modes.m{m}.alpha_r.range_definitions", _rng([r["alpha_r"] for r in dfn]))
+        put(f"rev.modes.m{m}.alpha_zeta.range_definitions", _rng([r["alpha_zeta"] for r in dfn]))
+    d2 = [r for r in MDf["rstar"] if r["m"] == 2]
+    put("rev.defs.m2.bz_over_drift.range", _rng([r["bz"] / r["bdrift"] for r in d2], 3))
+    put("rev.defs.m2.br_over_drift.max_spread", round(max(np.ptp([r["br"] / r["bdrift"] for r in d2 if r["amp"] == a]) for a in (0.08, 0.15)), 2))
+    put("rev.defs.m2.Rm.range", _rng([r["R"] for r in d2]))
+    put("rev.defs.Rstar.omega_spread_percent", round(max(100 * np.ptp([r["omega"] for r in MDf["rstar"] if r["m"] == m and r["amp"] == a])
+                                                             / np.mean([r["omega"] for r in MDf["rstar"] if r["m"] == m and r["amp"] == a])
+                                                             for m, a in ((2, 0.08), (2, 0.15), (3, 0.08), (3, 0.15))), 2))
+    put("rev.defs.Rstar.max_bz_change", round(max(np.ptp([r["bz"] / r["bdrift"] for r in MDf["rstar"] if r["m"] == m and r["amp"] == a])
+                                                  for m, a in ((2, 0.08), (2, 0.15), (3, 0.08), (3, 0.15))), 3))
+    for m in (2, 3):
+        put(f"rev.defs.larger.m{m}.bz_over_drift.range", _rng([r["bz"] / r["bdrift"] for r in MDf["large"] if r["m"] == m], 3))
+    tw = MDf["twist"]
+    put("rev.twist.amp_over_r.range", _rng([t["rel"][f"tw{t['m']}c"]["amp_over_r"] for t in tw]))
+    put("rev.twist.abs_phase_deg.range", _rng([abs(t["rel"][f"tw{t['m']}c"]["phase_deg"]) for t in tw], 0))
+    put("rev.twist.m2.max_abs_phase_deg", round(max(abs(t["rel"]["tw2c"]["phase_deg"]) for t in tw if t["m"] == 2)))
+    put("rev.twist.sin_part.max_amp_over_r", round(max(t["rel"][f"tw{t['m']}s"]["amp_over_r"] for t in tw), 3))
+    put("rev.twist.local_median.range", _rng([t["tw_rms_median"] for t in tw], 3))
+    put("rev.twist.net.max", round(max(t["tw_net_max"] for t in tw), 3))
+    s2 = [t for t in tw if t["m"] == 2 and "0.15" in t["run"] and "modeR" in t["run"]]
+    put("rev.twist.figS2_run.amp_over_r", round(s2[0]["rel"]["tw2c"]["amp_over_r"], 2) if s2 else None)
+    put("rev.twist.m2.max_departure_alpha_r_beta_r_from_local",
+        [round(max(abs(r["alpha_r"] - r["alpha_r_loc"]) for r in R2), 2), round(max(abs(r["br"] - r["beta_r_loc"]) for r in R2), 2)])
+    put("rev.twist.m2.shift_alpha_zeta_and_beta_zeta",
+        [round(float(np.mean([r["alpha_zeta"] - r["alpha_zeta_loc"] for r in R2])), 2), round(float(np.mean([r["beta_zeta_loc"] - r["bz"] for r in R2])), 2)])
+    # rigidity-extended local law
+    ring = RT["rings"]
+    put("rev.rigidity.e2_from_freq.range", _rng([r["e2_freq"] for r in ring], 1))
+    put("rev.rigidity.implied_split.bz_br.ranges", [_rng([r["bz_pred_freq"] for r in ring]), _rng([r["br_pred_freq"] for r in ring])])
+    put("rev.rigidity.e2_from_zeta.range", _rng([r["e2_zeta"] for r in ring], 1))
+    put("rev.rigidity.e2_from_r.range", _rng([r["e2_r"] for r in ring], 2))
+    put("rev.rigidity.e1_from_zeta_and_r.ranges", [_rng([r["e1_zeta"] for r in ring], 1), _rng([r["e1_r"] for r in ring], 1)])
+    stf = RT["straight"]
+    put("rev.rigidity.straight.linear_fit_gamma2_e2", [round(stf["fit_linear"][1], 2), round(stf["fit_linear"][0], 1)])
+    put("rev.rigidity.straight.linear_residuals_abs.range", _rng(np.abs(stf["residuals_linear"])))
+    put("rev.rigidity.straight.omega_over_k2_uncertainty.range", _rng(sl[:, 4], 3))
+    put("rev.rigidity.straight.quadratic_fit_e2_e3", [round(stf["fit_quadratic"][1], 1), round(stf["fit_quadratic"][0], 1)])
+    # straight filaments at b = 0.15 and 0.16 (controls)
+    CT = json.load(open(os.path.join(RV, "controls.json")))["straight"]
+    s15 = [c for c in CT if c["label"].startswith("b=0.15")]
+    put("rev.straight.b015.all_decay_and_beta", [bool(all(c["gamma_over_k2"] > 0 for c in s15)), [round(c["beta"], 2) for c in s15]])
+    put("rev.straight.b016.k045.gamma_over_k2", round([c for c in CT if c["label"].startswith("b=0.16")][0]["gamma_over_k2"], 3))
+
+
+def rev_controls():
+    """Sec. III: resolution, domain size, time step, seed orientation; Fig. 2 tilt estimator; solver checks."""
+    import halfcycle_uniform as HU
+    import period_analysis as PA
+    import ellipse_ring as E
+    import period_analysis_r2 as P2
+    import controls_check as CC
+    from mode_theory2 import solver_check
+    CT = json.load(open(os.path.join(RV, "controls.json")))
+    bb = CT["bigbox"]
+    put("rev.controls.mode_bigbox.max_relative_change", float("%.1g" % max(abs(bb["bigbox"][k] / bb["standard"][k] - 1) for k in ("omega", "q", "gamma"))))
+    fac = np.load(os.path.join(B, "amp_factor.npy"))
+    cal = HU.barkley_calibration(0.17)
+
+    def halfcycles(path, key, per=4.44, T=80.0):
+        d = np.load(path)
+        ok = np.isfinite(d[key]) & np.isfinite(d["length"])
+        t = d["t"][ok]; good = PA.single_closed(d)[ok]
+        y, L, z = (C.smooth(t, np.where(good, d[k][ok], np.nan), per) for k in (key, "length", "z"))
+        R = L / (2 * np.pi)
+        x = [c for c in C.crossings(t, y) if c <= T]
+        out = []
+        for a, b in zip(x[:-1], x[1:]):
+            m = (t >= a) & (t <= b) & np.isfinite(R) & np.isfinite(z)
+            eps = np.max(np.abs(y[m]) / R[m]); f = float(np.interp(eps, fac[:, 0], fac[:, 1]))
+            row = HU.predictions(t[m], R[m], z[m], f, cal)
+            out.append((row["ratio_own"], row["ratio_c"]))
+        return np.array(out)
+    ref = halfcycles(os.path.join(B, "rerun_r2", "ell_a1.1_b0.17_8x5.npz"), "r2c")
+    dt4 = halfcycles(os.path.join(RV, "ell_8x5_dt04.npz"), "r2c")
+    rot = halfcycles(os.path.join(RV, "ell_8x5_rot45.npz"), "r2s")
+    n = min(len(ref), len(dt4), len(rot))
+    for j, nm in ((1, "ratio_c"), (0, "ratio_own")):
+        ch = np.r_[dt4[:n, j] / ref[:n, j] - 1, rot[:n, j] / ref[:n, j] - 1] * 100
+        put(f"rev.controls.dt_half_and_rot45.{nm}_change_percent.range", _rng(ch, 1))
+        put(f"rev.controls.dt_half_and_rot45.{nm}_mean_change_percent",
+            [round(100 * (dt4[:n, j].mean() / ref[:n, j].mean() - 1), 2), round(100 * (rot[:n, j].mean() / ref[:n, j].mean() - 1), 2)])
+    sw = CT["switches"]
+    hp = lambda x: np.diff(x)
+    put("rev.controls.dt_half_and_rot45.halfperiod_change_percent.range",
+        _rng(np.r_[hp(sw["dt_half"]) / hp(sw["reference"])[:len(sw["dt_half"]) - 1] - 1, hp(sw["rot45"]) / hp(sw["reference"])[:len(sw["rot45"]) - 1] - 1] * 100, 1))
+    # elliptic ring in the larger domain: switch times (intervals of period_analysis_r2)
+    cwd = os.getcwd(); os.chdir(B)
+    try:
+        a = P2.intervals_r2("rerun_r2/ell_a1.1_b0.17_12x7.5.npz", 4.44)
+        b = P2.intervals_r2("conv/ell_12x7.5_bigbox.npz", 4.44)
+        sa = np.array([r["t0"] for r in a] + [a[-1]["t1"]]); sb = np.array([r["t0"] for r in b] + [b[-1]["t1"]])
+        k = min(len(sa), len(sb))
+        put("rev.controls.ellipse_bigbox.max_switch_time_change", round(float(np.max(np.abs(sa[:k] - sb[:k]))), 2))
+        # dx = 0.1 and 0.15 ellipses: mean ratio (own drift, as conv_compare.py; and circular-ring baseline)
+        own = lambda rows: np.array([r["Th"] / PA.predict(r, fac)[2] for r in rows])
+        r0 = P2.intervals_r2("rerun_r2/ell_a1.1_b0.17_8x5.npz", 4.44)
+        for lab, f in (("dx0.1", "conv/ell_8x5_dx0.1.npz"), ("dx0.15", "ctrl_ell_8x5_dx015.npz")):
+            r1 = P2.intervals_r2(f, 4.44)
+            nn = min(len(r0), len(r1))
+            c0, c1 = halfcycles(os.path.join(B, "rerun_r2", "ell_a1.1_b0.17_8x5.npz"), "r2c", T=1e9), halfcycles(os.path.join(B, f), "r2c", T=1e9)
+            mm = min(len(c0), len(c1))
+            put(f"rev.controls.{lab}.mean_ratio_change_percent.own_and_c_and_n",
+                [round(100 * (own(r1)[:nn].mean() / own(r0)[:nn].mean() - 1), 2), round(100 * (c1[:mm, 1].mean() / c0[:mm, 1].mean() - 1), 2), nn, mm])
+        # circular ring in a larger domain, and dx = 0.15 circles, against the calibration windows
+        wa = HU.circle_windows("circS_R0_6.5.npz", 4.44, 10.0, 5.0, 20.0)
+        wb = HU.circle_windows("ctrl_circ_R0_6.5_bigbox.npz", 4.44, 10.0, 5.0, 20.0)
+        k = min(len(wa), len(wb))
+        put("rev.controls.circle_bigbox.max_change_alpha_beta", [round(float(np.max(np.abs(wa[:k, 1] - wb[:k, 1]))), 4),
+                                                                 round(float(np.max(np.abs(wa[:k, 2] - wb[:k, 2]))), 4)])
+        dal, dbe = [], []
+        for f in ("ctrl_circ_R0_6.5_dx015.npz", "ctrl_circ_R0_9_dx015.npz"):
+            w = HU.circle_windows(f, 4.44, 10.0, 5.0, 20.0)
+            w = w[(w[:, 0] >= cal.Krange[0]) & (w[:, 0] <= cal.Krange[1])]
+            dal += list(w[:, 1] - np.polyval(cal.pa, w[:, 0]))
+            dbe += list(w[:, 2] / np.polyval(cal.pb, w[:, 0]) - 1)
+        put("rev.controls.dx015.alpha_shift.range", _rng(dal))
+        put("rev.controls.dx015.beta_change_percent.max_abs", round(100 * float(np.max(np.abs(dbe))), 1))
+        med_a, med_b = [], []
+        for f in ("ctrl_circ_R0_6.5_dx015.npz", "ctrl_circ_R0_9_dx015.npz"):
+            w = HU.circle_windows(f, 4.44, 10.0, 5.0, 20.0)
+            med_a.append(float(np.median(w[:, 1] - np.polyval(cal.pa, w[:, 0]))))
+            med_b.append(float(np.median(w[:, 2] / np.polyval(cal.pb, w[:, 0]) - 1)))
+        put("rev.controls.dx015.median_alpha_shift.R0_6.5_9", [round(v, 2) for v in med_a])
+        put("rev.controls.dx015.median_beta_change_percent.R0_6.5_9", [round(100 * v, 1) for v in med_b])
+        # straight filament: side walls 32 vs 64 apart
+        g32, g64 = CC.straight_rates("sf2/L32_k035.npz"), CC.straight_rates("sf2/L64_k035.npz")
+        kk = g32[0]
+        put("rev.controls.straight_walls_32_vs_64.rate_changes", [round(abs((g32[1] - g64[1]) * kk ** 2), 6), round(abs((g32[2] - g64[2]) * kk ** 2), 6)])
+        # time of formation: first frame with a single closed filament in the elliptic runs
+        first = []
+        for path, per, b_, lab, tc, with_r2 in HU.barkley_runs():
+            d = np.load(path)
+            first.append(float(d["t"][PA.single_closed(d) & np.isfinite(d["Rm"])][0]))
+        put("rev.methods.formation_time.max", round(max(first), 1))
+        # axis switches by r2 against h_x = h_y
+        dd, per_run = [], []
+        for path, a_, b_, lab, P, rigid in PA.RUNS:
+            if not rigid or a_ != 1.1:
+                continue
+            A_ = PA.intervals(path, P)
+            B_ = P2.intervals_r2(P2.SRC.get(path, path), P)
+            if not A_ or not B_:
+                continue
+            sw_a = np.array([r["t0"] for r in A_] + [A_[-1]["t1"]])
+            sw_b = np.array([r["t0"] for r in B_] + [B_[-1]["t1"]])
+            d_ = [float(np.min(np.abs(sw_b - s))) for s in sw_a]
+            dd += d_; per_run.append(np.median(d_))
+        put("rev.methods.switch_r2_vs_hx.median_pooled_and_per_run_max", [round(float(np.median(dd)), 3), round(float(max(per_run)), 3)])
+    finally:
+        os.chdir(cwd)
+    # tilt estimator on an exactly tilted circle (SI Sec. I E)
+    th = 2 * np.pi * np.arange(4000) / 4000; R = 4.96; vt = np.radians(12.0)
+    Pc = np.c_[R * np.cos(th), R * np.sin(th) * np.cos(vt), R * np.sin(th) * np.sin(vt)]
+    m = E.measure([np.r_[Pc, Pc[:1]]], 50.0)
+    put("rev.tilt.expected_ratio_for_estimators", round(float(m["Rm"] * np.tan(vt) / np.hypot(m["z1s"], m["z1c"])), 4))
+    # solver: weak ellipse against Eq. (4), and the inversion check of Sec. II
+    r = F.run(1.02, 0.98, 0.0, 1.0, 6.0, n=48, dt=0.0005, every=0.01)
+    x = C.crossings(r["t"], r["hx"] - r["hy"])
+    Rb = r["length"][0] / (2 * np.pi)
+    put("rev.solver.weak_ellipse_period_error_percent", round(100 * (np.mean(np.diff(x)) / (np.pi * Rb ** 2 / (2 * np.sqrt(3))) - 1), 2))
+    ew, ea = [], []
+    for mm in (2, 3):
+        for s_ in (0.0, 3.0):
+            fit, pw, pr, w0 = solver_check(m=mm, slope=s_)
+            ew.append(abs(fit["omega"] / pw - 1)); ea.append(abs(fit["ratio"] / pr - 1))
+    put("rev.solver.inversion_check.max_error_percent_freq_ratio", [round(100 * max(ew), 2), round(100 * max(ea), 2)])
+
+
+def rev_supp_models():
+    """Sec. V and SI Secs. V, VI: switching, sizes, wiggles, and Eq. (5) for the Panfilov-Rudenko rings."""
+    import halfcycle_uniform as HU
+    import pan_alpha
+    for fn, gf in (("pell_gf0.775_20x12.npz", 0.775), ("pell_gf0.8_24x15.npz", 0.8)):
+        Sx = H.smoothed(os.path.join(S, fn), pan_alpha.PERIOD[gf])
+        t = Sx["t"]
+        sw = C.crossings(t, Sx["r2c"])
+        pm = C.crossings(t, Sx["z2c"])
+        g = np.isfinite(Sx["Rm"])
+        put(f"rev.panfilov.gf{gf}.switches_and_Rm_first_last", [len(sw), round(float(Sx["Rm"][g][0]), 1), round(float(Sx["Rm"][g][-1]), 1)])
+        ell = [abs(np.interp(x, t, Sx["hx"]) - np.interp(x, t, Sx["hy"])) / (np.interp(x, t, Sx["hx"]) + np.interp(x, t, Sx["hy"])) for x in pm]
+        e2 = [abs(np.interp(x, t, Sx["r2c"])) / np.interp(x, t, Sx["Rm"]) for x in pm]
+        Rp = [np.interp(x, t, Sx["Rm"]) for x in pm]
+        put(f"rev.panfilov.gf{gf}.planar_moments.ellipticity_hx_hy_first_last", [round(ell[0], 2), round(ell[-1], 2)])
+        put(f"rev.panfilov.gf{gf}.planar_moments.r2_over_Rm_first_last", [round(e2[0], 2), round(e2[-1], 2)])
+        put(f"rev.panfilov.gf{gf}.planar_moments.Rm_first_last", [round(Rp[0], 1), round(Rp[-1], 1)])
+        put(f"rev.panfilov.gf{gf}.tension_growth_of_relative_ellipticity", round(float((Rp[-1] / Rp[0]) ** 2.5), 2))
+        U = [r for r in _uniform() if r["model"] == "panfilov" and r["radius"] == "Rm" and f"gf={gf} dx=0.6" in r["run"]]
+        cal = HU.panfilov_calibration(gf)
+        Rmean = float(np.mean([r["Rbar"] for r in U]))
+        br = float(cal.beta_r_over_beta(Rmean))
+        put(f"rev.panfilov.gf{gf}.beta_r_over_beta_at_mean_Rbar_and_shortening_percent", [round(br, 2), round(100 * (1 - 1 / np.sqrt(br)))])
+    wig = []
+    for f in ("pcirc_gf0.775_R14.npz", "pcirc_gf0.775_R22.npz", "pcirc_gf0.8_R14.npz", "pcirc_gf0.8_R22.npz"):
+        d = np.load(os.path.join(S, f))
+        ok = single(d) & (d["t"] > 2 * 40.0)
+        wig.append(np.median(d["length"][ok] / (2 * np.pi * d["Rm"][ok]) - 1))
+    put("rev.panfilov.circles.L_over_2piRm_minus_1.median_percent.range", _rng(100 * np.array(wig), 1))
+    import atri
+    put("rev.atri.rest_state_c_nM.P0.095", round(1000 * atri.rest(atri.mu_of_P(0.095))[0]))
+    ref, dx2, cst = OUT["tableS3.P0.100"], OUT["tableS3.P0.100.dx2"], OUT["tableS3.P0.100.cstar0.566"]
+    put("rev.atri.circles.dx2_and_cstar_change_percent.alpha_beta",
+        [[round(100 * abs(x[2] / ref[2] - 1), 1), round(100 * abs(x[4] / ref[4] - 1), 2)] for x in (dx2, cst)])
+
+
+def rev_gaps_and_clearance():
+    """SI Sec. II A: half-cycles rejected only because of a gap; SI Sec. VI: clearance of the Atri circles."""
+    import halfcycle_uniform as HU
+    import period_analysis as PA
+    import period_analysis_r2 as P2
+    import pan_alpha
+    import halfcycle_tables as HT
+    from scipy.ndimage import median_filter
+    n_r2 = 0
+    cwd = os.getcwd(); os.chdir(B)
+    try:
+        for fn, a, b, lab, per, rigid in PA.RUNS:
+            if not rigid or a != 1.1:
+                continue
+            path = P2.SRC.get(fn, fn)
+            d = np.load(path)
+            ok = np.isfinite(d["r2c"]) & np.isfinite(d["length"])
+            t = d["t"][ok]
+            good = PA.single_closed(d)[ok]
+            r2 = np.where(good, d["r2c"][ok], np.nan)
+            r2 = np.where(np.abs(r2 - median_filter(np.nan_to_num(r2, nan=np.nanmedian(r2)), 9, mode="nearest")) > 0.5, np.nan, r2)
+            raw = r2.copy()
+            r2, L, z = (C.smooth(t, y, per) for y in (r2, np.where(good, d["length"][ok], np.nan), np.where(good, d["z"][ok], np.nan)))
+            R = L / (2 * np.pi)
+            tc = PA.image_contact_time(d, per)
+            for t0, t1 in zip(C.crossings(t, r2)[:-1], C.crossings(t, r2)[1:]):
+                m = (t >= t0) & (t <= t1) & np.isfinite(R) & np.isfinite(z)
+                if m.sum() < 12 or t1 - t0 < 2 * per:
+                    continue
+                eps = np.max(np.abs(r2[m]) / R[m])
+                other = (R[m].mean() < 3.2 or eps < 0.04 or eps > PA.EPS_MAX or np.mean(d["ncurves"][ok][m] > 1) > 0.2 or t1 > tc)
+                if not other and C.max_gap(t[good & np.isfinite(raw)], t0, t1) > per / 2:
+                    n_r2 += 1
+        runs = [(p, per, tc) for p, per, b, lab, tc, w in HU.barkley_runs()]
+    finally:
+        os.chdir(cwd)
+    runs += [(os.path.join(S, fn), pan_alpha.PERIOD[gf], np.inf) for fn, gf, dx, dom, seed, circ in HT.PAN]
+    runs += [(os.path.join(S, fn), HT.ATRI_PERIOD, np.inf) for fn, dx, dom, seed, circ in HT.ATRI]
+    n_z2 = 0
+    for path, per, tc in runs:
+        Sx = H.smoothed(path, per)
+        x = C.crossings(Sx["t"], Sx["z2c"])
+        for a, b in zip(x[:-1], x[1:]):
+            if b > tc or b - a < 2 * per:
+                continue
+            hx0, hy0 = np.interp(a, Sx["t"], Sx["hx"]), np.interp(a, Sx["t"], Sx["hy"])
+            if max(hx0, hy0) / min(hx0, hy0) >= HU.ASPECT_MIN and C.max_gap(Sx["t_valid"], a, b) > per / 2:
+                n_z2 += 1
+    put("rev.halfcycles.rejected_only_for_gaps.r2_z2", [n_r2, n_z2])
+    import atri_alpha as AA
+    cl = {}
+    for P, f, per in (("0.085", "acirc3_P0.085.npz", 20.0), ("0.095", "acirc2_R80.npz", 17.5), ("0.095", "acirc2_R130.npz", 17.5),
+                      ("0.100", "acirc4_P0.1_c052.npz", 16.58), ("0.100", "acirc_dx2_P0.1.npz", 16.58), ("0.100", "acirc3_P0.1.npz", 16.58)):
+        rows, frac, (tc, Rc) = AA.fit(os.path.join(S, f), per)          # binned radii over the fitted windows
+        m = (tc >= 100) & (tc <= rows[:, 0].max() + 200)
+        c = float(np.load(os.path.join(S, f))["Lxy"]) - 2 * Rc[m].max()
+        cl[P] = min(cl.get(P, np.inf), c)
+    put("rev.atri.circles.min_clearance_um.P0.085_0.095_0.100", [round(cl[P]) for P in ("0.085", "0.095", "0.100")])
+
+
 SECTIONS = [("methods", methods), ("radius conventions", radii), ("Fig. 2", fig2), ("Fig. 3 and b = 0.18", fig3),
                  ("Fig. 4", fig4), ("Fig. 5", fig5), ("shape modes", modes), ("supplementary models", supp)]
 if RF:
     SECTIONS.append(("grid refinement", refine))
+if RV:
+    SECTIONS += [("revision: half-cycles", rev_halfcycles), ("revision: procedures", rev_procedures),
+                 ("revision: Barkley rings", rev_barkley_rings), ("revision: shape modes", rev_modes),
+                 ("revision: controls", rev_controls), ("revision: gaps and clearance", rev_gaps_and_clearance),
+                 ("revision: other models", rev_supp_models)]
 for name, fn in SECTIONS:
     section(name, fn)
 errors = [k for k in OUT if k.startswith("ERROR")]

@@ -29,14 +29,14 @@ def quad_dev(dphase_deg):
 T1 = {2: 125.0, 3: 45.0}
 
 
-def analyze(m, amp, t1, smooth=1):
-    d = np.load(f"modeR_m{m}_a{amp}.npz")
+def analyze(m, amp, t1, smooth=1, path=None, t0=6.0):
+    d = np.load(path or f"modeR_m{m}_a{amp}.npz")
     if "masked" not in d.files:
         raise RuntimeError("run mask_frames.py first")
     ok = np.isfinite(d["Rm"]) & np.isfinite(d[f"r{m}c"]) & (d["ncurves"] == 1)
     t = d["t"][ok]
     s = {k: C.smooth(t, d[k][ok], smooth * PERIOD) for k in (f"r{m}c", f"z{m}c", "Rm", "z")}
-    sel = (t >= 6) & (t <= t1) & np.isfinite(s[f"r{m}c"]) & np.isfinite(s[f"z{m}c"])
+    sel = (t >= t0) & (t <= t1) & np.isfinite(s[f"r{m}c"]) & np.isfinite(s[f"z{m}c"])
     R = np.nanmean(s["Rm"][sel])
     w0 = m * np.sqrt(m * m - 1) * 1.2 / R ** 2
     f = fit_mode(t[sel], s[f"r{m}c"][sel], s[f"z{m}c"][sel], w0)

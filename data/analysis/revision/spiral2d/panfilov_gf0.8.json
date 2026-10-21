@@ -1,0 +1,15 @@
+{
+ "model": "panfilov",
+ "fields": "pan2d_fields_gf0.8_e0.06.npz",
+ "period": 35.0,
+ "core_radius": 3.1228420317914187,
+ "wavelength": 33.91052163897253,
+ "wavelength_first_pass": 33.91288700061384,
+ "wavelength_iqr": [
+  33.778369799493746,
+  34.00304613851522
+ ],
+ "gaps": 29,
+ "edge": 96.64265155922709,
+ "speed": 0.9688720468277866
+}

@@ -18,6 +18,13 @@ the next detection and does not reach the periodic z seam; the x and y seams are
 stitched, so the lateral box must keep the ring away from them. Each row records the
 extraction diagnostics (rejected faces, number and length of bridges, refused bridges).
 
+Optional measurements (columns added to the same table):
+  --levels u1,v1 u2,v2 ...  the same ring measures for other isosurface pairs u = u_i, v = v_i
+                            (columns L1_*, L2_*, ...), to test the dependence on the filament definition;
+  --twist                   rotation phase of the wave along the filament in a parallel-transported
+                            frame (twist_run.py), its Fourier parts tw{m}c, tw{m}s in the polar angle
+                            (m = 1-4), the rms local twist tw_rms, and the net twist tw_net.
+
     python ellipse_ring.py --b 0.05 --Ax 6 --Ay 6 --T 40          # circular ring
     python ellipse_ring.py --b 0.09 --Ax 8 --Ay 5 --T 300 --out e.npz
 """
@@ -51,10 +58,11 @@ def step_periodic(u, v, un, vn, a, b, eps, dt, dx):
                 vn[i, j, k] = vc + dt * (uc - vc)
 
 
-def initial_ring(shape, dx, Ax, Ay, z0, slab=1.5, wake=4.0, flip=False, mode=0, amp=0.0, tilt=0.0):
+def initial_ring(shape, dx, Ax, Ay, z0, slab=1.5, wake=4.0, flip=False, mode=0, amp=0.0, tilt=0.0, rot=0.0):
     """Broken pulse inside the ellipse (x/Ax)^2 + (y/Ay)^2 < 1 at height z0, or,
     with mode > 0, inside r < Ax (1 + amp cos(mode phi)) (an m-fold seed).
     tilt (radians) rotates the ring plane about the x axis (an m = 1 seed).
+    rot (radians) turns the seed about the vertical axis (grid-orientation control).
     flip=True mirrors it in z (opposite chirality, opposite drift)."""
     x = [(np.arange(m) + 0.5) * dx for m in shape]
     X, Y, Z = np.meshgrid(*x, indexing="ij")
@@ -63,6 +71,10 @@ def initial_ring(shape, dx, Ax, Ay, z0, slab=1.5, wake=4.0, flip=False, mode=0, 
         Yc, Zc = Y - L[1] / 2, Z - z0
         Y = L[1] / 2 + Yc * np.cos(tilt) + Zc * np.sin(tilt)
         Z = z0 - Yc * np.sin(tilt) + Zc * np.cos(tilt)
+    if rot:
+        Xc, Yc = X - L[0] / 2, Y - L[1] / 2
+        X = L[0] / 2 + Xc * np.cos(rot) + Yc * np.sin(rot)
+        Y = L[1] / 2 - Xc * np.sin(rot) + Yc * np.cos(rot)
     if mode:
         r = np.hypot(X - L[0] / 2, Y - L[1] / 2)
         phi = np.arctan2(Y - L[1] / 2, X - L[0] / 2)
@@ -99,7 +111,7 @@ def measure(lines, Lxy):
     dth = np.abs(np.diff(np.unwrap(th)))
     wt = np.r_[dth, 0] + np.r_[0, dth]
     wt = wt / wt.sum()
-    for mm in (1, 2, 3):
+    for mm in (1, 2, 3, 4):
         cm, sm = np.cos(mm * th), np.sin(mm * th)
         out[f"r{mm}c"] = 2 * (wt * rho * cm).sum()
         out[f"r{mm}s"] = 2 * (wt * rho * sm).sum()
@@ -108,17 +120,66 @@ def measure(lines, Lxy):
     return out
 
 
-def run(a, b, eps, Ax, Ay, Lxy, Lz, dx, T, every_t=0.5, flip=False, verbose=True, snaps=(), mode=0, amp=0.0, tilt=0.0, fields=None, probe=None, model=None):
+LEVEL_KEYS = ("hx", "hy", "Rm", "zc", "cx", "cy", "length", "ncurves", "closed",
+              *(f"{q}{mm}{cs}" for mm in (1, 2, 3, 4) for q in "rz" for cs in "cs"))
+
+
+def measure_levels(u, v, levels, dx, Lxy):
+    """measure() for the extra isosurface pairs (u*, v*): keys L1_*, L2_*, ... (missing if no curve)."""
+    out = {}
+    for i, (us, vs) in enumerate(levels, 1):
+        m = measure(B.find_curves(u - us, v - vs, dx, stitch_tol=2.0), Lxy)
+        if m is not None:
+            out.update({f"L{i}_{k}": m[k] for k in LEVEL_KEYS})
+    return out
+
+
+def twist_phase(u, p, dx, modes=(1, 2, 3, 4)):
+    """Rotation phase theta(s) of the wave along the closed filament p, measured as the angle of
+    grad u in the normal plane relative to a parallel-transported frame (twist_run.py). Returns
+    the Fourier parts of theta (linear winding and mean removed) in the polar angle about the
+    filament centroid (angle-weighted, as r_m and z_m), the circular mean phase tw0, the rms
+    local twist tw_rms = rms(d theta/ds - mean), and the net twist tw_net = int (d theta/ds) ds."""
+    import twist_run as TW
+    if len(p) < 40 or not B.is_closed(p):
+        return {}
+    P, L = TW.smooth_loop(p)
+    T, U, V, _, _, chi = TW.frames(P, L)
+    th = TW.twist_sample(u, P, L, dx, T, U, V)
+    M = len(P)
+    s = np.arange(M) * L / M
+    n = np.round((th[-1] - th[0]) / (2 * np.pi))
+    w = TW.deriv_periodic(th, L, 2 * np.pi * n) - chi / L
+    thl = th - 2 * np.pi * n * s / L
+    c = P.mean(0)
+    ph = np.arctan2(P[:, 1] - c[1], P[:, 0] - c[0])
+    d = np.abs(np.angle(np.exp(1j * (np.roll(ph, -1) - ph))))
+    wt = 0.5 * (d + np.roll(d, 1))
+    wt = wt / wt.sum()
+    thc = thl - (wt * thl).sum()
+    out = dict(tw0=float(np.angle((wt * np.exp(1j * thl)).sum())), tw_rms=float(np.sqrt(np.mean((w - w.mean()) ** 2))),
+               tw_net=float(2 * np.pi * n - chi), tw_wind=float(n))
+    for mm in modes:
+        out[f"tw{mm}c"] = 2 * (wt * thc * np.cos(mm * ph)).sum()
+        out[f"tw{mm}s"] = 2 * (wt * thc * np.sin(mm * ph)).sum()
+    return out
+
+
+def run(a, b, eps, Ax, Ay, Lxy, Lz, dx, T, every_t=0.5, flip=False, verbose=True, snaps=(), mode=0, amp=0.0, tilt=0.0, fields=None, probe=None, model=None,
+        levels=(), twist=False, dtfac=0.8, rot=0.0):
     """model: optional kinetics plug-in (e.g. oregonator.Model) with dt(dx), ic(...),
-    step(u, v, un, vn, dt, dx) and find(u, v, dx); default is the Barkley model."""
+    step(u, v, un, vn, dt, dx) and find(u, v, dx); default is the Barkley model.
+    levels: extra isosurface pairs (u*, v*) measured at every sample (Barkley model only);
+    twist: also measure the rotation phase along the filament; dtfac: dt = dtfac dx^2 / 6;
+    rot: turns the seed about the vertical axis (radians)."""
     shape = (int(round(Lxy / dx)), int(round(Lxy / dx)), int(round(Lz / dx)))
-    dt = model.dt(dx) if model else 0.8 * dx * dx / 6
+    dt = model.dt(dx) if model else dtfac * dx * dx / 6
     nsteps = int(round(T / dt))
     every = max(1, int(round(every_t / dt)))
     if model:
         u, v = model.ic(shape, dx, Ax, Ay, Lz / 2, flip=flip, mode=mode, amp=amp)
     else:
-        u, v = initial_ring(shape, dx, Ax, Ay, Lz / 2, flip=flip, mode=mode, amp=amp, tilt=tilt)
+        u, v = initial_ring(shape, dx, Ax, Ay, Lz / 2, flip=flip, mode=mode, amp=amp, tilt=tilt, rot=rot)
     un, vn = np.empty_like(u), np.empty_like(v)
     zoff = 0.0                                  # accumulated z shift from rolling
     misses = 0                                  # consecutive samples without a filament
@@ -157,6 +218,15 @@ def run(a, b, eps, Ax, Ay, Lxy, Lz, dx, T, every_t=0.5, flip=False, verbose=True
             misses = 0
             m.update(rejected=float(diag.get("rejected", 0)), bridges=float(diag.get("bridges", 0)),
                      max_bridge=float(diag.get("max_bridge", 0.0)), refused=float(diag.get("refused", 0)))
+            # optional measures on the same (pre-roll) fields; the diagnostics above are already copied
+            if twist:
+                arc = lambda l: np.linalg.norm(np.diff(l, axis=0), axis=1).sum()
+                m.update(twist_phase(u, max(lines, key=arc), dx))
+            if levels:
+                m.update(measure_levels(u, v, levels, dx, Lxy))
+                for i in range(1, len(levels) + 1):
+                    if f"L{i}_zc" in m:
+                        m[f"L{i}_z"] = m[f"L{i}_zc"] + zoff
             # physical height uses the offset BEFORE this frame's roll (zc is the pre-roll centre)
             m["z"] = m["zc"] + zoff
             # recentre the ring in z (roll the fields) so it never hits the seam
@@ -186,7 +256,8 @@ def table(rows):
     keys = ["t", "hx", "hy", "Rm", "z", "zc", "cx", "cy", "h2c", "h2s", "length", "ncurves",
             "r1c", "r1s", "z1c", "z1s", "r2c", "r2s", "z2c", "z2s", "r3c", "r3s", "z3c", "z3s", "zfix", "closed", "end",
             "rejected", "bridges", "max_bridge", "refused"]
-    return {k: np.array([r.get(k, np.nan) for r in rows]) for k in keys}
+    extra = sorted({k for r in rows for k in r} - set(keys) - {"npts"})    # r4/z4, L*_ and tw* columns
+    return {k: np.array([r.get(k, np.nan) for r in rows]) for k in keys + extra}
 
 
 def code_revision():
@@ -215,12 +286,18 @@ def main():
     ap.add_argument("--fields", action="store_true", help="also save u, v (float16) at the snapshot times")
     ap.add_argument("--uonly", action="store_true", help="with --fields: save only u")
     ap.add_argument("--probe", action="store_true", help="record u at the ring center every time step")
+    ap.add_argument("--levels", nargs="*", default=(), help="extra isosurface pairs u*,v* (columns L1_*, L2_*, ...)")
+    ap.add_argument("--twist", action="store_true", help="measure the rotation phase along the filament")
+    ap.add_argument("--dtfac", type=float, default=0.8, help="time step dt = dtfac dx^2 / 6")
+    ap.add_argument("--rot", type=float, default=0.0, help="turn the seed about the vertical axis (degrees)")
     args = ap.parse_args()
     flds = ({"_uonly": True} if args.uonly else {}) if args.fields else None
     prb = [] if args.probe else None
+    levels = [tuple(float(x) for x in s.split(",")) for s in args.levels]
     rows, frames = run(args.a, args.b, args.eps, args.Ax, args.Ay, args.Lxy, args.Lz, args.dx,
                        args.T, args.every, snaps=args.snaps, mode=args.m, amp=args.amp,
-                       tilt=np.radians(args.tilt), fields=flds, probe=prb)
+                       tilt=np.radians(args.tilt), fields=flds, probe=prb, levels=levels, twist=args.twist,
+                       dtfac=args.dtfac, rot=np.radians(args.rot))
     if args.out:
         d = table(rows)
         for s, ls in frames.items():
@@ -237,8 +314,9 @@ def main():
             pa = np.array(prb)
             d["probe_t"], d["probe_u"] = pa[:, 0], pa[:, 1]
         meta = {k: getattr(args, k) for k in ("a", "b", "eps", "Ax", "Ay", "Lxy", "Lz", "dx", "T", "every",
-                                              "m", "amp", "tilt")}
-        meta.update(dt=0.8 * args.dx ** 2 / 6, snaps_requested=np.array(args.snaps, float),
+                                              "m", "amp", "tilt", "dtfac", "rot")}
+        meta.update(dt=args.dtfac * args.dx ** 2 / 6, snaps_requested=np.array(args.snaps, float),
+                    levels=np.array(levels, float).reshape(-1, 2), twist=args.twist,
                     snaps_saved=np.array(sorted(frames), float), code_revision=code_revision())
         np.savez_compressed(args.out, **d, **meta)
         print("wrote", args.out)

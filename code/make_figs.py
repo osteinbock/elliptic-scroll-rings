@@ -1,29 +1,32 @@
-"""Publication figures for the elliptic-scroll-ring paper (Chaos, AIP).
+"""Figures of the elliptic-scroll-ring paper (Chaos, AIP).
 
-Writes chaos_paper/figures/fig1.pdf ... fig6.pdf as vector PDFs:
-single column 3.37 in, double column 6.69 in, all text >= 8 pt, panel letters,
-no internal titles. Data come from the simulation outputs in this folder.
+Writes fig1.pdf ... fig6.pdf (main text) and figS1.pdf ... figS4.pdf (supplementary material) as vector
+PDFs: single column 3.37 in, double column 6.69 in, all text >= 8 pt, panel letters, no internal titles.
+Run in the BARKLEY folder (runs_barkley_v2.sh outputs and their analysis products); the supplementary
+models and the revision runs are read from SUPP and REVISION (folders.py). FIG_OUT sets the output
+directory (default figs).
 
     python make_figs.py            # all figures
-    python make_figs.py 3 5        # selected figures
+    python make_figs.py 3 5 S2     # selected figures
 """
-import csv
-import glob
+import os
 import sys
+import csv
+import json
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
-from mpl_toolkits.mplot3d.art3d import Line3DCollection
-from scipy.ndimage import median_filter
+import matplotlib.pyplot as plt                 # noqa: E402
+from matplotlib.lines import Line2D             # noqa: E402
 
-import ellipse_compare as C
-import filament_flow as F
+import ellipse_compare as C                     # noqa: E402
+import filament_flow as F                       # noqa: E402
+import halfcycle as H                           # noqa: E402
+import halfcycle_uniform as HU                  # noqa: E402
+import period_analysis as PA                    # noqa: E402
+import folders as FD                            # noqa: E402
 
-import os
-OUT = os.environ.get("FIG_OUT", "chaos_paper/figures")   # output directory (created if missing)
-os.makedirs(OUT, exist_ok=True)
+OUT = os.environ.get("FIG_OUT", "figs")         # output directory (created when figures are written)
 W1, W2 = 3.37, 6.69
 INK, MUTED, GRID = "#1f1f1e", "#6b6a63", "#e4e3dd"
 BLUE, ORANGE, AQUA, YELLOW, MAGENTA = "#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"
@@ -57,6 +60,7 @@ def grid(ax):
     ax.set_axisbelow(True)
 
 
+# ----------------------------------------------------------------------------- data helpers
 def smooth_run(path, period, keys):
     d = np.load(path)
     ok = np.isfinite(d["hx"]) & (d["ncurves"] == 1)     # single closed filaments (mask_frames.py)
@@ -64,71 +68,68 @@ def smooth_run(path, period, keys):
     return t, {k: C.smooth(t, d[k][ok], period) for k in keys}, d
 
 
-def model_until_valid(r, t0, Rmin):
-    """Shift model time and cut it where the ring becomes too small for the solver."""
-    t = r["t"] + t0
-    Rb = r["length"] / (2 * np.pi)
-    stuck = np.r_[False, np.abs(np.diff(r["length"])) < 1e-4]
-    keep = (Rb > Rmin) & ~np.maximum.accumulate(stuck) & np.isfinite(Rb)
-    return t[keep], {k: v[keep] for k, v in r.items()}
+def theory_crossings(alpha, beta, xmax):
+    """Axis-switch positions x = ln(R0/R) from the linear m=2 equations in log-time."""
+    from scipy.integrate import solve_ivp
+    rhs = lambda tau, y: [-3 * alpha * y[0] - 4 * beta * y[1], 3 * beta * y[0] - 4 * alpha * y[1]]
+    tau = np.linspace(0, xmax / alpha, 20001)
+    sol = solve_ivp(rhs, (0, tau[-1]), [1.0, 0.0], t_eval=tau, rtol=1e-9, atol=1e-12)
+    a = sol.y[0]
+    x = alpha * tau
+    return [x[i] - a[i] * (x[i + 1] - x[i]) / (a[i + 1] - a[i]) for i in range(len(a) - 1) if a[i] * a[i + 1] < 0]
+
+
+def fit_shrink_drift(path, period, t0=6.0, Rmin=3.6):
+    """Constant alpha = -1/2 dR^2/dt and beta = dz/d(int dt/R) of a shrinking ring, fitted from t0
+    while Rbar = L/2pi > Rmin (single closed filaments, period-averaged); also returns the
+    period-averaged half-widths at t0."""
+    d = np.load(path)
+    ok = np.isfinite(d["hx"]) & (d["ncurves"] == 1)
+    t = d["t"][ok]
+    R = C.smooth(t, d["length"][ok], period) / (2 * np.pi)
+    z = C.smooth(t, d["z"][ok], period)
+    m = (t >= t0) & np.isfinite(R) & np.isfinite(z)
+    m &= np.cumsum(m & ~(R > Rmin)) == 0                 # stop at the first R <= Rmin
+    alpha = -0.5 * np.polyfit(t[m], R[m] ** 2, 1)[0]
+    s = np.concatenate([[0], np.cumsum(0.5 * (1 / R[m][1:] + 1 / R[m][:-1]) * np.diff(t[m]))])
+    beta = np.polyfit(s, z[m], 1)[0]
+    i = np.argmin(abs(t - t0))
+    hx, hy = (C.smooth(t, d[k][ok], period)[i] for k in ("hx", "hy"))
+    return alpha, beta, hx, hy
+
+
+def _beta_curve_runs(tmin=50.0):
+    """Late-time (K, |beta|) windows of all valid circular runs, grouped by run."""
+    import alpha_stationarity as A
+    groups = []
+    for f in VALID_CIRCLES:
+        w = A.windows(f)
+        if len(w):
+            w = w[w[:, 0] >= tmin]
+            if len(w):
+                groups.append(np.c_[w[:, 1], np.abs(w[:, 3])])
+    return groups
+
+
+def _local_ratio(groups, K, deg=2):
+    """1 + K beta'/beta from a polynomial fit of beta(K) to the pooled windows."""
+    P = np.concatenate(groups)
+    p = np.polyfit(P[:, 0], P[:, 1], deg)
+    return 1 + K * np.polyval(np.polyder(p), K) / np.polyval(p, K)
+
+
+def read_csv(path):
+    rows = list(csv.DictReader(open(path)))
+    for r in rows:
+        for k, v in list(r.items()):
+            try:
+                r[k] = float(v)
+            except (TypeError, ValueError):
+                pass
+    return rows
 
 
 # ----------------------------------------------------------------------------- Fig. 1
-def _frame(f, th, d=1e-4):
-    """Position, Frenet frame (T, N, B) and curvature of a parametric curve f(theta)."""
-    X = f(th)
-    X1 = (f(th + d) - f(th - d)) / (2 * d)
-    X2 = (f(th + d) - 2 * X + f(th - d)) / d ** 2
-    T = X1 / np.linalg.norm(X1)
-    Kv = (X2 - (X2 @ T) * T) / (X1 @ X1)
-    K = np.linalg.norm(Kv)
-    N = Kv / K
-    return X, T, N, np.cross(T, N), K
-
-
-def _proj(P, azim=12.0, elev=26.0):
-    """Orthographic projection of 3D points onto the drawing plane (front = lower)."""
-    P = np.atleast_2d(P)
-    a, e = np.radians(azim), np.radians(elev)
-    x = P[:, 0] * np.cos(a) + P[:, 1] * np.sin(a)
-    depth = -P[:, 0] * np.sin(a) + P[:, 1] * np.cos(a)
-    return np.c_[x, P[:, 2] * np.cos(e) + depth * np.sin(e)]
-
-
-def _arrow(ax, p0, p1, col, lw=1.2, ms=8):
-    a, b = _proj(p0)[0], _proj(p1)[0]
-    ax.annotate("", xy=b, xytext=a, annotation_clip=False,
-                arrowprops=dict(arrowstyle="-|>", color=col, lw=lw, mutation_scale=ms, shrinkA=0, shrinkB=0))
-
-
-def _schematic(ax, f, points, velocity):
-    th = np.linspace(0, 2 * np.pi, 400)
-    C = np.array([f(t) for t in th])
-    S = C.copy(); S[:, 2] = -0.85
-    ax.plot(*_proj(S).T, color="#d4d3cc", lw=0.8)                                   # projection
-    ax.plot(*_proj(np.array([[0, 0, -0.85], [0, 0, 1.15]])).T, color=MUTED, lw=0.6, ls=(0, (3, 2)))
-    ax.plot(*_proj(C).T, color=INK, lw=1.7)
-    L = 0.6
-    for th0, offs in points:
-        X, T, N, B, K = _frame(f, th0)
-        ax.plot(*_proj(X)[0], "o", color=INK, ms=2.5)
-        for v, col, lab in ((T, INK, "T"), (N, ORANGE, "N"), (B, BLUE, "B")):
-            _arrow(ax, X, X + L * v, col)
-            tx, ty = _proj(X + L * v)[0] + np.array(offs[lab])
-            ax.text(tx, ty, lab, color=col, fontsize=8, fontweight="bold", ha="center", va="center")
-        if velocity == "speed":            # binormal velocity beta K B, length proportional to K
-            out = 0.42 * np.array([np.cos(th0), np.sin(th0), 0.0])
-            _arrow(ax, X + out, X + out + 0.45 * K * B, "#a9a8a1", lw=2.6, ms=9)
-        else:                              # horizontal part of B: inward / outward motion
-            h = np.array([B[0], B[1], 0.0])
-            base = X + np.array([0, 0, -0.3])
-            _arrow(ax, base, base + 0.75 * h, "#a9a8a1", lw=2.6, ms=9)
-    ax.set_xlim(-2.3, 2.3)
-    ax.set_ylim(-1.45, 1.35)
-    ax.set_aspect("equal")
-    ax.set_axis_off()
-
-
 def _seg_crossings(A, B):
     """Index pairs (i, j) where segment A[i]A[i+1] crosses segment B[j]B[j+1] (2D polylines)."""
     out = []
@@ -219,13 +220,6 @@ def _mech_draw(ax):
     ax.set_axis_off()
 
 
-def figM():
-    fig, ax = plt.subplots(figsize=(W1, 1.85))
-    _mech_draw(ax)
-    fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
-    fig.savefig(f"{OUT}/fig_mech.pdf")
-    plt.close(fig)
-
 
 def _cam(azim=40.0, elev=26.0):
     """Orthographic camera matching render_scroll.render: returns projection and depth functions."""
@@ -287,6 +281,10 @@ def fig1():
         ax.set_axis_off()
         ax.text(0.0, 1.0, f"({'cdef'[i]})", transform=ax.transAxes, fontsize=8, fontweight="bold", va="top")
         ax.text(0.13, 1.0, f"$t = {times[i]}$", transform=ax.transAxes, fontsize=8, va="top")
+        if i == 3:      # scale bar, 5 space units; the projection is orthographic, so horizontal lengths are true
+            x0, y0 = lo[0] + 0.4, lo[1] + 0.35
+            ax.plot([x0, x0 + 5.0], [y0, y0], color=INK, lw=1.2, solid_capstyle="butt", zorder=3)
+            ax.text(x0 + 2.5, y0 + 0.25, "5", fontsize=8, ha="center", va="bottom")
     cax = fig.add_axes([0.94, 0.3, 0.009, 0.4])
     cb = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), cax=cax, ticks=[-1, 0, 1])
     cb.set_label("height", fontsize=8, labelpad=1)
@@ -295,109 +293,129 @@ def fig1():
     plt.close(fig)
 
 
+# ----------------------------------------------------------------------------- shared helpers
+def measured_shape(t, S, t0, n=96):
+    """Closed curve with the measured m = 2 content of the reaction-diffusion ring at t0: polar radius
+    R0 + r2c cos 2th + r2s sin 2th and height z2c cos 2th + z2s sin 2th (angle-weighted Fourier parts),
+    with R0 = R_m - |r2|^2/(2 R_m) (second-order relation between R_m and the polar mean radius); the
+    curve is scaled to the measured filament length."""
+    g = lambda k: float(np.interp(t0, t, S[k]))
+    Rm, r2c, r2s, z2c, z2s, L = (g(k) for k in ("Rm", "r2c", "r2s", "z2c", "z2s", "length"))
+    R0 = Rm - (r2c ** 2 + r2s ** 2) / (2 * Rm)
+    th = 2 * np.pi * np.arange(n) / n
+    rho = R0 + r2c * np.cos(2 * th) + r2s * np.sin(2 * th)
+    X = np.c_[rho * np.cos(th), rho * np.sin(th), z2c * np.cos(2 * th) + z2s * np.sin(2 * th)]
+    LX = np.linalg.norm(np.diff(np.r_[X, X[:1]], axis=0), axis=1).sum()
+    return X * (L / LX)
+
+
+def smooth_all(path, period, keys=("hx", "hy", "Rm", "length", "z", "r2c", "r2s", "z2c", "z2s")):
+    d = np.load(path)
+    ok = np.isfinite(d["hx"]) & PA.single_closed(d)
+    t = d["t"][ok]
+    return t, {k: C.smooth(t, d[k][ok], period) for k in keys}
+
+
+def follow_size(t, S, t0, X0, cal, beta_sign=-1.0, n=96):
+    """Lowest-order law with the circular-ring drift coefficient at the instantaneous size: binormal
+    flow is scale invariant, so a ring of length L(t) with coefficient beta_c(L / 2 pi) runs on the
+    clock s = int (beta_c / beta_ref) (L0 / L)^2 dt with lengths scaled by L / L0 (L: period-averaged
+    length of the reaction-diffusion ring, L0 = L(t0)). alpha = 0."""
+    g = (t >= t0) & np.isfinite(S["length"])
+    tt, LL = t[g], S["length"][g]
+    L0 = LL[0]
+    bref = float(cal.beta(L0 / (2 * np.pi)))
+    rate = cal.beta(LL / (2 * np.pi)) / bref * (L0 / LL) ** 2
+    s = np.concatenate([[0], np.cumsum(0.5 * (rate[1:] + rate[:-1]) * np.diff(tt))])
+    r = F.run(0, 0, 0.0, beta_sign * bref, s[-1], n=n, every=s[-1] / 1200, X0=X0)
+    tm = np.interp(r["t"], s, tt)
+    sc = np.interp(tm, tt, LL) / L0
+    return dict(t=tm, hx=r["hx"] * sc, hy=r["hy"] * sc, z2c=r["z2c"] * sc, bref=bref)
+
+
 # ----------------------------------------------------------------------------- Fig. 2
 def fig2():
-    t, S, _ = smooth_run("ell_a1.1_b0.17_8x5.npz", 4.44, ("hx", "hy", "z2c"))
-    # filament equation with alpha = 0 and the drift coefficient of a circular ring of the same size
-    m1 = F.run(6.5, 4.0, 0.0, -1.80, t[-1] - 5, n=64, dt=0.01)
+    path, per, t0 = "rerun_r2/ell_a1.1_b0.17_8x5.npz", 4.44, 4.0
+    t, S = smooth_all(path, per)
+    cal = HU.barkley_calibration(0.17)
+    X0 = measured_shape(t, S, t0)
+    M = follow_size(t, S, t0, X0, cal)
+    print(f"fig2: start t0 = {t0}, L/2pi = {np.interp(t0, t, S['length']) / (2 * np.pi):.3f}, beta_c(start) = {M['bref']:.3f}")
     fig, ax = plt.subplots(2, 1, figsize=(W1, 3.0), sharex=True)
     for k, col in (("hx", BLUE), ("hy", ORANGE)):
         ax[0].plot(t, S[k], color=col, lw=1.4)
-        ax[0].plot(m1["t"] + 5, m1[k], color=col, lw=0.9, ls="--")
+        ax[0].plot(M["t"], M[k], color=col, lw=0.9, ls="--")
     ax[0].set_ylabel("half-width")
     ax[1].plot(t, S["z2c"], color=INK, lw=1.4)
-    ax[1].plot(m1["t"] + 5, m1["z2c"], color=MUTED, lw=0.9, ls="--")
+    ax[1].plot(M["t"], M["z2c"], color=MUTED, lw=0.9, ls="--")
     ax[1].axhline(0, color=MUTED, lw=0.5)
     ax[1].set(ylabel="saddle amplitude", xlabel="time", xlim=(0, 120), ylim=(-1.2, 1.2))
     for a_, s in zip(ax, "ab"):
         grid(a_)
         label(a_, s, x=-0.25)
-    from matplotlib.lines import Line2D
     h = [Line2D([], [], color=BLUE, lw=1.4), Line2D([], [], color=ORANGE, lw=1.4),
          Line2D([], [], color=INK, lw=1.4), Line2D([], [], color=MUTED, lw=0.9, ls="--")]
-    fig.legend(h, [r"$h_x$", r"$h_y$", "simulation", r"filament eq., $\beta=1.80$"],
-               loc="upper center", ncol=2, bbox_to_anchor=(0.55, 1.0), columnspacing=0.8, handletextpad=0.4)
+    fig.legend(h, [r"$h_x$", r"$h_y$", "simulation", "lowest-order law"], loc="upper center", ncol=2,
+               bbox_to_anchor=(0.55, 1.0), columnspacing=0.8, handletextpad=0.4)
     fig.tight_layout(h_pad=0.4, rect=(0, 0, 1, 0.87))
     fig.savefig(f"{OUT}/fig2.pdf")
     plt.close(fig)
 
 
 # ----------------------------------------------------------------------------- Fig. 3
-def theory_crossings(alpha, beta, xmax):
-    """Axis-switch positions x = ln(R0/R) from the linear m=2 equations in log-time."""
-    from scipy.integrate import solve_ivp
-    rhs = lambda tau, y: [-3 * alpha * y[0] - 4 * beta * y[1], 3 * beta * y[0] - 4 * alpha * y[1]]
-    tau = np.linspace(0, xmax / alpha, 20001)
-    sol = solve_ivp(rhs, (0, tau[-1]), [1.0, 0.0], t_eval=tau, rtol=1e-9, atol=1e-12)
-    a = sol.y[0]
-    x = alpha * tau
-    return [x[i] - a[i] * (x[i + 1] - x[i]) / (a[i + 1] - a[i]) for i in range(len(a) - 1) if a[i] * a[i + 1] < 0]
-
-
-def fit_shrink_drift(path, period, t0=6.0, Rmin=3.6):
-    """Constant alpha = -1/2 dR^2/dt and beta = dz/d(int dt/R) of a shrinking ring, fitted from t0
-    while Rbar = L/2pi > Rmin (single closed filaments, period-averaged); also returns the
-    period-averaged half-widths at t0."""
-    d = np.load(path)
-    ok = np.isfinite(d["hx"]) & (d["ncurves"] == 1)
-    t = d["t"][ok]
-    R = C.smooth(t, d["length"][ok], period) / (2 * np.pi)
-    z = C.smooth(t, d["z"][ok], period)
-    m = (t >= t0) & np.isfinite(R) & np.isfinite(z)
-    m &= np.cumsum(m & ~(R > Rmin)) == 0                 # stop at the first R <= Rmin
-    alpha = -0.5 * np.polyfit(t[m], R[m] ** 2, 1)[0]
-    s = np.concatenate([[0], np.cumsum(0.5 * (1 / R[m][1:] + 1 / R[m][:-1]) * np.diff(t[m]))])
-    beta = np.polyfit(s, z[m], 1)[0]
-    i = np.argmin(abs(t - t0))
-    hx, hy = (C.smooth(t, d[k][ok], period)[i] for k in ("hx", "hy"))
-    return alpha, beta, hx, hy
+def lowest_order_run(X0, cal, T, n=96, dt=0.002, beta_sign=-1.0):
+    """Lowest-order law dX/dt = alpha K N + beta K B with the coefficients of circular rings of the same
+    size, alpha_c(Rbar) and beta_c(Rbar), Rbar = L / 2 pi of the model ring, uniform along the ring
+    (well posed for alpha_c > 0; the curvature-only law with the measured alpha(K) is not, because
+    d(alpha K)/dK < 0 for 2.7 < R < 5.3 at b = 0.15)."""
+    K0, K1 = cal.Krange
+    co = lambda Rb: (float(np.polyval(cal.pa, np.clip(1 / Rb, K0, K1))), beta_sign * float(np.polyval(cal.pb, np.clip(1 / Rb, K0, K1))))
+    return F.run(0, 0, 0.0, beta_sign, T, n=n, dt=dt, every=0.05, coeff_of_R=co, X0=X0)
 
 
 def fig3():
-    P, t0 = 4.13, 6.0
-    t, S, d = smooth_run("ellP_a1.1_b0.15_12x7.5.npz", P, ("hx", "hy", "z2c", "length"))
-    al15, be15, hx0, hy0 = fit_shrink_drift("ellP_a1.1_b0.15_12x7.5.npz", P, t0)
-    print(f"fig3: a=1.1 b=0.15 alpha={al15:.3f} beta={be15:.3f} start {hx0:.2f} x {hy0:.2f}")
-    r = F.run(hx0, hy0, al15, be15, t[-1] - t0, n=64, dt=0.01)
-    tm, M = model_until_valid(r, t0, 3.6)
+    path, per, t0 = "rerun_r2/ellP_a1.1_b0.15_12x7.5.npz", 4.13, 4.0
+    t, S = smooth_all(path, per)
+    cal = HU.barkley_calibration(0.15)
+    X0 = measured_shape(t, S, t0)
+    r = lowest_order_run(X0, cal, 88.0)
+    RLm = r["length"] / (2 * np.pi)
+    keep = np.cumsum(~(RLm > 2.5)) == 0             # until the model ring first drops below R = 2.5
+    tm = r["t"][keep] + t0
+    RL = S["length"] / (2 * np.pi)
+    R0 = float(np.interp(t0, t, RL))
+    print(f"fig3: start t0 = {t0}, L/2pi = {R0:.3f}; model R at t0 + 20, 40, 60: "
+          f"{np.interp([20, 40, 60], r['t'], RLm).round(3).tolist()} vs simulation {np.interp([t0 + 20, t0 + 40, t0 + 60], t, RL).round(3).tolist()}")
     fig = plt.figure(figsize=(W1, 3.8))
     gs = fig.add_gridspec(3, 1, height_ratios=[1, 1, 1.15], hspace=0.45)
     a0 = fig.add_subplot(gs[0]); a1 = fig.add_subplot(gs[1], sharex=a0); a2 = fig.add_subplot(gs[2])
     for k, col, nm in (("hx", BLUE, r"$h_x$"), ("hy", ORANGE, r"$h_y$")):
         a0.plot(t, S[k], color=col, lw=1.4, label=nm)
-        a0.plot(tm, M[k], color=col, lw=0.9, ls="--")
+        a0.plot(tm, r[k][keep], color=col, lw=0.9, ls="--")
     a0.set(ylabel="half-width", ylim=(0, 12))
     a0.legend(loc="upper right", ncol=2)
     a1.plot(t, S["z2c"], color=INK, lw=1.4, label="simulation")
-    a1.plot(tm, M["z2c"], color=MUTED, lw=0.9, ls="--", label="filament eq.")
+    a1.plot(tm, r["z2c"][keep], color=MUTED, lw=0.9, ls="--", label="lowest-order law")
     a1.axhline(0, color=MUTED, lw=0.5)
     a1.set(ylabel="saddle ampl.", xlabel="time", xlim=(0, 92), yticks=[-1, 0, 1])
-    a1.legend(loc="lower right")
-    # (c) axis switches vs ln(R0/R)
-    al05, be05, _, _ = fit_shrink_drift("ellP_a0.8_b0.05_12x7.5.npz", 3.39, t0)
-    print(f"fig3: a=0.8 b=0.05 alpha={al05:.3f} beta={be05:.3f} |beta|/alpha={abs(be05) / al05:.3f}")
-    cases = [("ellP_a1.1_b0.15_12x7.5.npz", 4.13, al15, be15, BLUE, r"$a=1.1,\ b=0.15$"),
-             ("ellP_a0.8_b0.05_12x7.5.npz", 3.39, al05, be05, ORANGE, r"$a=0.8,\ b=0.05$")]
-    from matplotlib.lines import Line2D
-    for path, Pp, al, be, col, nm in cases:
-        tt, SS, _ = smooth_run(path, Pp, ("hx", "hy", "length"))
-        R = SS["length"] / (2 * np.pi)
-        R0 = R[np.nanargmin(abs(tt - t0))]
-        xs = [c for c in C.crossings(tt, SS["hx"] - SS["hy"]) if c > t0]
-        Rx = [np.interp(c, tt, R) for c in xs]
-        good = [(np.log(R0 / rr), k + 1) for k, rr in enumerate(Rx) if rr > 3.0]
-        th = theory_crossings(al, abs(be), 1.4)
-        a2.plot(th, np.arange(1, len(th) + 1), "o", mfc="white", mec=col, ms=6, mew=1.0, zorder=2)
-        if good:
-            gx, gk = zip(*good)
-            a2.plot(gx, gk, "o", color=col, ms=4.2, zorder=3)
-    h = [Line2D([], [], ls="", marker="s", color=BLUE, ms=5), Line2D([], [], ls="", marker="s", color=ORANGE, ms=5),
-         Line2D([], [], ls="", marker="o", color=INK, ms=4.2),
-         Line2D([], [], ls="", marker="o", mfc="white", mec=INK, ms=6, mew=1.0)]
-    a2.legend(h, [r"$a=1.1,\ b=0.15$", r"$a=0.8,\ b=0.05$", "simulation", "linear theory"], loc="upper left",
-              ncol=2, fontsize=7, handletextpad=0.2, columnspacing=0.8, borderaxespad=0.2)
-    a2.set(xlabel=r"$\ln(R_0/\bar R)$", ylabel="switch number", xlim=(0, 1.1), ylim=(0.4, 4.2),
-           yticks=[1, 2, 3])
+    a1.legend(loc="lower right", fontsize=7)
+    # (c) switches against ln(R0 / Rbar)
+    xs = [c for c in C.crossings(t, S["hx"] - S["hy"]) if c > t0]
+    sim = [np.log(R0 / np.interp(c, t, RL)) for c in xs if np.interp(c, t, RL) > 3.0]
+    tvalid = r["t"][keep][-1]                       # model ring above R = 2.5 (before its collapse)
+    ms = [c for c in C.crossings(r["t"], r["hx"] - r["hy"]) if 0.5 < c < tvalid]
+    low = [np.log(RLm[0] / np.interp(c, r["t"], RLm)) for c in ms if np.interp(c, r["t"], RLm) > 3.0]
+    sim_t = [c for c in xs if np.interp(c, t, RL) > 3.0]
+    low_t = [c + t0 for c in ms if np.interp(c, r["t"], RLm) > 3.0]
+    print(f"fig3(c): simulation  ln(R0/R) {np.round(sim, 3).tolist()} at t {np.round(sim_t, 2).tolist()}")
+    print(f"         lowest-order ln(R0/R) {np.round(low, 3).tolist()} at t {np.round(low_t, 2).tolist()}")
+    for xx, kw in ((low, dict(marker="o", mfc="white", mec=MUTED, ms=6.5, mew=1.0)),
+                   (sim, dict(marker="o", color=INK, ms=4.2))):
+        a2.plot(xx, np.arange(1, len(xx) + 1), ls="", zorder=3, **kw)
+    h = [Line2D([], [], ls="", marker="o", color=INK, ms=4.2),
+         Line2D([], [], ls="", marker="o", mfc="white", mec=MUTED, ms=6.5, mew=1.0)]
+    a2.legend(h, ["simulation", "lowest-order law"], loc="upper left", fontsize=7, handletextpad=0.2, borderaxespad=0.2)
+    a2.set(xlabel=r"$\ln(R_0/\bar R)$", ylabel="switch number", xlim=(0, 1.1), ylim=(0.4, 4.4), yticks=[1, 2, 3, 4])
     for a_, s in zip((a0, a1, a2), "abc"):
         grid(a_)
         label(a_, s, x=-0.25)
@@ -408,144 +426,217 @@ def fig3():
 
 
 # ----------------------------------------------------------------------------- Fig. 4
+def seed_radius(path):
+    d = np.load(path)
+    return float(d["R0"]) if "R0" in d.files else float(d["Ax"])
+
+
 def fig4():
+    import matplotlib.colors as mcolors
     files = [("circHB_R0_4.0.npz", 4.0), ("circS_R0_4.5.npz", 4.5), ("circHB_R0_5.0.npz", 5.0),
              ("circS_R0_5.5.npz", 5.5), ("circL_R0_6.npz", 6.0), ("circS_R0_6.5.npz", 6.5),
              ("circS_R0_7.5.npz", 7.5), ("circL_R0_9.npz", 9.0), ("circL_R0_13.npz", 13.0)]
-    fig, ax = plt.subplots(1, 3, figsize=(W2, 2.1), gridspec_kw=dict(width_ratios=[1.25, 1, 1]))
-    cm = lambda x: plt.get_cmap("Greys")(0.35 + 0.65 * x)    # encodes R0, distinct from the time map
-    for i, (f, R0) in enumerate(files):
+    fig, ax = plt.subplots(1, 3, figsize=(W2, 2.2), gridspec_kw=dict(width_ratios=[1.25, 1, 1]))
+    norm = mcolors.LogNorm(4, 40)
+    cmap = plt.get_cmap("viridis")
+    for f, R0 in files:
         d = np.load(f)
-        ok = np.isfinite(d["Rm"]) & (d["ncurves"] == 1)    # single closed filaments (mask_frames.py)
+        ok = np.isfinite(d["Rm"]) & (d["ncurves"] == 1)
         t, R = d["t"][ok], d["Rm"][ok]
         Rs = C.smooth(t, R, 4.44)
         m = (t <= 200) & np.isfinite(Rs)
-        ax[0].plot(t[m], Rs[m], color=cm(i / (len(files) - 1)), lw=1.1)
+        ax[0].plot(t[m], Rs[m], color=cmap(norm(R0)), lw=1.1)
     ax[0].axhspan(4.5, 4.9, color=GRID, zorder=0)
-    ax[0].text(197, 3.75, r"$R^\ast$", ha="right", va="center", fontsize=8,
-               bbox=dict(facecolor="white", edgecolor="none", pad=0.6))
-    ax[0].set(xlabel="time", ylabel=r"ring radius $\overline{R}$", xlim=(0, 200), ylim=(0, 12.5))
-    # alpha, beta vs K from sliding windows of every circular run with a vertical box >= 16
-    # (the Lz = 14 runs circH_* are excluded: that box height produced spurious ring growth)
-    import alpha_stationarity as A
-    pts = [A.windows(f) for f in VALID_CIRCLES + LARGE_CIRCLES]
-    big = A.windows("sf2/circXXL_R0_38_snaps.npz")   # same simulation as circXXL_R0_38.npz
-    pts.append(big[big[:, 0] <= 145])        # later windows are affected by the buckling instability
-    pts = np.concatenate([p for p in pts if len(p)])
-    sc = ax[1].scatter(pts[:, 1], pts[:, 2], c=pts[:, 0], cmap="viridis", s=9, vmin=0, vmax=300, lw=0)
-    ax[2].scatter(pts[:, 1], -pts[:, 3], c=pts[:, 0], cmap="viridis", s=9, vmin=0, vmax=300, lw=0)
+    ax[0].text(197, 3.75, r"$R^\ast$", ha="right", va="center", fontsize=8, bbox=dict(facecolor="white", edgecolor="none", pad=0.6))
+    ax[0].set(xlabel="time", ylabel=r"ring radius $\bar R$", xlim=(0, 200), ylim=(0, 12.5))
+    # (b, c): the calibration windows (10-unit windows, t >= 20) colored by seed radius; R0 = 38 open
+    paths = [f for f in VALID_CIRCLES] + LARGE_CIRCLES + [os.path.join(FD.REVISION, "circ17_R0_26.npz")]
+    for p in paths:
+        w = HU.circle_windows(p, 4.44, 10.0, 5.0, 20.0)
+        if len(w):
+            c = cmap(norm(seed_radius(p)))
+            ax[1].scatter(w[:, 0], w[:, 1], color=c, s=7, lw=0)
+            ax[2].scatter(w[:, 0], w[:, 2], color=c, s=7, lw=0)
+    w = HU.circle_windows("sf2/circXXL_R0_38_snaps.npz", 4.44, 10.0, 5.0, 20.0)
+    w = w[: int(np.searchsorted(np.arange(20, 200, 5.0) + 5, 145))]           # before the buckling (t <= 145)
+    for j, a_ in ((1, ax[1]), (2, ax[2])):
+        a_.scatter(w[:, 0], w[:, j], s=9, facecolor="white", edgecolor=cmap(norm(38)), lw=0.7, zorder=3)
+    cal = HU.barkley_calibration(0.17)
+    K = np.linspace(*cal.Krange, 200)
+    ax[1].plot(K, np.polyval(cal.pa, K), color=INK, lw=0.8)
+    ax[2].plot(K, np.polyval(cal.pb, K), color=INK, lw=0.8)
     ax[1].axhline(0, color=MUTED, lw=0.5)
-    ax[1].set(xlabel=r"curvature $K = 1/\bar R$", ylabel=r"tension $\alpha$")
-    ax[2].set(xlabel=r"curvature $K = 1/\bar R$", ylabel=r"drift coefficient $\beta$")
+    ax[1].set(xlabel=r"curvature $K = 1/\bar R$", ylabel=r"tension $\alpha$", xlim=(0, 0.32))
+    ax[2].set(xlabel=r"curvature $K = 1/\bar R$", ylabel=r"drift coefficient $\beta$", xlim=(0, 0.32))
     for a_, s in zip(ax, "abc"):
         grid(a_)
         label(a_, s, x=-0.36, y=1.12)
-    fig.tight_layout(w_pad=0.8, rect=(0, 0, 0.9, 1))
-    cax = fig.add_axes([0.905, 0.25, 0.009, 0.6])
-    cb = fig.colorbar(sc, cax=cax)
-    cb.set_label("time", fontsize=8, labelpad=2)
+    fig.tight_layout(w_pad=0.8, rect=(0, 0, 0.87, 1))
+    cax = fig.add_axes([0.885, 0.25, 0.009, 0.6])
+    sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
+    cb = fig.colorbar(sm, cax=cax, ticks=[4, 6, 10, 20, 40])
+    from matplotlib.ticker import NullFormatter, NullLocator
+    cb.ax.yaxis.set_minor_locator(NullLocator())
+    cb.ax.yaxis.set_minor_formatter(NullFormatter())
+    cb.ax.set_yticklabels(["4", "6", "10", "20", "40"])
+    cb.set_label("seed radius", fontsize=8, labelpad=2)
     cb.ax.tick_params(labelsize=8, width=0.5, length=2)
     fig.savefig(f"{OUT}/fig4.pdf")
     plt.close(fig)
 
 
 # ----------------------------------------------------------------------------- Fig. 5
+LAMBDA = {}       # filled from REVISION/spiral2d/*.json by load_lambda()
+
+
+def load_lambda():
+    import glob
+    for f in glob.glob(os.path.join(FD.REVISION, "spiral2d", "*.json")):
+        d = json.load(open(f))
+        key = ("barkley", round(d["b"], 2)) if d["model"] == "barkley" else ("panfilov", 0.775 if "0.775" in d["fields"] else 0.8)
+        LAMBDA[key] = d
+    LAMBDA[("atri", 0.1)] = dict(wavelength=120.0, period=16.6)      # SI Sec. III
+
+
+def run_lambda(r):
+    if r["model"] == "barkley":
+        b = float(r["run"].split("b=")[1][:4])
+        return LAMBDA[("barkley", round(b, 2))]["wavelength"]
+    if r["model"] == "panfilov":
+        return LAMBDA[("panfilov", 0.775 if "0.775" in r["run"] else 0.8)]["wavelength"]
+    return LAMBDA[("atri", 0.1)]["wavelength"]
+
+
 def fig5():
-    rows = list(csv.DictReader(open("period_table_r2.csv")))
+    load_lambda()
+    rows = read_csv(os.path.join(FD.REVISION, "uniform_halfcycles.csv"))
     sets = [("a=1.1 b=0.15", BLUE, r"$b=0.15$"), ("a=1.1 b=0.16", AQUA, r"$b=0.16$"),
-            ("a=1.1 b=0.17 (8x5)", ORANGE, r"$b=0.17$, small"),
-            ("a=1.1 b=0.17 (12x7.5)", YELLOW, r"$b=0.17$, large"), ("a=1.1 b=0.18", MAGENTA, r"$b=0.18$"),
-            ("a=0.8 b=0.09 (meander)", MUTED, "meandering")]
-    rigid = [float(r["Th"]) / float(r["T2"]) for r in rows
-             if r["rigid"] == "True" and float(r["a"]) == 1.1 and 0.15 <= float(r["b"]) <= 0.17]
-    q = np.mean(rigid)                                   # mean ratio, rigid spirals b = 0.15-0.17
-    fig, ax = plt.subplots(figsize=(W1, 2.75))
-    top = max(max(float(r["Th"]) for r in rows), max(float(r["T2"]) for r in rows))
+            ("a=1.1 b=0.17 (8x5)", ORANGE, r"$b=0.17$, small"), ("a=1.1 b=0.17 (12x7.5)", YELLOW, r"$b=0.17$, large"),
+            ("a=1.1 b=0.18", MAGENTA, r"$b=0.18$")]
+    fig, ax = plt.subplots(1, 2, figsize=(W2, 2.9), gridspec_kw=dict(width_ratios=[1, 1.15]))
+    a = ax[0]
+    r2 = [r for r in rows if r["model"] == "barkley" and r["event"] == "r2"]
+    top = max(max(r["T_obs"] for r in r2), max(r["T_obs"] / r["ratio_c"] for r in r2))
     lim = [0, 5 * np.ceil(1.05 * top / 5)]
-    ax.plot(lim, lim, color=MUTED, lw=0.9)
-    ax.plot(lim, [q * v for v in lim], color=INK, lw=0.9, ls="--")
-    ax.text(0.99 * lim[1], 0.86 * lim[1], "1 : 1", fontsize=8, color=MUTED, ha="right", va="top")
-    ax.text(0.70 * lim[1], 0.96 * lim[1], f"{q:.2f} : 1", fontsize=8, color=INK, ha="right")
+    q17 = np.mean([r["ratio_c"] for r in r2 if "b=0.17" in r["run"]])
+    a.plot(lim, lim, color=MUTED, lw=0.9)
+    a.plot(lim, [q17 * v for v in lim], color=INK, lw=0.9, ls="--")
+    a.text(0.99 * lim[1], 0.86 * lim[1], "1 : 1", fontsize=8, color=MUTED, ha="right", va="top")
+    a.text(0.66 * lim[1], 0.96 * lim[1], f"{q17:.2f} : 1 ($b=0.17$)", fontsize=8, color=INK, ha="right")
     for run, col, nm in sets:
-        rr = [r for r in rows if r["run"] == run]
-        ax.scatter([float(r["T2"]) for r in rr], [float(r["Th"]) for r in rr], s=18,
-                   marker="^" if "meander" in run else "o", color=col, edgecolor="white", linewidth=0.5,
-                   zorder=3, label=nm)
-    ax.set(xlim=lim, ylim=lim, xlabel="predicted half-period", ylabel="observed half-period")
-    ax.set_aspect("equal")
-    ax.legend(loc="lower right", fontsize=7, handletextpad=0.1, labelspacing=0.25, borderaxespad=0.3,
-              markerscale=0.9, frameon=False)
-    grid(ax)
-    fig.tight_layout()
+        rr = [r for r in r2 if r["run"] == run]
+        a.scatter([r["T_obs"] / r["ratio_c"] for r in rr], [r["T_obs"] for r in rr], s=18, color=col,
+                  edgecolor="white", linewidth=0.5, zorder=3, label=nm)
+    a.set(xlim=lim, ylim=lim, xlabel="predicted half-period", ylabel="observed half-period")
+    a.set_aspect("equal")
+    a.legend(loc="lower right", fontsize=7, handletextpad=0.1, labelspacing=0.25, borderaxespad=0.3)
+    # (b) ratio against the ring diameter in wavelengths, all three models (planar-moment half-cycles, R_m)
+    b_ = ax[1]
+    z2 = [r for r in rows if r["event"] == "z2" and r["radius"] == "Rm"]
+    groups = [("barkley", lambda r: "mode" not in r["run"], INK, "o", "Barkley"),
+              ("barkley", lambda r: "mode" in r["run"], INK, "s", "Barkley, weak $m=2$"),
+              ("panfilov", lambda r: True, ORANGE, "D", "Panfilov–Rudenko"),
+              ("atri", lambda r: True, AQUA, "^", "Atri")]
+    b_.axhline(1, color=MUTED, lw=0.6)
+    for model, sel, col, mk, nm in groups:
+        rr = [r for r in z2 if r["model"] == model and sel(r)]
+        x = [2 * r["Rbar"] / run_lambda(r) for r in rr]
+        b_.scatter(x, [r["ratio_c"] for r in rr], s=16, marker=mk, color=col, edgecolor="white", lw=0.4, zorder=3)
+        res = np.array([r["residual"] for r in rr])
+        alt = np.array([r["ratio_c"] / r["eq5_global"] for r in rr])
+        lo, hi = np.minimum(res, alt), np.maximum(res, alt)
+        b_.vlines(x, lo, hi, color=col, lw=0.7, zorder=1)
+        b_.scatter(x, res, s=16, marker=mk, facecolor="white", edgecolor=col, lw=0.8, zorder=2)
+    h = [Line2D([], [], ls="", marker=mk, color=col, ms=4.5) for _, _, col, mk, _ in groups]
+    h += [Line2D([], [], ls="", marker="o", color=MUTED, ms=4.5),
+          Line2D([], [], ls="", marker="o", mfc="white", mec=MUTED, ms=4.5)]
+    b_.legend(h, [g[4] for g in groups] + ["observed / predicted", "after Eq. (5)"], loc="upper right", fontsize=7,
+              ncol=1, handletextpad=0.2, labelspacing=0.25, borderaxespad=0.3)
+    b_.set(xlabel=r"ring diameter $2\bar R/\lambda$", ylabel="observed / predicted half-period", ylim=(0.9, 1.85), xlim=(0, 2.6))
+    for a_, s in zip(ax, "ab"):
+        grid(a_)
+        label(a_, s, x=-0.24, y=1.03)
+    fig.tight_layout(w_pad=1.2)
     fig.savefig(f"{OUT}/fig5.pdf")
     plt.close(fig)
 
 
 # ----------------------------------------------------------------------------- Fig. 6
-def _beta_curve_runs(tmin=50.0):
-    """Late-time (K, |beta|) windows of all valid circular runs, grouped by run."""
-    import alpha_stationarity as A
-    groups = []
-    for f in VALID_CIRCLES:
-        w = A.windows(f)
-        if len(w):
-            w = w[w[:, 0] >= tmin]
-            if len(w):
-                groups.append(np.c_[w[:, 1], np.abs(w[:, 3])])
-    return groups
-
-
-def _local_ratio(groups, K, deg=2):
-    """1 + K beta'/beta from a polynomial fit of beta(K) to the pooled windows."""
-    P = np.concatenate(groups)
-    p = np.polyfit(P[:, 0], P[:, 1], deg)
-    return 1 + K * np.polyval(np.polyder(p), K) / np.polyval(p, K)
+def mode_ranges():
+    """Couplings of the ring modes relative to the drift coefficient with their full ranges:
+    seed amplitude x fit window x smoothing x dx = 0.15 x filament definition (R*), fits in tau over the
+    whole run and its halves, constant-frequency windows and filament definitions (larger ring)."""
+    MR = json.load(open("mode_refit.json"))
+    MDf = json.load(open(os.path.join(FD.REVISION, "mode_definitions.json")))
+    nt = np.load("new_tests.npz")["large"]
+    out = []
+    for m in (2, 3):
+        main = [r for r in MR["rstar"] if r["m"] == m]
+        rng = MR["rstar_ranges"][str(m)]
+        dz = [r["bz"] / r["bdrift"] for r in MDf["rstar"] if r["m"] == m]
+        dr = [r["br"] / r["bdrift"] for r in MDf["rstar"] if r["m"] == m]
+        k = np.mean([r["k"] for r in main])
+        out.append(dict(m=m, ring="R*", k=k, bz=rng["bz_main"], br=rng["br_main"],
+                        bz_rng=[min(rng["bz_range"][0], min(dz)), max(rng["bz_range"][1], max(dz))],
+                        br_rng=[min(rng["br_range"][0], min(dr)), max(rng["br_range"][1], max(dr))],
+                        W=np.mean([np.sqrt(r["bz"] * r["br"]) for r in main])))
+    m4 = [r for r in MDf["rstar"] if r["m"] == 4]
+    bz4 = [r["bz"] / r["bdrift"] for r in m4] + [w["bz_over_drift"] for w in MDf["m4_windows"]]   # definitions, fit windows
+    br4 = [r["br"] / r["bdrift"] for r in m4] + [w["br_over_drift"] for w in MDf["m4_windows"]]
+    std4 = [r for r in m4 if "standard" in r["definition"]][0]
+    out.append(dict(m=4, ring="R*", k=4 / std4["R"], bz=std4["bz"] / std4["bdrift"], br=std4["br"] / std4["bdrift"],
+                    bz_rng=[min(bz4), max(bz4)], br_rng=[min(br4), max(br4)], W=np.sqrt(std4["bz"] * std4["br"])))
+    for m in (2, 3):
+        tf = [r for r in MR["tau_fits"] if r["run"] == "larger ring" and r["m"] == m]
+        full = [r for r in tf if r["t0"] == 15.0 and r["t1"] in (150.0, 100.0)][0]
+        dz = [r["bz"] / r["bdrift"] for r in MDf["large"] if r["m"] == m] + [r["bz"] / r["bdrift"] for r in tf]
+        dr = [r["br"] / r["bdrift"] for r in MDf["large"] if r["m"] == m] + [r["br"] / r["bdrift"] for r in tf]
+        L = nt[(nt[:, 0] == m) & np.isfinite(nt[:, 8])]
+        dz += list(L[:, 6] / L[:, 8]); dr += list(L[:, 7] / L[:, 8])
+        out.append(dict(m=m, ring="larger", k=full["k"], bz=full["bz"] / full["bdrift"], br=full["br"] / full["bdrift"],
+                        bz_rng=[min(dz), max(dz)], br_rng=[min(dr), max(dr)], W=full["W"]))
+    return out
 
 
 def fig6():
-    from matplotlib.lines import Line2D
-    dec = np.load("mode_decompose.npy")    # m, amp, R, omega, ratio, W, Q, beta_zeta, beta_r, beta_drift, gamma, rms
-    nt = np.load("new_tests.npz")
-    tl, lg = nt["tilt"], nt["large"]
-    sl = np.load("sf2/sf2_linear.npy")     # k, gamma/k^2, err, |beta|, err, ...
-    bk = np.load("sf2/buckle.npz")["fits"]  # m, R, k, growth, gamma/k^2, omega, sqrt(bz br)
-    fig, ax = plt.subplots(2, 1, figsize=(W1, 4.0), gridspec_kw=dict(height_ratios=[1.15, 1]))
-    # (a) ring couplings relative to the drift coefficient, versus k = m / R (bars: fit-choice ranges)
+    rows = mode_ranges()
+    for r in rows:
+        print(f"fig6: {r['ring']:6s} m={r['m']} k={r['k']:.3f}  bz/bd {r['bz']:.3f} [{r['bz_rng'][0]:.3f}, {r['bz_rng'][1]:.3f}]"
+              f"  br/bd {r['br']:.3f} [{r['br_rng'][0]:.3f}, {r['br_rng'][1]:.3f}]  sqrt(bz br) {r['W']:.3f}")
+    tl = np.load("new_tests.npz")["tilt"]
+    sl = np.load("sf2/sf2_linear.npy")
+    bk = np.load("sf2/buckle.npz")["fits"]
+    ctl = json.load(open(os.path.join(FD.REVISION, "controls.json")))["straight"]
+    s15 = [c for c in ctl if c["label"].startswith("b=0.15")]
+    fig, ax = plt.subplots(2, 1, figsize=(W1, 4.1), gridspec_kw=dict(height_ratios=[1.15, 1]))
     a = ax[0]
     a.axhline(1, color=MUTED, lw=0.6)
-    a.scatter([1 / tl[0]], [tl[4] / tl[5]], marker="o", s=30, color=BLUE, zorder=4)
-    for m, mk in ((2, "s"), (3, "D")):
-        d = dec[dec[:, 0] == m]
-        k = m / d[:, 2].mean()
-        for col, j, dk in ((BLUE, 7, -0.006), (ORANGE, 8, 0.006)):
-            y = d[:, j] / d[:, 9]
-            a.errorbar([k + dk], [y.mean()], yerr=[[y.mean() - y.min()], [y.max() - y.mean()]], fmt=mk, ms=5,
-                       color=col, elinewidth=0.8, capsize=2, zorder=4)
-        L = lg[(lg[:, 0] == m) & np.isfinite(lg[:, 8])]
-        kL = L[:, 3].mean()
-        for col, j, dk in ((BLUE, 6, -0.006), (ORANGE, 7, 0.006)):
-            y = L[:, j] / L[:, 8]
-            a.errorbar([kL + dk], [y.mean()], yerr=[[y.mean() - y.min()], [y.max() - y.mean()]], fmt=mk, ms=5,
-                       mfc="white", mec=col, color=col, mew=1.1, elinewidth=0.8, capsize=2, zorder=4)
-    a.text(0.30, 0.88, r"$\beta_\zeta$", color=BLUE, fontsize=9, ha="center")
-    a.text(0.30, 0.50, r"$\beta_r$", color=ORANGE, fontsize=9, ha="center")
-    a.text(0.225, 1.09, r"$m=1$", fontsize=7, color=MUTED, va="center")
-    a.set(xlabel=r"wavenumber $k = m/\bar R$", ylabel=r"coupling $/\,\beta_\mathrm{drift}$",
-          xlim=(0.15, 0.68), ylim=(0.0, 1.3))
-    # (b) binormal coefficient: straight filaments (small amplitude) and ring modes
+    cal = HU.barkley_calibration(0.17)
+    a.axhspan(*sorted([float(cal.ratio_r(4.85)), float(cal.ratio_r(7.1))]), color="#fbe3d6", zorder=0, lw=0)
+    a.scatter([1 / tl[0]], [tl[4] / tl[5]], marker="o", s=26, facecolor="white", edgecolor=MUTED, lw=1.0, zorder=4)
+    a.text(1 / tl[0] + 0.015, tl[4] / tl[5] + 0.05, "tilt ($m=1$)", fontsize=7, color=MUTED, va="bottom")
+    mk = {2: "s", 3: "D", 4: "v"}
+    for r in rows:
+        filled = r["ring"] == "R*"
+        for col, key, dk in ((BLUE, "bz", -0.006), (ORANGE, "br", 0.006)):
+            lo, hi = r[key + "_rng"]
+            a.errorbar([r["k"] + dk], [r[key]], yerr=[[r[key] - lo], [hi - r[key]]], fmt=mk[r["m"]], ms=5, color=col,
+                       mfc=col if filled else "white", mec=col, mew=1.1, elinewidth=0.8, capsize=2, zorder=4)
+    a.text(0.66, 0.37, r"$\beta_\zeta$", color=BLUE, fontsize=9, ha="center")
+    a.text(0.66, 0.86, r"$\beta_r$", color=ORANGE, fontsize=9, ha="center")
+    a.set(xlabel=r"wavenumber $k = m/\bar R$", ylabel=r"coupling $/\,\beta_\mathrm{drift}$", xlim=(0.15, 0.88), ylim=(0.0, 1.3))
     b_ = ax[1]
-    b_.errorbar(sl[:, 0], sl[:, 3], yerr=sl[:, 4], fmt="o-", color=BLUE, ms=4.5, lw=1.0, )
-    for m, mk in ((2, "s"), (3, "D")):
-        d = dec[dec[:, 0] == m]
-        b_.scatter([m / d[:, 2].mean()], [d[:, 5].mean()], marker=mk, s=26, color=INK, zorder=4)
-        L = lg[lg[:, 0] == m]
-        b_.scatter([L[:, 3].mean()], [L[:, 4].mean()], marker=mk, s=26, facecolor="white", edgecolor=INK,
-                   linewidth=1.1, zorder=4)
+    b_.errorbar(sl[:, 0], sl[:, 3], yerr=sl[:, 4], fmt="o-", color=BLUE, ms=4.5, lw=1.0)
+    b_.plot([c["k"] for c in s15], [c["beta"] for c in s15], marker="o", mfc="white", mec=MUTED, ms=4.5, mew=1.0, ls=":", color=MUTED, lw=0.9)
+    for r in rows:
+        b_.scatter([r["k"]], [r["W"]], marker=mk[r["m"]], s=26, facecolor=INK if r["ring"] == "R*" else "white",
+                   edgecolor=INK, linewidth=1.1, zorder=4)
     b_.scatter(bk[:, 2], bk[:, 6], marker="^", s=30, color=AQUA, zorder=4)
     b_.text(0.80, 1.17, "straight\nfilament", color=BLUE, fontsize=7, ha="center", va="bottom")
+    b_.text(0.36, 1.98, r"straight, $b=0.15$", color=MUTED, fontsize=7, ha="left")
     b_.text(0.59, 1.36, r"$\bar R \approx 34$", color=AQUA, fontsize=7, ha="left")
-    b_.text(0.30, 1.22, "ring modes", color=INK, fontsize=7, ha="center")
-    b_.set(xlabel=r"wavenumber $k$", ylabel=r"binormal coefficient", xlim=(0.15, 0.85), ylim=(0.8, 2.45))
+    b_.text(0.30, 1.05, "ring modes", color=INK, fontsize=7, ha="center")
+    b_.set(xlabel=r"wavenumber $k$", ylabel=r"binormal coefficient", xlim=(0.15, 0.88), ylim=(0.6, 2.45))
     for a_, s_ in zip(ax, "ab"):
         grid(a_)
         label(a_, s_, x=-0.22, y=1.08)
@@ -554,46 +645,174 @@ def fig6():
     plt.close(fig)
 
 
-# ----------------------------------------------------------------------------- Fig. 7
-def fig7():
-    bk = np.load("sf2/buckle.npz")
-    T = bk["T"]
-    fig, ax = plt.subplots(2, 1, figsize=(W1, 4.6), gridspec_kw=dict(height_ratios=[1, 1.15]))
-    # (a) radial and vertical deviation along the ring at t = 190
-    p = bk["last"]
-    c = p.mean(0)
-    th = np.arctan2(p[:, 1] - c[1], p[:, 0] - c[0])
-    rho = np.hypot(p[:, 0] - c[0], p[:, 1] - c[1])
-    keep = np.abs(rho - np.median(rho)) < 6
-    th, rho, z = th[keep], rho[keep], p[keep, 2]
-    nb = 360
-    b = ((th + np.pi) / (2 * np.pi) * nb).astype(int) % nb
-    n = np.bincount(b, minlength=nb)
-    ok = n > 0
-    ang = np.degrees((np.arange(nb) + 0.5) / nb * 2 * np.pi - np.pi)
-    rb = np.bincount(b, rho, nb)[ok] / n[ok]
-    zb = np.bincount(b, z, nb)[ok] / n[ok]
-    ax[0].plot(ang[ok], rb - rb.mean(), color=BLUE, lw=0.9, label=r"radial")
-    ax[0].plot(ang[ok], zb - zb.mean(), color=ORANGE, lw=0.9, label=r"vertical")
-    ax[0].set(xlabel=r"polar angle $\theta$ (degrees)", ylabel="deviation", xlim=(-180, 180), ylim=(-1.4, 1.8))
-    ax[0].set_xticks([-180, -90, 0, 90, 180])
-    ax[0].legend(loc="upper right", ncol=2, fontsize=8, handletextpad=0.3, columnspacing=0.8)
-    # (b) mode amplitudes versus time
-    cols = {4: MUTED, 8: YELLOW, 12: BLUE, 16: ORANGE, 20: AQUA}
-    for m, col in cols.items():
-        ax[1].semilogy(T, bk[f"amp{m}"], color=col, lw=1.0, label=rf"$m={m}$")
-    ax[1].set(xlabel="time", ylabel=r"mode amplitude", xlim=(40, 200), ylim=(3e-3, 1.5))
-    ax[1].legend(loc="upper left", ncol=3, fontsize=8, handletextpad=0.3, columnspacing=0.8)
-    for a_, s_ in zip(ax, "ab"):
+# ----------------------------------------------------------------------------- Fig. S1: calibrations at b = 0.15-0.18
+def figS1():
+    fig, ax = plt.subplots(1, 2, figsize=(W2, 2.4))
+    cols = {0.15: BLUE, 0.16: AQUA, 0.17: ORANGE, 0.18: MAGENTA}
+    for b, col in cols.items():
+        cal = HU.barkley_calibration(b)
+        P = cal.P
+        ax[0].scatter(P[:, 0], P[:, 1], s=6, color=col, lw=0, alpha=0.8)
+        ax[1].scatter(P[:, 0], P[:, 2], s=6, color=col, lw=0, alpha=0.8, label=f"$b={b}$")
+        K = np.linspace(*cal.Krange, 200)
+        ax[0].plot(K, np.polyval(cal.pa, K), color=col, lw=0.9)
+        ax[1].plot(K, np.polyval(cal.pb, K), color=col, lw=0.9)
+    ax[0].axhline(0, color=MUTED, lw=0.5)
+    ax[0].set(xlabel=r"curvature $K = 1/\bar R$", ylabel=r"tension $\alpha$", xlim=(0, 0.5))
+    ax[1].set(xlabel=r"curvature $K = 1/\bar R$", ylabel=r"drift coefficient $\beta$", xlim=(0, 0.5))
+    ax[1].legend(loc="upper right", fontsize=7, markerscale=2)
+    for a_, s in zip(ax, "ab"):
         grid(a_)
-        label(a_, s_, x=-0.2, y=1.08)
-    fig.tight_layout(h_pad=0.8)
-    fig.savefig(f"{OUT}/fig7.pdf")
+        label(a_, s, x=-0.2, y=1.08)
+    fig.tight_layout(w_pad=1.0)
+    fig.savefig(f"{OUT}/figS1.pdf")
     plt.close(fig)
 
 
+# ----------------------------------------------------------------------------- Fig. S2: a mode fit and the induced twist
+def figS2():
+    from mode_theory2 import fit_mode
+    d = np.load(os.path.join(FD.REVISION, "modeR_m2_a0.15_lv.npz"))
+    m = 2
+    ok = np.isfinite(d["Rm"]) & np.isfinite(d["r2c"]) & (d["ncurves"] == 1)
+    t = d["t"][ok]
+    S = {k: C.smooth(t, d[k][ok], 4.44) for k in ("r2c", "z2c", "Rm", "tw2c")}
+    sel = (t >= 6) & (t <= 125) & np.isfinite(S["r2c"]) & np.isfinite(S["z2c"])
+    R = S["Rm"][sel].mean()
+    f = fit_mode(t[sel], S["r2c"][sel], S["z2c"][sel], m * np.sqrt(m * m - 1) * 1.2 / R ** 2)
+    tt = t[sel] - t[sel][0]
+    e = np.exp(-f["gamma"] * tt)
+    # model curves from the fitted parameters (fit_mode canonical form)
+    from scipy.optimize import least_squares
+    def res(q):
+        A, B, g, w, p, dd, cr, cz = q
+        ee = np.exp(-g * tt)
+        return np.r_[A * ee * np.cos(w * tt + p) + cr - S["r2c"][sel], B * ee * np.sin(w * tt + p + dd) + cz - S["z2c"][sel]]
+    best = min((least_squares(res, [np.ptp(S["r2c"][sel]) / 2, np.ptp(S["z2c"][sel]) / 2, f["gamma"], f["omega"], p0, 0, 0, 0])
+                for p0 in np.linspace(0, 2 * np.pi, 8, endpoint=False)), key=lambda s: s.cost)
+    A, B, g, w, p, dd, cr, cz = best.x
+    ee = np.exp(-g * tt)
+    fig, ax = plt.subplots(2, 1, figsize=(W1, 3.2), sharex=True)
+    ax[0].plot(t, S["r2c"], color=BLUE, lw=1.3, label=r"$r_2$")
+    ax[0].plot(t, S["z2c"], color=ORANGE, lw=1.3, label=r"$\zeta_2$")
+    ax[0].plot(t[sel], A * ee * np.cos(w * tt + p) + cr, color=INK, lw=0.7, ls="--")
+    ax[0].plot(t[sel], B * ee * np.sin(w * tt + p + dd) + cz, color=INK, lw=0.7, ls="--", label="fit")
+    ax[0].axhline(0, color=MUTED, lw=0.5)
+    ax[0].set(ylabel="mode amplitude")
+    ax[0].legend(loc="upper right", ncol=3, fontsize=7)
+    ax[1].plot(t, S["tw2c"], color=INK, lw=1.2, label=r"rotation phase, $\cos 2\theta$ part")
+    ax[1].plot(t, 0.17 * S["r2c"], color=BLUE, lw=0.8, ls=":", label=r"$0.17\,r_2$")
+    ax[1].axhline(0, color=MUTED, lw=0.5)
+    ax[1].set(ylabel="phase (rad)", xlabel="time", xlim=(0, 130))
+    ax[1].legend(loc="upper right", fontsize=7)
+    for a_, s in zip(ax, "ab"):
+        grid(a_)
+        label(a_, s, x=-0.22)
+    fig.tight_layout(h_pad=0.4)
+    fig.savefig(f"{OUT}/figS2.pdf")
+    plt.close(fig)
+
+
+# ----------------------------------------------------------------------------- Figs. S3, S4: the other two models
+
+def _stacked_halfwidths(ax, path, period, beta, lab, unit=""):
+    S = H.smoothed(path, period)
+    M = H.model_series_grown(S, beta)          # follows the measured size change of the ring
+    ax.plot(S["t"], S["hx"], color=BLUE, lw=1.3)
+    ax.plot(S["t"], S["hy"], color=ORANGE, lw=1.3)
+    ax.plot(M["t"], M["hx"], color=BLUE, lw=0.8, ls="--")
+    ax.plot(M["t"], M["hy"], color=ORANGE, lw=0.8, ls="--")
+    ax.text(0.01, 0.96, lab, transform=ax.transAxes, va="top", fontsize=8, color=INK)
+    ax.set_ylabel("half-width" + unit)
+    return S, M
+
+
+def figS3():
+    pan = H.read_csv(os.path.join(FD.SUPP, "halfcycles_panfilov.csv"))
+    rows = [r for r in read_csv(os.path.join(FD.REVISION, "uniform_halfcycles.csv")) if r["model"] == "panfilov" and r["radius"] == "Rm"]
+    import pan_alpha
+    fig = plt.figure(figsize=(W2, 3.4))
+    gs = fig.add_gridspec(2, 2, width_ratios=[1.9, 1], hspace=0.12, wspace=0.32)
+    a0 = fig.add_subplot(gs[0, 0]); a1 = fig.add_subplot(gs[1, 0], sharex=a0); a2 = fig.add_subplot(gs[:, 1])
+    for ax, fn, gf, lab in ((a0, "pell_gf0.775_20x12.npz", 0.775, r"$g_f = 0.775$ (slightly negative tension)"),
+                            (a1, "pell_gf0.8_24x15.npz", 0.8, r"$g_f = 0.8$ (weakly positive tension)")):
+        beta = [r["beta"] for r in pan if r["file"] == fn][0]
+        _stacked_halfwidths(ax, os.path.join(FD.SUPP, fn), pan_alpha.PERIOD[gf], beta, lab)
+    a1.set_xlabel("time")
+    plt.setp(a0.get_xticklabels(), visible=False)
+    h = [Line2D([], [], color=BLUE, lw=1.3), Line2D([], [], color=ORANGE, lw=1.3), Line2D([], [], color=MUTED, lw=0.8, ls="--")]
+    a1.legend(h, [r"$h_x$", r"$h_y$", "filament eq."], loc="lower left", ncol=3, fontsize=7)
+    runs = [("gf=0.775 dx=0.6 80^2 x 50", "0.775\n0.6"), ("gf=0.8 dx=0.6 88^2 x 50", "0.8\n0.6"),
+            ("gf=0.8 dx=0.6 120^2 x 80", "0.8\n0.6,\nlarge"), ("gf=0.8 dx=0.4 88^2 x 50", "0.8\n0.4"),
+            ("gf=0.8 dx=0.3 76^2 x 40", "0.8\n0.3")]
+    for i, (run, lab) in enumerate(runs):
+        q = np.array([r["ratio_c"] for r in rows if r["run"] == run])
+        res = np.array([r["residual"] for r in rows if r["run"] == run])
+        a2.plot(np.full(len(q), i) - 0.1, q, "o", color=INK, ms=3.5)
+        a2.plot(np.full(len(res), i) + 0.1, res, "o", mfc="white", mec=INK, ms=3.5, mew=0.8)
+    a2.axhline(1.0, color=MUTED, lw=0.8)
+    a2.set_xticks(range(len(runs)))
+    a2.set_xticklabels([r[1] for r in runs], fontsize=7)
+    a2.set(xlim=(-0.6, len(runs) - 0.4), ylim=(0.9, 1.1), xlabel=r"$g_f$ / grid spacing $\Delta x$",
+           ylabel="observed / predicted half-period")
+    a2.legend([Line2D([], [], ls="", marker="o", color=INK, ms=3.5), Line2D([], [], ls="", marker="o", mfc="white", mec=INK, ms=3.5)],
+              ["observed / predicted", "after Eq. (5)"], loc="upper left", fontsize=7)
+    for a_, s_ in zip((a0, a1, a2), "abc"):
+        grid(a_)
+        label(a_, s_, x=-0.14 if a_ is not a2 else -0.42, y=1.06)
+    fig.subplots_adjust(left=0.08, right=0.98, top=0.93, bottom=0.17)
+    fig.savefig(f"{OUT}/figS3.pdf")
+    plt.close(fig)
+
+
+def figS4():
+    import halfcycle_tables as HT
+    allrows = H.read_csv(os.path.join(FD.SUPP, "halfcycles_atri.csv"))
+    rows = [r for r in read_csv(os.path.join(FD.REVISION, "uniform_halfcycles.csv")) if r["model"] == "atri" and r["radius"] == "Rm"]
+    fn = "aell2_P0.1_100x60.npz"
+    beta = [r["beta"] for r in allrows if r["file"] == fn][0]
+    S = H.smoothed(os.path.join(FD.SUPP, fn), HT.ATRI_PERIOD)
+    M = H.model_series_grown(S, beta)
+    x0 = C.crossings(S["t"], S["z2c"])[0]
+    k = (S["t"] > x0) & (S["t"] < x0 + 3 * HT.ATRI_PERIOD) & np.isfinite(S["z2c"])
+    sgn = np.sign(np.polyfit(S["t"][k], S["z2c"][k], 1)[0] * np.polyfit(M["t"][:60], M["z2c"][:60], 1)[0])
+    fig = plt.figure(figsize=(W2, 3.4))
+    gs = fig.add_gridspec(2, 2, width_ratios=[1.9, 1], hspace=0.12, wspace=0.32)
+    a0 = fig.add_subplot(gs[0, 0]); a1 = fig.add_subplot(gs[1, 0], sharex=a0); a2 = fig.add_subplot(gs[:, 1])
+    a0.plot(S["t"], S["hx"], color=BLUE, lw=1.3); a0.plot(S["t"], S["hy"], color=ORANGE, lw=1.3)
+    a0.plot(M["t"], M["hx"], color=BLUE, lw=0.8, ls="--"); a0.plot(M["t"], M["hy"], color=ORANGE, lw=0.8, ls="--")
+    a0.set_ylabel(r"half-width ($\mu$m)")
+    a0.legend([Line2D([], [], color=BLUE, lw=1.3), Line2D([], [], color=ORANGE, lw=1.3), Line2D([], [], color=MUTED, lw=0.8, ls="--")],
+              [r"$h_x$", r"$h_y$", "filament eq."], loc="upper left", ncol=3, fontsize=7)
+    a1.plot(S["t"], sgn * S["z2c"], color=INK, lw=1.3)
+    a1.plot(M["t"], M["z2c"], color=MUTED, lw=0.8, ls="--")
+    a1.axhline(0, color=MUTED, lw=0.5)
+    a1.set(ylabel=r"saddle ampl. ($\mu$m)", xlabel="time (s)")
+    plt.setp(a0.get_xticklabels(), visible=False)
+    for run, mk, mfc, lab in (("dx=3.0 600^2 x 280 seed 100 x 60", "o", INK, r"$100\times60$"),
+                              ("dx=3.0 660^2 x 280 seed 130 x 80", "s", "white", r"$130\times80$"),
+                              ("dx=3.0 600^2 x 280 seed 100 x 88", "^", BLUE, r"$100\times88$"),
+                              ("dx=3.0 660^2 x 280 seed 120 x 105", "v", "white", r"$120\times105$"),
+                              ("dx=2.0 600^2 x 280 seed 100 x 60", "D", "white", r"$100\times60$, $\Delta x=2\,\mu$m")):
+        rr = [r for r in rows if r["run"] == run]
+        col = BLUE if "88" in run or "105" in run else (MUTED if "dx=2.0" in run else INK)
+        a2.plot([r["Rbar"] for r in rr], [r["ratio_c"] for r in rr], mk, color=col, mfc=mfc if mfc != BLUE else col, mec=col, ms=5, label=lab)
+    a2.axhline(1.0, color=MUTED, lw=0.8)
+    a2.set(xlabel=r"mean radius $\bar R_m$ ($\mu$m)", ylabel="observed / predicted half-period", ylim=(0.95, 1.12))
+    a2.legend(loc="lower left", fontsize=6.5, title=r"seed ($\mu$m)", title_fontsize=7, handletextpad=0.2)
+    for a_, s_ in zip((a0, a1, a2), "abc"):
+        grid(a_)
+        label(a_, s_, x=-0.14 if a_ is not a2 else -0.42, y=1.06)
+    fig.subplots_adjust(left=0.08, right=0.98, top=0.93, bottom=0.14)
+    fig.savefig(f"{OUT}/figS4.pdf")
+    plt.close(fig)
+
+
+ALL = {"1": fig1, "2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6,
+       "S1": figS1, "S2": figS2, "S3": figS3, "S4": figS4}
+
 if __name__ == "__main__":
-    which = [x if x == "M" else int(x) for x in sys.argv[1:]] or [1, 2, 3, 4, 5, 6]   # paper figures; "M" and 7 are drafts not in the paper
-    for n in which:
-        globals()[f"fig{n}" if str(n) != "M" else "figM"]()
-        print(f"wrote {OUT}/fig{n}.pdf")
+    os.makedirs(OUT, exist_ok=True)
+    for k in (sys.argv[1:] or ALL):
+        ALL[k]()
+        print(f"wrote {OUT}/fig{k}.pdf")

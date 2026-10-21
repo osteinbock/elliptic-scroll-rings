@@ -167,6 +167,48 @@ def test_mode_fit_canonical():
         assert abs(f["ratio"] - Bm / A) < 1e-3 and abs(f["dphase"] - d) < 1e-3 and abs(f["omega"] - 0.3) < 1e-4
 
 
+def test_nyquist_mode_has_no_derivative():
+    k = F.wavenumbers(8)
+    assert k[4] == 0 and np.allclose(np.delete(k, 4), np.delete(1j * np.fft.fftfreq(8, 1 / 8), 4))
+    assert np.allclose(F.wavenumbers(7), 1j * np.fft.fftfreq(7, 1 / 7))
+
+
+def test_phase_integral_of_a_steady_ring():
+    import halfcycle_uniform as HU
+    t = np.linspace(0, 20, 401)
+    w = np.sqrt(48 * 1.8 ** 2 - 0.1 ** 2) / (2 * 5.0 ** 2)
+    assert abs(HU.phase(t, np.full_like(t, 5.0), 1.8, 0.1) / (w * 20) - 1) < 1e-12
+
+
+def test_calibration_local_ratio():
+    import halfcycle_uniform as HU
+    K = np.repeat(np.linspace(0.05, 0.3, 26), 3)
+    cal = HU.Calibration(np.c_[K, 0.2 - K, 2.0 - 3.0 * K], deg=3, dK=0.05, nmin=8)
+    for R in (5.0, 8.0):
+        exact = 1 - 3.0 / R / (2.0 - 3.0 / R)            # 1 + K beta'(K) / beta(K)
+        assert abs(cal._local_ratio(1 / R) - exact) < 1e-9 and abs(cal.beta_r_over_beta(R) - exact) < 1e-9
+        assert abs(cal.ratio_r(R) - exact) < 1e-4          # interpolated on a grid of 120 curvatures
+
+
+def test_folders_require_environment():
+    import folders
+    old = os.environ.pop("REVISION", None)
+    try:
+        try:
+            folders.REVISION
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError("unset folder accepted")
+        with tempfile.TemporaryDirectory() as d:
+            os.environ["REVISION"] = d
+            assert folders.REVISION == os.path.abspath(d)
+    finally:
+        os.environ.pop("REVISION", None)
+        if old is not None:
+            os.environ["REVISION"] = old
+
+
 def test_helical_parts_with_missing_layers():
     from straight_filament import helical_parts
     k = 2 * np.pi / 8.0
@@ -206,7 +248,7 @@ def test_export_never_touches_sources():
         ED.commands = lambda: [("supp", os.path.join("sub", "run.npz"), "cd v2/sub && run")]
         ED.PRODUCTS = {}
         try:
-            ED.main(out, raw, raw, raw)
+            ED.main(out, raw, raw, raw, raw)
         finally:
             ED.commands, ED.PRODUCTS = cmds, prods
         assert hashlib.sha256(open(src, "rb").read()).hexdigest() == before
@@ -216,7 +258,7 @@ def test_export_never_touches_sources():
         m = json.load(open(os.path.join(out, "MANIFEST.json")))
         assert m["runs"][0]["source_sha256"] == before and m["runs"][0]["file"] == "runs/supp/sub/run.npz"
         try:
-            ED.main(os.path.join(raw, "inner"), raw, raw, raw)  # archive inside an input folder
+            ED.main(os.path.join(raw, "inner"), raw, raw, raw, raw)  # archive inside an input folder
         except ValueError:
             pass
         else:

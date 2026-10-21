@@ -508,5 +508,709 @@
   0.67
  ],
  "refine.m3.R_fine": 4.84,
- "refine.straight_k0.35.beta_change_percent": 1.2
+ "refine.straight_k0.35.beta_change_percent": 1.2,
+ "rev.fig5a.n_halfcycles_and_runs": [
+  22,
+  5
+ ],
+ "rev.b017.ratio_c.mean_sd_n": [
+  1.435,
+  0.015,
+  13
+ ],
+ "rev.b017.ratio_c.range": [
+  1.4,
+  1.46
+ ],
+ "rev.b017.ratio_c.percent_longer": 44,
+ "rev.b017.Rbar.range": [
+  4.6,
+  8.0
+ ],
+ "rev.b017.eq5_factor.mean_sd": [
+  1.262,
+  0.007
+ ],
+ "rev.b017.residual.mean_sd": [
+  1.137,
+  0.014
+ ],
+ "rev.b017.beta_r_over_beta_at_Rbar.range": [
+  0.62,
+  0.65
+ ],
+ "rev.b017.beta_r_over_beta_from_eq5.range": [
+  0.62,
+  0.64
+ ],
+ "rev.b017.ratio_own.mean_sd": [
+  1.31,
+  0.07
+ ],
+ "rev.b017.drift_per_switch_over_Rbar": 1.19,
+ "rev.own_drift_deficit_percent.b017.range": [
+  1.0,
+  14.0
+ ],
+ "rev.own_drift_deficit_percent.b015_b016.range": [
+  1.0,
+  5.0
+ ],
+ "rev.own_drift_deficit_percent.b018": [
+  18.0,
+  18.0
+ ],
+ "rev.b015_b016.ratio_c.range": [
+  1.19,
+  1.4
+ ],
+ "rev.b018.ratio_c": [
+  1.47
+ ],
+ "rev.b015_b016.Rbar_ge_3.6.eq5_factor.range": [
+  1.05,
+  1.17
+ ],
+ "rev.b015_b016.Rbar_ge_3.6.residual.range": [
+  1.14,
+  1.23
+ ],
+ "rev.b015_b016.smallest.residual_and_Rbar": [
+  [
+   1.41,
+   1.48
+  ],
+  [
+   3.3,
+   3.5
+  ]
+ ],
+ "rev.b015_b016.eq5_local_vs_global.max_abs_difference": 0.072,
+ "rev.fig5a.T_obs.range": [
+  9.4,
+  52
+ ],
+ "rev.fig5a.max_shrink_within_halfcycle_percent": 32,
+ "rev.fig5a.factor.range": [
+  0.98,
+  1.0
+ ],
+ "rev.fig5a.max_amplitude_correction_percent": 2.1,
+ "rev.fig5a.max_tension_correction_percent": 0.158,
+ "rev.b017.all.z2.Rm.ratio_c.mean_sd_n": [
+  1.432,
+  0.039,
+  23
+ ],
+ "rev.b017.weak_modes.z2.Rm.ratio_c.mean_sd_n": [
+  1.459,
+  0.031,
+  12
+ ],
+ "rev.b017.elliptic.z2.Rm.ratio_c.mean_sd_n": [
+  1.403,
+  0.023,
+  11
+ ],
+ "rev.b017.all.z2.L.ratio_c.mean_sd_n": [
+  1.446,
+  0.029,
+  23
+ ],
+ "rev.b017.weak_modes.z2.L.ratio_c.mean_sd_n": [
+  1.46,
+  0.031,
+  12
+ ],
+ "rev.b017.elliptic.z2.L.ratio_c.mean_sd_n": [
+  1.43,
+  0.017,
+  11
+ ],
+ "rev.panfilov.gf0.775.ratio_c.mean_sd_n_runs": [
+  0.968,
+  0.006,
+  3,
+  1
+ ],
+ "rev.panfilov.gf0.775.eq5_factor.mean": 0.97,
+ "rev.panfilov.gf0.775.residual.mean": 0.998,
+ "rev.panfilov.gf0.8.ratio_c.mean_sd_n_runs": [
+  1.004,
+  0.014,
+  7,
+  4
+ ],
+ "rev.panfilov.gf0.8.eq5_factor.mean": 0.99,
+ "rev.panfilov.gf0.8.residual.mean": 1.014,
+ "rev.panfilov.L_vs_Rm_ratio_change_percent.range": [
+  -5.1,
+  -0.8
+ ],
+ "rev.atri.excess_percent.mean_sd_n_runs": [
+  5.3,
+  1.2,
+  13,
+  5
+ ],
+ "rev.atri.aspect_below_1.3.excess_percent.mean_sd_n": [
+  4.2,
+  0.8,
+  5
+ ],
+ "rev.atri.Rbar.range_um": [
+  93.0,
+  146.0
+ ],
+ "rev.atri.ratio_at_smallest_and_largest_Rbar": [
+  1.07,
+  1.03
+ ],
+ "rev.atri.L_vs_Rm.max_change_percent.eccentric_and_aspect_below_1.3": [
+  12.0,
+  0.8
+ ],
+ "rev.atri.factor.max_deviation_percent.aspect_below_1.3": 1.7,
+ "rev.atri.dx2_vs_dx3.ratio_change_percent": -0.4,
+ "rev.atri.dx3.clearance_ge_260.n_mean_vs_others_mean": [
+  6,
+  1.047,
+  1.058
+ ],
+ "rev.atri.min_clearance_um": 192,
+ "rev.atri.switch_interval_min_for_R_95_145_um": [
+  5.1,
+  11.8
+ ],
+ "rev.atri.P0.095.min_clearance_um": 45,
+ "rev.factor.L.at_aspect_1.17_1.5_1.77_2.06_2.43": [
+  1.001,
+  0.996,
+  0.992,
+  0.987,
+  0.982
+ ],
+ "rev.factor.Rm.at_aspect_1.17_1.5_1.77_2.06_2.43": [
+  1.007,
+  1.046,
+  1.092,
+  1.148,
+  1.225
+ ],
+ "rev.eccentric_2.4.later_halfcycles_shorter_percent.range": [
+  2.1,
+  3.0
+ ],
+ "rev.mean_R2_bias_percent_for_30_percent_shrink": 4.0,
+ "rev.fig2.halfwidths_t4": [
+  6.8,
+  4.2
+ ],
+ "rev.fig2.planar_moments_after_t6": [
+  19.2,
+  36.7
+ ],
+ "rev.fig2.circle_beta_c_at_first_last_window": [
+  1.84,
+  1.77
+ ],
+ "rev.fig2.model_halfcycle_ratios.range": [
+  1.37,
+  1.46
+ ],
+ "rev.fig2.model_drift_deficit_percent.windows_0_5_10": [
+  3.1,
+  8.6,
+  7.8
+ ],
+ "rev.fig3.R_at_t4": 9.0,
+ "rev.fig3.sim_lnR_spacings": [
+  0.39,
+  0.33
+ ],
+ "rev.fig3.model_vs_sim_lnR_deviation_first_two": [
+  0.03,
+  0.01
+ ],
+ "rev.fig3.sim_over_model_time_to_switch_first_two": [
+  1.25,
+  1.23
+ ],
+ "rev.fig3.third_switch_lnR_model_sim": [
+  0.83,
+  0.92
+ ],
+ "rev.fig3.R_at_t44_model_sim": [
+  5.0,
+  5.8
+ ],
+ "rev.fig3.b005.alpha_abs_beta": [
+  1.35,
+  1.02
+ ],
+ "rev.fig4.calibration_rings_and_seed_radii": [
+  14,
+  [
+   4.5,
+   26.0
+  ]
+ ],
+ "rev.fig4.calibration_K_range": [
+  0.04,
+  0.29
+ ],
+ "rev.fig4.alpha_at_K_range_ends_and_zero": [
+  0.63,
+  -0.12,
+  0.2
+ ],
+ "rev.fig4.beta_at_K_range_ends": [
+  2.9,
+  1.6
+ ],
+ "rev.fig4.R0_38_windows_K.range": [
+  0.027,
+  0.029
+ ],
+ "rev.fig4.final_radii_near_Rstar.Rm_and_L2pi": [
+  [
+   4.53,
+   4.82
+  ],
+  [
+   4.53,
+   4.82
+  ]
+ ],
+ "rev.fig4.final_dR_dt.R0_7.5_9_13": [
+  -0.0029,
+  -0.0035,
+  -0.0106
+ ],
+ "rev.fig4.R0_4.last_filament_t_and_run_end": [
+  27.3,
+  28.1
+ ],
+ "rev.fig4.longest_circle_run": 300,
+ "rev.b015.beta_windows_K_0.13_0.33.range": [
+  1.42,
+  1.55
+ ],
+ "rev.b015.beta_fit_K_0.13_0.33.range": [
+  1.46,
+  1.58
+ ],
+ "rev.b016.Rstar_from_fit": 3.1,
+ "rev.b016.final_Rm.R0_5_8_10": [
+  3.1,
+  3.2
+ ],
+ "rev.b015.all_rings_collapse": true,
+ "rev.b018.max_window_alpha": -0.303,
+ "rev.b018.all_rings_expand": true,
+ "rev.spirals.barkley.core_radius_b0.15_0.16_0.17_0.18": [
+  0.37,
+  0.42,
+  0.49,
+  0.58
+ ],
+ "rev.spirals.barkley.wavelength_b0.15_0.16_0.17_0.18": [
+  11.2,
+  11.6,
+  12.0,
+  12.7
+ ],
+ "rev.spirals.panfilov.core_radius_wavelength_gf0.775_0.8": [
+  [
+   3.49,
+   37.0
+  ],
+  [
+   3.12,
+   33.9
+  ]
+ ],
+ "rev.modes.Rm_at_Rstar.range": [
+  4.85,
+  5.01
+ ],
+ "rev.modes.larger_ring.R_mean_m2_m3": [
+  7.1,
+  7.4
+ ],
+ "rev.modes.larger_ring.m2.R_start_end": [
+  8.1,
+  6.4
+ ],
+ "rev.modes.quadrature_deg.standard_max": 11.1,
+ "rev.modes.quadrature_deg.other_definitions_max": 16.5,
+ "rev.modes.quadrature_deg.m4.range": [
+  4.0,
+  28.0
+ ],
+ "rev.modes.Rstar.m2.k": 0.41,
+ "rev.modes.Rstar.m2.bz_over_drift.main_range": [
+  0.74,
+  0.71,
+  0.76
+ ],
+ "rev.modes.Rstar.m2.br_over_drift.main_range": [
+  0.64,
+  0.59,
+  0.67
+ ],
+ "rev.modes.Rstar.m3.k": 0.61,
+ "rev.modes.Rstar.m3.bz_over_drift.main_range": [
+  0.62,
+  0.58,
+  0.68
+ ],
+ "rev.modes.Rstar.m3.br_over_drift.main_range": [
+  0.63,
+  0.6,
+  0.74
+ ],
+ "rev.modes.Rstar.m4.k": 0.8,
+ "rev.modes.Rstar.m4.bz_over_drift.main_range": [
+  0.43,
+  0.39,
+  0.44
+ ],
+ "rev.modes.Rstar.m4.br_over_drift.main_range": [
+  0.74,
+  0.71,
+  0.77
+ ],
+ "rev.modes.larger.m2.k": 0.28,
+ "rev.modes.larger.m2.bz_over_drift.main_range": [
+  0.8,
+  0.76,
+  0.83
+ ],
+ "rev.modes.larger.m2.br_over_drift.main_range": [
+  0.6,
+  0.57,
+  0.63
+ ],
+ "rev.modes.larger.m3.k": 0.41,
+ "rev.modes.larger.m3.bz_over_drift.main_range": [
+  0.66,
+  0.66,
+  0.72
+ ],
+ "rev.modes.larger.m3.br_over_drift.main_range": [
+  0.64,
+  0.61,
+  0.64
+ ],
+ "rev.modes.m2.halfperiod_ratio_from_couplings.Rstar_larger": [
+  1.454,
+  1.449
+ ],
+ "rev.modes.m2.halfperiod_ratio_vs_circle.Rstar_larger": [
+  1.467,
+  1.478
+ ],
+ "rev.modes.ringmodes_below_straight_percent.range_all_six": [
+  6.0,
+  34.0
+ ],
+ "rev.modes.ringmodes_below_straight_percent.range_m2_m3": [
+  13.0,
+  34.0
+ ],
+ "rev.buckle.m_k_R": [
+  [
+   12,
+   20
+  ],
+  [
+   0.35,
+   0.58
+  ],
+  34
+ ],
+ "rev.modes.deformation_wavelengths.range": [
+  8.0,
+  25.0
+ ],
+ "rev.modes.local_law.alpha_c_and_alpha_r_at_Rstar": [
+  -0.0,
+  -0.14
+ ],
+ "rev.modes.local_law.growth_m2_m3": [
+  0.009,
+  0.023
+ ],
+ "rev.modes.decay_m2_m3": [
+  0.011,
+  0.058
+ ],
+ "rev.modes.local_law.beta_r_over_drift_at_Rstar": 0.63,
+ "rev.modes.m2.alpha_r.range_amps": [
+  -0.19,
+  -0.17
+ ],
+ "rev.modes.m2.alpha_zeta.range_amps": [
+  0.26,
+  0.28
+ ],
+ "rev.modes.m2.alpha_r.range_definitions": [
+  -0.25,
+  -0.15
+ ],
+ "rev.modes.m2.alpha_zeta.range_definitions": [
+  0.25,
+  0.31
+ ],
+ "rev.modes.m3.alpha_r.range_amps": [
+  -0.03,
+  0.02
+ ],
+ "rev.modes.m3.alpha_zeta.range_amps": [
+  0.29,
+  0.34
+ ],
+ "rev.modes.m3.alpha_r.range_definitions": [
+  -0.15,
+  0.05
+ ],
+ "rev.modes.m3.alpha_zeta.range_definitions": [
+  0.27,
+  0.42
+ ],
+ "rev.defs.m2.bz_over_drift.range": [
+  0.73,
+  0.74
+ ],
+ "rev.defs.m2.br_over_drift.max_spread": 0.06,
+ "rev.defs.m2.Rm.range": [
+  4.64,
+  4.91
+ ],
+ "rev.defs.Rstar.omega_spread_percent": 0.44,
+ "rev.defs.Rstar.max_bz_change": 0.042,
+ "rev.defs.larger.m2.bz_over_drift.range": [
+  0.798,
+  0.801
+ ],
+ "rev.defs.larger.m3.bz_over_drift.range": [
+  0.659,
+  0.668
+ ],
+ "rev.twist.amp_over_r.range": [
+  0.17,
+  0.23
+ ],
+ "rev.twist.abs_phase_deg.range": [
+  4.0,
+  27.0
+ ],
+ "rev.twist.m2.max_abs_phase_deg": 17,
+ "rev.twist.sin_part.max_amp_over_r": 0.011,
+ "rev.twist.local_median.range": [
+  0.01,
+  0.021
+ ],
+ "rev.twist.net.max": 0.01,
+ "rev.twist.figS2_run.amp_over_r": 0.17,
+ "rev.twist.m2.max_departure_alpha_r_beta_r_from_local": [
+  0.05,
+  0.0
+ ],
+ "rev.twist.m2.shift_alpha_zeta_and_beta_zeta": [
+  0.27,
+  0.48
+ ],
+ "rev.rigidity.e2_from_freq.range": [
+  -3.3,
+  -0.9
+ ],
+ "rev.rigidity.implied_split.bz_br.ranges": [
+  [
+   0.83,
+   0.91
+  ],
+  [
+   0.44,
+   0.51
+  ]
+ ],
+ "rev.rigidity.e2_from_zeta.range": [
+  -7.5,
+  -2.2
+ ],
+ "rev.rigidity.e2_from_r.range": [
+  -1.19,
+  0.06
+ ],
+ "rev.rigidity.e1_from_zeta_and_r.ranges": [
+  [
+   0.8,
+   2.5
+  ],
+  [
+   -1.0,
+   0.5
+  ]
+ ],
+ "rev.rigidity.straight.linear_fit_gamma2_e2": [
+  2.14,
+  -2.0
+ ],
+ "rev.rigidity.straight.linear_residuals_abs.range": [
+  0.07,
+  0.28
+ ],
+ "rev.rigidity.straight.omega_over_k2_uncertainty.range": [
+  0.001,
+  0.012
+ ],
+ "rev.rigidity.straight.quadratic_fit_e2_e3": [
+  -5.7,
+  5.4
+ ],
+ "rev.straight.b015.all_decay_and_beta": [
+  true,
+  [
+   1.74,
+   1.53,
+   1.27
+  ]
+ ],
+ "rev.straight.b016.k045.gamma_over_k2": 0.008,
+ "rev.controls.mode_bigbox.max_relative_change": 8e-06,
+ "rev.controls.dt_half_and_rot45.ratio_c_change_percent.range": [
+  -3.4,
+  2.1
+ ],
+ "rev.controls.dt_half_and_rot45.ratio_c_mean_change_percent": [
+  -0.37,
+  -0.69
+ ],
+ "rev.controls.dt_half_and_rot45.ratio_own_change_percent.range": [
+  -2.2,
+  3.5
+ ],
+ "rev.controls.dt_half_and_rot45.ratio_own_mean_change_percent": [
+  0.63,
+  -0.64
+ ],
+ "rev.controls.dt_half_and_rot45.halfperiod_change_percent.range": [
+  -5.1,
+  0.6
+ ],
+ "rev.controls.ellipse_bigbox.max_switch_time_change": 0.0,
+ "rev.controls.dx0.1.mean_ratio_change_percent.own_and_c_and_n": [
+  0.04,
+  -2.24,
+  6,
+  6
+ ],
+ "rev.controls.dx0.15.mean_ratio_change_percent.own_and_c_and_n": [
+  -0.76,
+  -2.53,
+  2,
+  2
+ ],
+ "rev.controls.circle_bigbox.max_change_alpha_beta": [
+  0.0,
+  0.0
+ ],
+ "rev.controls.dx015.alpha_shift.range": [
+  -0.0,
+  0.08
+ ],
+ "rev.controls.dx015.beta_change_percent.max_abs": 2.3,
+ "rev.controls.dx015.median_alpha_shift.R0_6.5_9": [
+  0.01,
+  0.03
+ ],
+ "rev.controls.dx015.median_beta_change_percent.R0_6.5_9": [
+  0.5,
+  1.0
+ ],
+ "rev.controls.straight_walls_32_vs_64.rate_changes": [
+  0.0,
+  0.0
+ ],
+ "rev.methods.formation_time.max": 1.3,
+ "rev.methods.switch_r2_vs_hx.median_pooled_and_per_run_max": [
+  0.005,
+  0.019
+ ],
+ "rev.tilt.expected_ratio_for_estimators": 1.0057,
+ "rev.solver.weak_ellipse_period_error_percent": 0.13,
+ "rev.solver.inversion_check.max_error_percent_freq_ratio": [
+  0.45,
+  1.43
+ ],
+ "rev.halfcycles.rejected_only_for_gaps.r2_z2": [
+  0,
+  0
+ ],
+ "rev.atri.circles.min_clearance_um.P0.085_0.095_0.100": [
+  214,
+  153,
+  280
+ ],
+ "rev.panfilov.gf0.775.switches_and_Rm_first_last": [
+  4,
+  16.0,
+  17.5
+ ],
+ "rev.panfilov.gf0.775.planar_moments.ellipticity_hx_hy_first_last": [
+  0.21,
+  0.12
+ ],
+ "rev.panfilov.gf0.775.planar_moments.r2_over_Rm_first_last": [
+  0.21,
+  0.12
+ ],
+ "rev.panfilov.gf0.775.planar_moments.Rm_first_last": [
+  16.0,
+  17.3
+ ],
+ "rev.panfilov.gf0.775.tension_growth_of_relative_ellipticity": 1.22,
+ "rev.panfilov.gf0.775.beta_r_over_beta_at_mean_Rbar_and_shortening_percent": [
+  1.06,
+  3
+ ],
+ "rev.panfilov.gf0.8.switches_and_Rm_first_last": [
+  6,
+  18.8,
+  8.7
+ ],
+ "rev.panfilov.gf0.8.planar_moments.ellipticity_hx_hy_first_last": [
+  0.14,
+  0.01
+ ],
+ "rev.panfilov.gf0.8.planar_moments.r2_over_Rm_first_last": [
+  0.14,
+  0.01
+ ],
+ "rev.panfilov.gf0.8.planar_moments.Rm_first_last": [
+  16.4,
+  9.8
+ ],
+ "rev.panfilov.gf0.8.tension_growth_of_relative_ellipticity": 0.27,
+ "rev.panfilov.gf0.8.beta_r_over_beta_at_mean_Rbar_and_shortening_percent": [
+  1.04,
+  2
+ ],
+ "rev.panfilov.circles.L_over_2piRm_minus_1.median_percent.range": [
+  0.9,
+  2.0
+ ],
+ "rev.atri.rest_state_c_nM.P0.095": 131,
+ "rev.atri.circles.dx2_and_cstar_change_percent.alpha_beta": [
+  [
+   4.8,
+   0.39
+  ],
+  [
+   0.0,
+   0.18
+  ]
+ ]
 }

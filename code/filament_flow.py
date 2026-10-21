@@ -6,8 +6,9 @@ The eta term is filament rigidity (Dierckx et al., PRL 109, 174102 (2012);
 Nakouzi et al., PRE 89, 042902 (2014), Eq. 4), projected onto the normal plane.
 
 Pseudo-spectral in a uniform parameter, RK4, with tangential reparametrisation
-toward equal arc-length spacing. Used to predict what an RD scroll ring with
-measured (alpha, beta) should do, starting from a flat ellipse.
+toward equal arc-length spacing and an exponential filter on the top of the
+spectrum. Used to predict what an RD scroll ring with measured (alpha, beta)
+should do, starting from a flat ellipse.
 
     python filament_flow.py 8 5 0.0 -2.4 120
 """
@@ -15,9 +16,19 @@ import sys
 import numpy as np
 
 
+def wavenumbers(n):
+    """i m for the spectral derivative in the uniform parameter. For even n the Nyquist mode m = n/2
+    has no consistent real derivative and is set to zero; kept, a point-spacing zigzag at that
+    mode can grow through the tangential reparametrisation and corrupt the curvature."""
+    k = 1j * np.fft.fftfreq(n, 1.0 / n)
+    if n % 2 == 0:
+        k[n // 2] = 0
+    return k
+
+
 def derivs(X):
     n = len(X)
-    k = 1j * np.fft.fftfreq(n, 1.0 / n)
+    k = wavenumbers(n)
     F = np.fft.fft(X, axis=0)
     Xu = np.fft.ifft(k[:, None] * F, axis=0).real
     Xuu = np.fft.ifft((k ** 2)[:, None] * F, axis=0).real
@@ -44,17 +55,20 @@ def rhs(X, alpha, beta, eta=0.0, relax=1.0, alpha2=0.0, beta2=0.0, local=None):
         V = alpha * Xss + beta * np.cross(T, Xss)
     if eta:
         n_ = len(X)
-        kk = 1j * np.fft.fftfreq(n_, 1.0 / n_)
+        kk = wavenumbers(n_)
         D4 = d_s(d_s(Xss, np.sqrt(g), kk), np.sqrt(g), kk)           # X_ssss
         V = V - eta * (D4 - (D4 * T).sum(1)[:, None] * T)
     # tangential velocity that pushes |X_u| toward its mean (keeps spacing even)
     s = np.sqrt(g)
     w = s - s.mean()
     n = len(X)
-    k = 1j * np.fft.fftfreq(n, 1.0 / n)
+    k = wavenumbers(n)
     k[0] = 1
     W = np.fft.fft(w)
     W[0] = 0
+    if n % 2 == 0:
+        W[n // 2] = 0
+        k[n // 2] = 1                                              # W is zero there; avoid 0/0
     phi = np.fft.ifft(W / k).real                                 # d(phi)/du = w
     return V - relax * phi[:, None] * T
 
@@ -107,6 +121,10 @@ def run(Ax, Ay, alpha, beta, T, dt=None, n=192, every=0.25, eta=0.0, alpha2=0.0,
         if eta:
             dt = min(dt, 4.0 / (eta * kmax ** 4) + 0.2 / (eta * kmax ** 3 / ds))
     kint = np.fft.fftfreq(n, 1.0 / n)
+    # exponential filter (Hou & Li 2007) on the top of the spectrum: removes the parametrisation zigzag
+    # near the Nyquist mode, which otherwise can grow and corrupt the curvature; modes below n/3 are
+    # changed by less than 1e-6 per step
+    filt = np.exp(-36.0 * (np.abs(kint) / (n / 2)) ** 36)[:, None]
     out, t, nxt = [], 0.0, 0.0
     while t <= T + 1e-9:
         if t >= nxt - 1e-12:
@@ -137,7 +155,7 @@ def run(Ax, Ay, alpha, beta, T, dt=None, n=192, every=0.25, eta=0.0, alpha2=0.0,
         b = N(E * (Xh + dt / 2 * a))
         c_ = N(E * Xh + dt / 2 * b)
         d = N(E2 * Xh + dt * E * c_)
-        Xh = E2 * Xh + dt / 6 * (E2 * a + 2 * E * (b + c_) + d)
+        Xh = (E2 * Xh + dt / 6 * (E2 * a + 2 * E * (b + c_) + d)) * filt
         X = np.fft.ifft(Xh, axis=0).real
         t += dt
     return {k: np.array([r[k] for r in out]) for k in out[0]}
