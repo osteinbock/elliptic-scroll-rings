@@ -171,7 +171,7 @@ def main(outdir):
         L.append(f"{r['m']} & {r['amp']:.2f} & {d} & {r['R']:.3f} & {r['omega']:.4f} & {r['q']:.4f} & {phi(r['dphase_deg']):+.1f} & "
                  f"{r['bz'] / bc(r['R']):.3f} & {r['br'] / bc(r['R']):.3f} & {r['alpha_zeta']:+.2f} & {r['alpha_r']:+.2f} \\\\")
     write(outdir, "tab_definitions.tex", L)
-    # ---------------------------------------------------------------- Table I of the main text: shape modes
+    # ---------------------------------------------------------------- Table S5: summary of the shape modes
     import mode_summary
     f2 = lambda x: f"{x:.2f}".replace("-", "$-$")
     span = lambda v: f"{f2(v[0])}--{f2(v[1])}" if v[0] >= 0 else f"{f2(v[0])} to {f2(v[1])}"

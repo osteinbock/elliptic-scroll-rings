@@ -294,7 +294,7 @@ def supp():
                           round(r["aspect"], 2), round(r["T_obs"]), round(r["ratio"], 3)] for r in A])
     co = H.read_csv(os.path.join(S, "coefficients_circles.csv"))
     put("circles.used_for_tables", [[r["model"], r["file"], round(r["alpha"], 4), round(r["beta"], 4)] for r in co])
-    # Table S1 (S10 of the SI): pooled over the seeds 14 and 22 and, for g_f = 0.775 and 0.8, 18 (REVISION)
+    # Table S1 (S11 of the SI): pooled over the seeds 14 and 22 and, for g_f = 0.775 and 0.8, 18 (REVISION)
     import pan_alpha as PA
     for gf in (0.775, 0.8, 0.825, 0.85, 0.9):
         paths = [os.path.join(S, f"pcirc_gf{gf}_R{R}.npz") for R in (14, 22)]
@@ -1002,7 +1002,7 @@ def round2_halfcycles():
 
 
 def round2_modes():
-    """Second-round revision, Sec. IV D (Table I), SI IV: shape modes relative to beta_c, twist bound, rigidity, dx."""
+    """Second-round revision, Sec. IV D and SI IV (Table S5): shape modes relative to beta_c, twist bound, rigidity, dx."""
     import json
     import halfcycle_uniform as HU
     import mode_summary

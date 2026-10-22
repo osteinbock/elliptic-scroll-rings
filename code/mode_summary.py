@@ -1,6 +1,6 @@
 """Couplings and diagonal rates of the ring shape modes with their ranges, relative to the drift
-coefficient beta_c of circular rings of the same radius (Fig. 6a, Table I of the main text, Tables S5,
-S6). Ranges cover seed amplitude, fit window, smoothing, dx = 0.15 and filament definition at R*, the
+coefficient beta_c of circular rings of the same radius (Fig. 6a, Tables S5-S7 of the supplementary
+material). Ranges cover seed amplitude, fit window, smoothing, dx = 0.15 and filament definition at R*, the
 fit windows and filament definitions for m = 4, and fits in tau over the whole run and its halves,
 constant-frequency windows and filament definitions on the larger ring. Ratios that were stored
 relative to the ring's own drift coefficient are converted with the drift of the same fit or run.

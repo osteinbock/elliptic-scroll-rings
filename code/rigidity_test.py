@@ -44,7 +44,7 @@ def m4_row():
 def main():
     R = json.load(open("mode_refit.json"))
     rows = []
-    # R*: the time fits of Table S5 (mode_refit "rstar"); larger ring: the fits in tau over the whole run
+    # R*: the time fits of Table S6 (mode_refit "rstar"); larger ring: the fits in tau over the whole run
     sel = [dict(r, run=f"R* amp {r['amp']}") for r in R["rstar"]] + [m4_row()]
     sel += [r for r in R["tau_fits"] if r["run"] == "larger ring" and r["t0"] == 15.0 and r["t1"] in (150.0, 100.0)]
     print("ring modes (R*: fits in t; larger ring: fits in tau; circular-ring coefficients beta_c, alpha_c at the same R):")

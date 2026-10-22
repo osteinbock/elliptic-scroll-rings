@@ -26,7 +26,7 @@ All models use explicit Euler time stepping and a seven-point Laplacian (Numba-p
 ## Main scripts
 
 - `make_figs.py`: figures of the main text and of the supplementary material (`FIG_OUT` sets the output directory)
-- `si_tables.py`: Table I of the main text and the tables of the supplementary material
+- `si_tables.py`: tables of the supplementary material
 - `folders.py`: locations of the four data folders, read from the environment variables `SUPP`, `BARKLEY`,
   `REFINE`, and `REVISION` (set by `build_all.sh` and `rebuild_from_archive.py`)
 - `fig1_render.py`: rendered wave field of Fig. 1(b)
@@ -35,7 +35,7 @@ All models use explicit Euler time stepping and a seven-point Laplacian (Numba-p
 - `halfcycle.py`, `halfcycle_tables.py`: half-cycles and circular-ring coefficients of both supplementary models
 - `halfcycle_uniform.py`: one half-cycle analysis for all three models, with the circular-ring baseline, the
   curvature-only local law (Eq. 5), the ring's own drift, and the literal ratio of durations (Fig. 5,
-  Tables S1–S2, S11, S13)
+  Tables S1–S2, S12, S14)
 - `period_baselines.py`, `local_law_halfcycles.py`: both baselines for the Barkley half-cycles; the
   curvature-only law at finite amplitude
 - `oreg2d.py`, `oreg_ring.py`: Oregonator
@@ -44,7 +44,7 @@ All models use explicit Euler time stepping and a seven-point Laplacian (Numba-p
 - `period_analysis.py`, `period_analysis_r2.py`: half-cycles between axis switches (Fig. 5)
 - `mode_decompose.py`, `mode_refit.py`, `mode_definitions.py`, `new_tests_analysis.py`, `straight_filament.py`,
   `sf2_linear.py`, `buckle_save.py`, `rigidity_test.py`: shape modes, their couplings and damping, the
-  filament definition, and the rigidity-extended local law (Table I, Fig. 6, Fig. S2, Tables S5–S9);
+  filament definition, and the rigidity-extended local law (Fig. 6, Fig. S2, Tables S5–S10);
   `mode_summary.py` collects the couplings and diagonal rates with their ranges, relative to the drift
   coefficient of circular rings of the same radius
 - `twist_run.py`, `diffrot_check.py`: filament twist
