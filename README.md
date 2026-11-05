@@ -62,7 +62,7 @@ earlier or side analyses that feed no figure, table, or number of the paper.
 `data/` holds the processed data behind the figures, tables, and quoted numbers:
 
 - `data/runs/`: per-frame tables of all 94 production simulations, of the 5 grid-refinement runs,
-  and of the 30 runs added in the revision (ring measures, validity flags, pre-mask radius,
+  and of the 39 runs added in the revision (ring measures, validity flags, pre-mask radius,
   extraction diagnostics, run metadata); filament snapshots and fields are omitted;
 - `data/analysis/`: the analysis products (half-cycle tables with both baselines, coefficient tables,
   mode fits and their sensitivity sweeps, filament definitions and twist, the rigidity test, controls,
