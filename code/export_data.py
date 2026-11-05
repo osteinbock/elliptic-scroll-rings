@@ -63,6 +63,7 @@ PRODUCTS = {
     "revision": [
         ("uniform_halfcycles.csv", "python halfcycle_uniform.py uniform_halfcycles.csv"),
         ("mode_definitions.json", "python mode_definitions.py"),
+        ("mode_wavenumber.json", "python mode_wavenumber.py"),
         ("controls.json", "python controls_check.py"),
     ] + [(f"spiral2d/{name}.json", "runs_revision.sh (wavelength2d.py)") for name in
          ("barkley_b0.15", "barkley_b0.16", "barkley_b0.17", "barkley_b0.18", "panfilov_gf0.775", "panfilov_gf0.8")],

@@ -47,6 +47,8 @@ All models use explicit Euler time stepping and a seven-point Laplacian (Numba-p
   filament definition, and the rigidity-extended local law (Fig. 6, Fig. S2, Tables S5–S10);
   `mode_summary.py` collects the couplings and diagonal rates with their ranges, relative to the drift
   coefficient of circular rings of the same radius
+- `mode_wavenumber.py`: dependence of the out-of-plane coupling on the wavenumber, on large rings at
+  b = 0.17 and on shrinking rings at b = 0.15 and 0.16 (Fig. 6b, Table S11)
 - `twist_run.py`, `diffrot_check.py`: filament twist
 - `controls_check.py`: controls of the revision runs (domain size, time step, seed orientation, straight
   filaments at b = 0.15 and 0.16)

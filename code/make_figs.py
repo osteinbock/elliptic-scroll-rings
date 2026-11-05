@@ -573,7 +573,9 @@ def mode_ranges():
 
 
 def fig6():
-    rows = mode_ranges()
+    import mode_summary
+    import mode_wavenumber as MWN
+    rows = mode_ranges() + mode_summary.large_modes()
     for r in rows:
         print(f"fig6: {r['ring']:6s} m={r['m']} k={r['k']:.3f}  bz/bd {r['bz']:.3f} [{r['bz_rng'][0]:.3f}, {r['bz_rng'][1]:.3f}]"
               f"  br/bd {r['br']:.3f} [{r['br_rng'][0]:.3f}, {r['br_rng'][1]:.3f}]  sqrt(bz br) {r['W']:.3f}")
@@ -582,36 +584,49 @@ def fig6():
     bk = np.load("sf2/buckle.npz")["fits"]
     ctl = json.load(open(os.path.join(FD.REVISION, "controls.json")))["straight"]
     s15 = [c for c in ctl if c["label"].startswith("b=0.15")]
-    fig, ax = plt.subplots(2, 1, figsize=(W1, 4.1), gridspec_kw=dict(height_ratios=[1.15, 1]))
+    win = [w for w in json.load(open(os.path.join(FD.REVISION, "mode_wavenumber.json")))["windows"] if w["used"]]
+    fig, ax = plt.subplots(2, 1, figsize=(W1, 4.5), gridspec_kw=dict(height_ratios=[1, 1.25]))
     a = ax[0]
     a.axhline(1, color=MUTED, lw=0.6)
     cal = HU.barkley_calibration(0.17)
-    a.axhspan(*sorted([float(cal.ratio_r(4.85)), float(cal.ratio_r(7.1))]), color="#fbe3d6", zorder=0, lw=0)
     a.scatter([1 / tl[0]], [tl[4] / tl[5]], marker="o", s=26, facecolor="white", edgecolor=MUTED, lw=1.0, zorder=4)
     a.text(1 / tl[0] + 0.015, tl[4] / tl[5] + 0.05, "tilt ($m=1$)", fontsize=7, color=MUTED, va="bottom")
     mk = {2: "s", 3: "D", 4: "v"}
     for r in rows:
         filled = r["ring"] == "R*"
+        a.plot([r["k"] - 0.022, r["k"] + 0.022], [r["br_loc"]] * 2, color=ORANGE, lw=1.0, ls=(0, (2, 1)), zorder=3)   # Eq. (5)
         for col, key, dk in ((BLUE, "bz", -0.006), (ORANGE, "br", 0.006)):
             lo, hi = r[key + "_rng"]
             a.errorbar([r["k"] + dk], [r[key]], yerr=[[r[key] - lo], [hi - r[key]]], fmt=mk[r["m"]], ms=5, color=col,
                        mfc=col if filled else "white", mec=col, mew=1.1, elinewidth=0.8, capsize=2, zorder=4)
     a.text(0.66, 0.37, r"$\beta_\zeta$", color=BLUE, fontsize=9, ha="center")
     a.text(0.66, 0.86, r"$\beta_r$", color=ORANGE, fontsize=9, ha="center")
-    a.set(xlabel=r"wavenumber $k = m/R_m$", ylabel=r"coupling $/\,\beta_\mathrm{c}$", xlim=(0.15, 0.88), ylim=(0.0, 1.3))
+    a.set(xlabel=r"wavenumber $k = m/R_m$", ylabel=r"coupling $/\,\beta_\mathrm{c}$", xlim=(0.13, 0.88), ylim=(0.0, 1.3))
     b_ = ax[1]
+    Kc, Kx = np.linspace(0.13, cal.Krange[1], 40), np.linspace(cal.Krange[1], 0.88, 40)
+    b_.plot(Kc, MWN.beta_log(Kc), color=INK, lw=1.0, zorder=2)
+    b_.plot(Kx, MWN.beta_log(Kx), color=INK, lw=1.0, ls=(0, (4, 2)), zorder=2)
     b_.errorbar(sl[:, 0], sl[:, 3], yerr=sl[:, 4], fmt="o-", color=BLUE, ms=4.5, lw=1.0)
     b_.plot([c["k"] for c in s15], [c["beta"] for c in s15], marker="o", mfc="none", mec=MUTED, ms=6.5, mew=1.1, ls=":", color=MUTED, lw=1.1,
             zorder=5)                                 # on top: at k = 0.45 and 0.6 it coincides with b = 0.17
-    for r in rows:
-        b_.scatter([r["k"]], [r["W"]], marker=mk[r["m"]], s=26, facecolor=INK if r["ring"] == "R*" else "white",
-                   edgecolor=INK, linewidth=1.1, zorder=4)
     b_.scatter(bk[:, 2], bk[:, 6], marker="^", s=30, color=AQUA, zorder=4)
-    b_.text(0.80, 1.17, "straight\nfilament", color=BLUE, fontsize=7, ha="center", va="bottom")
-    b_.text(0.36, 1.98, r"straight, $b=0.15$", color=MUTED, fontsize=7, ha="left")
-    b_.text(0.59, 1.36, r"$\bar R \approx 34$", color=AQUA, fontsize=7, ha="left")
-    b_.text(0.30, 1.05, "ring modes", color=INK, fontsize=7, ha="center")
-    b_.set(xlabel=r"wavenumber $k$", ylabel=r"binormal coefficient", xlim=(0.15, 0.88), ylim=(0.6, 2.45))
+    for w in win:
+        col = MUTED if w["b"] == 0.15 else YELLOW
+        b_.scatter([w["k"]], [w["bz"]], marker=mk[w["m"]], s=15, facecolor="white", edgecolor=col, linewidth=0.9, zorder=5)
+    b_.scatter([1 / tl[0]], [float(cal.beta(tl[0])) * tl[4] / tl[5]], marker="o", s=26, facecolor="white", edgecolor=MUTED, lw=1.0, zorder=6)
+    for r in rows:
+        c = float(cal.beta(r["R"]))
+        b_.errorbar([r["k"]], [r["bz"] * c], yerr=[[(r["bz"] - r["bz_rng"][0]) * c], [(r["bz_rng"][1] - r["bz"]) * c]], fmt=mk[r["m"]],
+                    ms=5, color=INK, mfc=INK if r["ring"] == "R*" else "white", mec=INK, mew=1.1, elinewidth=0.8, capsize=1.5, zorder=6)
+    b_.text(0.785, 1.14, "straight\nfilament", color=BLUE, fontsize=7, ha="center", va="bottom")
+    b_.text(0.40, 1.74, r"straight, $b=0.15$", color=MUTED, fontsize=7, ha="left")
+    b_.text(0.60, 1.42, r"$\bar R \approx 34$", color=AQUA, fontsize=7, ha="left")
+    b_.text(0.46, 0.93, r"$\beta_\mathrm{c}(K = k)$", color=INK, fontsize=7, ha="left")
+    b_.legend(handles=[Line2D([], [], marker="s", ls="", ms=4.5, mfc=INK, mec=INK, label=r"rings, $b = 0.17$"),
+                       Line2D([], [], marker="s", ls="", ms=3.5, mfc="white", mec=YELLOW, mew=0.9, label=r"rings, $b = 0.16$"),
+                       Line2D([], [], marker="s", ls="", ms=3.5, mfc="white", mec=MUTED, mew=0.9, label=r"rings, $b = 0.15$")],
+              loc="upper right", fontsize=7, handletextpad=0.3)
+    b_.set(xlabel=r"wavenumber $k$", ylabel=r"$\beta_\zeta$ or binormal coefficient", xlim=(0.13, 0.88), ylim=(0.6, 2.6))
     for a_, s_ in zip(ax, "ab"):
         grid(a_)
         label(a_, s_, x=-0.22, y=1.08)

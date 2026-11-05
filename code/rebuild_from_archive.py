@@ -50,6 +50,7 @@ def main(archive, work=None):
     run([os.path.join(HERE, "halfcycle_tables.py"), S], work, fold)
     run([os.path.join(HERE, "refine_compare.py"), B, RF], work, fold)
     run([os.path.join(HERE, "mode_definitions.py")], RV, fold)
+    run([os.path.join(HERE, "mode_wavenumber.py")], work, fold)
     run([os.path.join(HERE, "controls_check.py")], work, fold)
     run([os.path.join(HERE, "halfcycle_uniform.py"), os.path.join(RV, "uniform_halfcycles.csv")], work, fold)
     for cmd in (["period_baselines.py"], ["mode_refit.py"], ["rigidity_test.py"],

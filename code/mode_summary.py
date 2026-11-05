@@ -78,3 +78,22 @@ def modes():
                         phi=[float((full["dphase_deg"] % 360) - 180)], gamma=full["gamma_tau"] / full["R"] ** 2,
                         W=full["W"]))
     return out
+
+
+def large_modes():
+    """The rings of mode_wavenumber.py at b = 0.17 (R about 11 to 15), in the form of modes(). Ranges cover
+    the fits in tau over the whole interval and its halves."""
+    MW = json.load(open(os.path.join(FD.REVISION, "mode_wavenumber.json")))["large"]
+    out = []
+    for m in (2, 3, 4):
+        tf = [r for r in MW if r["m"] == m]
+        full = [r for r in tf if r["whole"]][0]
+        out.append(dict(m=m, ring="large", R=full["R"], R_start=full["R_start"], R_end=full["R_end"], k=full["k"],
+                        bz=full["bz"] / full["beta_c"], br=full["br"] / full["beta_c"],
+                        bz_rng=_span([r["bz"] / r["beta_c"] for r in tf]), br_rng=_span([r["br"] / r["beta_c"] for r in tf]),
+                        az=full["alpha_zeta"], ar=full["alpha_r"],
+                        az_rng=_span([r["alpha_zeta"] for r in tf]), ar_rng=_span([r["alpha_r"] for r in tf]),
+                        br_loc=full["beta_r_loc"] / full["beta_c"], ar_loc=full["alpha_r_loc"], ac=full["alpha_c"],
+                        phi=[float((full["dphase_deg"] % 360) - 180)], gamma=full["gamma_tau"] / full["R"] ** 2,
+                        W=full["W"], beta_c=full["beta_c"]))
+    return out

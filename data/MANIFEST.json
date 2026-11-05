@@ -1,6 +1,6 @@
 {
- "git_head_at_export": "4d5d3738d71430ba55dee1ee2868e0c399ce4587",
- "source_tree_sha256": "aece50342cd12166689ba542ef68b93f37797e394a2e955c7c171700d4d0ffaa",
+ "git_head_at_export": "d923fde803f0c08625e05bc57c636a4914dc0bcb",
+ "source_tree_sha256": "8d0fbf961a1fb28056556e0f66ed556b88ce6b64fc41e64a5b0d7c9ef2bcdb1c",
  "source_tree_files": "all .py files of the code folder that ran the exporter; it describes the code of the commit that contains this manifest",
  "simulation_code_files": [
   "barkley3d.py",
@@ -1312,6 +1312,96 @@
    "sha256": "e0ae0cd011777bc2475552147e0e8a11e806a3e0b6d3bb5259e437de7bce333a",
    "frames": 598,
    "code_revision": null
+  },
+  {
+   "file": "runs/revision/modeXL_m2.npz",
+   "group": "revision",
+   "source": "modeXL_m2.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --m 2 --amp 0.08 --Ax 15 --Ay 15 --Lxy 46 --Lz 18 --T 150 --every 0.2 --out modeXL_m2.npz > modeXL_m2.log 2>&1",
+   "source_sha256": "2567ba7f82bdcd853d09be3979666412f4df1af3b09d2a21cfa2c0ac09073bb5",
+   "sha256": "42862d6ab691fe624be9ba1b2fcb824c4e82829e2bec8198796c7207f70dcbb2",
+   "frames": 758,
+   "code_revision": "git:d923fde803f0c08625e05bc57c636a4914dc0bcb"
+  },
+  {
+   "file": "runs/revision/modeXL_m3.npz",
+   "group": "revision",
+   "source": "modeXL_m3.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --m 3 --amp 0.08 --Ax 13 --Ay 13 --Lxy 40 --Lz 18 --T 110 --every 0.2 --out modeXL_m3.npz > modeXL_m3.log 2>&1",
+   "source_sha256": "0df88f7ff4bc54a76e53c436b928b27a04072a99d4c6931a29150632041cc5c7",
+   "sha256": "108b269f9aa7b39a52f6d7e4f95f4077d7fe64c7fdc1a10e6f987abe4aa9c726",
+   "frames": 555,
+   "code_revision": "git:d923fde803f0c08625e05bc57c636a4914dc0bcb"
+  },
+  {
+   "file": "runs/revision/modeXL_m4.npz",
+   "group": "revision",
+   "source": "modeXL_m4.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --m 4 --amp 0.08 --Ax 17.5 --Ay 17.5 --Lxy 50 --Lz 18 --T 110 --every 0.2 --out modeXL_m4.npz > modeXL_m4.log 2>&1",
+   "source_sha256": "a2f61e5413fce99b7147e4bd45262f6d655073db1c0cca90b1773a0fe2d0fd77",
+   "sha256": "7cc099df3a09c7c1f3c063c93983a27f9d81423be5081196bc15b1ca7d202a8e",
+   "frames": 555,
+   "code_revision": "git:d923fde803f0c08625e05bc57c636a4914dc0bcb"
+  },
+  {
+   "file": "runs/revision/modeB16L_m2.npz",
+   "group": "revision",
+   "source": "modeB16L_m2.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.16 --eps 0.02 --m 2 --amp 0.08 --Ax 9.5 --Ay 9.5 --Lxy 34 --Lz 18 --T 130 --every 0.2 --out modeB16L_m2.npz > modeB16L_m2.log 2>&1",
+   "source_sha256": "073354fac874e8d4635b85aa48040719ce07f185d5fcb1fb38e230669b00066c",
+   "sha256": "a6509066e56af1de732ac2c10f6c6055e6fc80f1871e947e9df0557e6b62b904",
+   "frames": 657,
+   "code_revision": "git:d923fde803f0c08625e05bc57c636a4914dc0bcb"
+  },
+  {
+   "file": "runs/revision/modeB16X_m3.npz",
+   "group": "revision",
+   "source": "modeB16X_m3.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.16 --eps 0.02 --m 3 --amp 0.08 --Ax 11 --Ay 11 --Lxy 36 --Lz 18 --T 80 --every 0.2 --out modeB16X_m3.npz > modeB16X_m3.log 2>&1",
+   "source_sha256": "d60b0a913a2e9eefcfb3af6a3d96fd2941095e2eb1906aa1d86525ae304e97c1",
+   "sha256": "9c220a7a9d2f3295e75c5a806c3ec7e157d717d441856bf165e4f8a171b84b04",
+   "frames": 404,
+   "code_revision": "git:d923fde803f0c08625e05bc57c636a4914dc0bcb"
+  },
+  {
+   "file": "runs/revision/modeB16X_m4.npz",
+   "group": "revision",
+   "source": "modeB16X_m4.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.16 --eps 0.02 --m 4 --amp 0.08 --Ax 13 --Ay 13 --Lxy 40 --Lz 18 --T 80 --every 0.2 --out modeB16X_m4.npz > modeB16X_m4.log 2>&1",
+   "source_sha256": "968bad0518777b12c62412cb309fac66302c4dc9f9e454e2d53165b97cd6114e",
+   "sha256": "baec400ca8e0774dddfc7d6324b78ce04b92f85d5750fa0c151b3fc51bc2884b",
+   "frames": 404,
+   "code_revision": "git:d923fde803f0c08625e05bc57c636a4914dc0bcb"
+  },
+  {
+   "file": "runs/revision/modeB15X_m3.npz",
+   "group": "revision",
+   "source": "modeB15X_m3.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.15 --eps 0.02 --m 3 --amp 0.08 --Ax 11 --Ay 11 --Lxy 36 --Lz 18 --T 80 --every 0.2 --out modeB15X_m3.npz > modeB15X_m3.log 2>&1",
+   "source_sha256": "61037a8b2ca4fd036e82c9c43ceb24202aaf5cf6b14f330330922e26e31a1122",
+   "sha256": "e41ab2a7391013d939e0d7e500381699d89e14164f5befe879467b08c5f9a2bc",
+   "frames": 404,
+   "code_revision": "git:d923fde803f0c08625e05bc57c636a4914dc0bcb"
+  },
+  {
+   "file": "runs/revision/modeB15X_m4.npz",
+   "group": "revision",
+   "source": "modeB15X_m4.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.15 --eps 0.02 --m 4 --amp 0.08 --Ax 13 --Ay 13 --Lxy 40 --Lz 18 --T 80 --every 0.2 --out modeB15X_m4.npz > modeB15X_m4.log 2>&1",
+   "source_sha256": "242e3826232154e47430185dc8219d49305109ad6890d2e4bf0b00ee1d15fe05",
+   "sha256": "ff137fbfbd33803fd5ab2c405640277c1c523cd69dc6f6c9a5bc90b7335aae36",
+   "frames": 404,
+   "code_revision": "git:d923fde803f0c08625e05bc57c636a4914dc0bcb"
+  },
+  {
+   "file": "runs/revision/modeR_m4_rot.npz",
+   "group": "revision",
+   "source": "modeR_m4_rot.npz",
+   "command": "cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --m 4 --amp 0.10 --Ax 6.5 --Ay 6.5 --rot 22.5 --Lxy 26 --Lz 18 --T 100 --every 0.2 --out modeR_m4_rot.npz > modeR_m4_rot.log 2>&1",
+   "source_sha256": "dd47464e1722c0285486cf5e0b49c164861398d66d1d691e4ae48f2bc52efd9a",
+   "sha256": "d056acfc2d3041261d5d60470c4412a5ace287a1612b2765563ede97763736a7",
+   "frames": 504,
+   "code_revision": "git:d923fde803f0c08625e05bc57c636a4914dc0bcb"
   }
  ],
  "products": [
@@ -1452,6 +1542,12 @@
    "group": "revision",
    "command": "cd REVISION && python mode_definitions.py",
    "sha256": "55466885b0b19cb0422dbb54e55e99aaf5efc909865e9cae13a260f7262500a3"
+  },
+  {
+   "file": "analysis/revision/mode_wavenumber.json",
+   "group": "revision",
+   "command": "cd REVISION && python mode_wavenumber.py",
+   "sha256": "0560d972db8cc69f8de04aa803020a5749d91f3922847a23a5a66237983976c8"
   },
   {
    "file": "analysis/revision/controls.json",

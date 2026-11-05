@@ -56,3 +56,14 @@ cd v6/spiral2d && python -u ../../wavelength2d.py barkley 1.1 0.17 0.02 90 450 0
 cd v6/spiral2d && python -u ../../wavelength2d.py barkley 1.1 0.18 0.02 90 450 0.2 barkley_b0.18.json > barkley_b0.18.log 2>&1
 cd v6/spiral2d && python -u ../../pan2d.py 0.775 0.06 0 210 400 0.6 0.04 > pan2d_gf0.775.log 2>&1 && python -u ../../wavelength2d.py panfilov pan2d_fields_gf0.775_e0.06.npz pan2d_gf0.775_e0.06.npy panfilov_gf0.775.json >> pan2d_gf0.775.log 2>&1
 cd v6/spiral2d && python -u ../../pan2d.py 0.8 0.06 0 210 400 0.6 0.04 > pan2d_gf0.8.log 2>&1 && python -u ../../wavelength2d.py panfilov pan2d_fields_gf0.8_e0.06.npz pan2d_gf0.8_e0.06.npy panfilov_gf0.8.json >> pan2d_gf0.8.log 2>&1
+# Shape modes on large rings at b = 0.17 and on quickly shrinking rings at b = 0.15 and 0.16 (mode_wavenumber.py),
+# and the fourfold mode at R* turned by 22.5 degrees relative to the grid
+cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --m 2 --amp 0.08 --Ax 15 --Ay 15 --Lxy 46 --Lz 18 --T 150 --every 0.2 --out modeXL_m2.npz > modeXL_m2.log 2>&1
+cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --m 3 --amp 0.08 --Ax 13 --Ay 13 --Lxy 40 --Lz 18 --T 110 --every 0.2 --out modeXL_m3.npz > modeXL_m3.log 2>&1
+cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --m 4 --amp 0.08 --Ax 17.5 --Ay 17.5 --Lxy 50 --Lz 18 --T 110 --every 0.2 --out modeXL_m4.npz > modeXL_m4.log 2>&1
+cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.16 --eps 0.02 --m 2 --amp 0.08 --Ax 9.5 --Ay 9.5 --Lxy 34 --Lz 18 --T 130 --every 0.2 --out modeB16L_m2.npz > modeB16L_m2.log 2>&1
+cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.16 --eps 0.02 --m 3 --amp 0.08 --Ax 11 --Ay 11 --Lxy 36 --Lz 18 --T 80 --every 0.2 --out modeB16X_m3.npz > modeB16X_m3.log 2>&1
+cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.16 --eps 0.02 --m 4 --amp 0.08 --Ax 13 --Ay 13 --Lxy 40 --Lz 18 --T 80 --every 0.2 --out modeB16X_m4.npz > modeB16X_m4.log 2>&1
+cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.15 --eps 0.02 --m 3 --amp 0.08 --Ax 11 --Ay 11 --Lxy 36 --Lz 18 --T 80 --every 0.2 --out modeB15X_m3.npz > modeB15X_m3.log 2>&1
+cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.15 --eps 0.02 --m 4 --amp 0.08 --Ax 13 --Ay 13 --Lxy 40 --Lz 18 --T 80 --every 0.2 --out modeB15X_m4.npz > modeB15X_m4.log 2>&1
+cd v6 && python -u ../ellipse_ring.py --a 1.1 --b 0.17 --eps 0.02 --m 4 --amp 0.10 --Ax 6.5 --Ay 6.5 --rot 22.5 --Lxy 26 --Lz 18 --T 100 --every 0.2 --out modeR_m4_rot.npz > modeR_m4_rot.log 2>&1

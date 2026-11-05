@@ -162,6 +162,12 @@ def main(outdir):
                  f"{r['omega_tau']:.3f}$^\\tau$ & {r['gamma_tau']:.3f}$^\\tau$ & "
                  f"{phi(r['dphase_deg']):+.1f} & {r['bz'] / r['beta_c']:.3f} & {r['br'] / r['beta_c']:.3f} & "
                  f"{r['alpha_zeta']:+.2f} & {r['alpha_r']:+.2f} \\\\")
+    MW = json.load(open(os.path.join(FD.REVISION, "mode_wavenumber.json")))
+    for r in [x for x in MW["large"] if x["whole"]]:
+        L.append(f"large & {r['m']} & 0.08 & {r['R']:.2f} & {r['k']:.3f} & "
+                 f"{r['omega_tau']:.3f}$^\\tau$ & {r['gamma_tau']:.3f}$^\\tau$ & "
+                 f"{phi(r['dphase_deg']):+.1f} & {r['bz'] / r['beta_c']:.3f} & {r['br'] / r['beta_c']:.3f} & "
+                 f"{r['alpha_zeta']:+.2f} & {r['alpha_r']:+.2f} \\\\")
     write(outdir, "tab_modes.tex", L)
     L = []
     for r in MD["rstar"]:
@@ -176,24 +182,47 @@ def main(outdir):
     f2 = lambda x: f"{x:.2f}".replace("-", "$-$")
     span = lambda v: f"{f2(v[0])}--{f2(v[1])}" if v[0] >= 0 else f"{f2(v[0])} to {f2(v[1])}"
     L = []
-    for r in mode_summary.modes():
-        ring = "$R^\\ast$" if r["ring"] == "R*" else "larger"
+    for r in mode_summary.modes() + mode_summary.large_modes():
+        ring = "$R^\\ast$" if r["ring"] == "R*" else r["ring"]
         L.append(f"{ring} & {r['m']} & {r['k']:.2f} & {f2(r['bz'])} ({span(r['bz_rng'])}) & {f2(r['br'])} ({span(r['br_rng'])}) & "
                  f"{f2(r['br_loc'])} & {f2(r['az'])} ({span(r['az_rng'])}) & {f2(r['ar'])} ({span(r['ar_rng'])}) & "
                  f"{f2(r['ar_loc'])} & {'/'.join(f'{p:+.0f}'.replace('-', '$-$') for p in r['phi'])} \\\\")
     write(outdir, "tab_main_modes.tex", L)
+    # ---------------------------------------------------------------- Table S11: beta_zeta versus wavenumber
+    import mode_wavenumber as MWN
+    L = []
+    for r in mode_summary.modes() + mode_summary.large_modes():
+        c = bc(r["R"])
+        bz = r["bz"] * c
+        ring = "$R^\\ast$" if r["ring"] == "R*" else r["ring"]
+        L.append(f"$b = 0.17$, {ring} & {r['m']} & {r['R']:.2f} & {r['k']:.3f} & {bz:.2f} & {r['bz']:.2f} & {bz / float(MWN.beta_log(r['k'])):.2f} \\\\")
+    for r in [x for x in MW["windows"] if x["used"]]:
+        L.append(f"$b = {r['b']:.2f}$, $t = {r['t0']:g}$--{r['t1']:g} & {r['m']} & {r['R']:.2f} & {r['k']:.3f} & {r['bz']:.2f} & "
+                 f"{r['bz'] / r['beta_c']:.2f}{'' if r['K_inside'] else '$^\\dagger$'} & {r['bz'] / r['beta_log']:.2f} \\\\")
+    write(outdir, "tab_wavenumber.tex", L)
     RT = json.load(open(os.path.join(FD.BARKLEY, "rigidity_test.json")))
     L = []
     for r in RT["rings"]:
         ring = "$R^\\ast$" if r["run"].startswith("R*") else "larger"
         L.append(f"{ring} & {r['m']} & {r['k']:.3f} & {r['e2_zeta']:+.2f} & {r['e2_r']:+.2f} & {r['e2_freq']:+.2f} & "
                  f"{r['bz_pred_freq']:.2f} & {r['br_pred_freq']:.2f} & {r['bz']:.2f} & {r['br']:.2f} & {r['e1_zeta']:+.2f} & {r['e1_r']:+.2f} \\\\")
+    from mode_refit import rigidity as rigidity_of
+    from rigidity_test import e2_from_product
+    for r in [x for x in MW["large"] if x["whole"]]:                   # same inversion as rigidity_test.py
+        m, q = r["m"], rigidity_of(r, r, r["m"], r["R"])
+        e2f, bzf, brf = e2_from_product(m, 1 / r["R"], r["bz"], r["br"], r["beta_c"], r["beta_r_loc"])
+        L.append(f"large & {m} & {r['k']:.3f} & {q['e2_from_zeta']:+.2f} & {q['e2_from_r']:+.2f} & {e2f:+.2f} & "
+                 f"{bzf / r['beta_c']:.2f} & {brf / r['beta_c']:.2f} & {r['bz'] / r['beta_c']:.2f} & {r['br'] / r['beta_c']:.2f} & "
+                 f"{q['e1_from_zeta']:+.2f} & {q['e1_from_r']:+.2f} \\\\")
     write(outdir, "tab_rigidity.tex", L)
     CT = json.load(open(os.path.join(FD.REVISION, "controls.json")))
     L = []
-    for c in CT["straight"]:
-        b, k = c["label"].split()
-        L.append(f"{b.split('=')[1]} & {c['k']:.3f} & {c['gamma_over_k2']:+.3f} & {-c['gamma_over_k2'] * c['k'] ** 2:+.4f} & {c['beta']:.3f} \\\\")
+    sl = np.load(os.path.join(FD.BARKLEY, "sf2", "sf2_linear.npy"))     # k, gamma/k^2, its error, omega/k^2, its error, ...
+    rows = [("0.17", float(s[0]), float(s[1]), float(s[3])) for s in sl]
+    rows += [(c["label"].split()[0].split("=")[1], c["k"], c["gamma_over_k2"], c["beta"]) for c in CT["straight"]
+             if not c["label"].startswith("b=0.17")]
+    for b, k, g, w in rows:
+        L.append(f"{b} & {k:.3f} & {g:+.3f} & {-g * k ** 2:+.4f} & {w:.3f} \\\\")
     write(outdir, "tab_straight.tex", L)
     tw = MD["twist"]
     L = []

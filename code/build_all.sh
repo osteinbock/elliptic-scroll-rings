@@ -41,6 +41,7 @@ python "$HERE/refine_compare.py" "$BARKLEY" "$REFINE"
 
 # revision analyses (one half-cycle pipeline for all models, shape modes, controls)
 (cd "$REVISION" && python "$HERE/mode_definitions.py")              # mode_definitions.json
+python "$HERE/mode_wavenumber.py"                                   # REVISION/mode_wavenumber.json
 python "$HERE/controls_check.py"                                    # REVISION/controls.json
 python "$HERE/halfcycle_uniform.py" "$REVISION/uniform_halfcycles.csv"
 (
