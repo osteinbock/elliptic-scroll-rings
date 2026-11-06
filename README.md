@@ -38,7 +38,7 @@ All models use explicit Euler time stepping and a seven-point Laplacian (Numba-p
   Tables S1–S2, S12, S14)
 - `period_baselines.py`, `local_law_halfcycles.py`: both baselines for the Barkley half-cycles; the
   curvature-only law at finite amplitude
-- `oreg2d.py`, `oreg_ring.py`: Oregonator
+- `oreg2d.py`, `oreg_ring.py`, `oreg_ring_weak.py`: Oregonator
 - `circle_run.py`, `alpha_stationarity.py`: tension and drift of circular rings (Fig. 4, Fig. S1, Table S3)
 - `wavelength2d.py`: period, core radius, and wavelength of two-dimensional spirals (Table S4)
 - `period_analysis.py`, `period_analysis_r2.py`: half-cycles between axis switches (Fig. 5)
