@@ -133,15 +133,15 @@ def main(outdir):
     # Periods, core radii and the Atri row are measured constants of earlier two-dimensional runs (Barkley:
     # the periods of period_analysis.RUNS; Panfilov-Rudenko: 600-unit pan2d.py runs in a no-flux square of
     # side 160; Atri: atri2d.py); the wavelengths and the Barkley core radii come from spiral2d/*.json.
-    per = {0.15: 4.13, 0.16: 4.318, 0.17: 4.44, 0.18: 4.75}
+    per = {0.15: 4.10, 0.16: 4.25, 0.17: 4.44, 0.18: 4.69}     # slope of the tip phase (the smoothing windows use FFT bins)
     L = []
     for b in (0.15, 0.16, 0.17, 0.18):
         d = sp[("barkley", b)]
         L.append(f"Barkley, $b = {b}$ & {per[b]:.2f} & {d['core_radius']:.2f} & {d['wavelength']:.1f} \\\\")
-    for g, T, rc in (("0.775", 40.0, 3.5), ("0.8", 36.9, 3.3)):
+    for g, T, rc in (("0.775", 40.9, 3.5), ("0.8", 36.7, 3.3)):
         d = sp[("panfilov", g)]
         L.append(f"Panfilov--Rudenko, $g_f = {g}$ & {T:.1f} & {rc:.1f} & {d['wavelength']:.0f} \\\\")
-    L.append(r"Atri, $P = 0.1~\mu$M & 16.6~s & 20~$\mu$m & 120~$\mu$m \\")
+    L.append(r"Atri, $P = 0.1~\mu$M & 16.6~s & 16~$\mu$m & 120~$\mu$m \\")
     write(outdir, "tab_spirals.tex", L)
     # ---------------------------------------------------------------- shape modes
     MR = json.load(open(os.path.join(FD.BARKLEY, "mode_refit.json")))
