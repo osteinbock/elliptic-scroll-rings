@@ -1,6 +1,6 @@
 {
- "git_head_at_export": "d923fde803f0c08625e05bc57c636a4914dc0bcb",
- "source_tree_sha256": "8d0fbf961a1fb28056556e0f66ed556b88ce6b64fc41e64a5b0d7c9ef2bcdb1c",
+ "git_head_at_export": "fbc5dfc08e35513dd18944ed7571dae3e3199aa8",
+ "source_tree_sha256": "1a68291c3498a9ae0c5e407c94e03f0d2dedf163dbdfcf4c5a14e3e31ce1f103",
  "source_tree_files": "all .py files of the code folder that ran the exporter; it describes the code of the commit that contains this manifest",
  "simulation_code_files": [
   "barkley3d.py",

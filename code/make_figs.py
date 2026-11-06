@@ -553,7 +553,7 @@ def fig5():
         [Line2D([], [], ls="", marker=mk, color=col, ms=4.5) for _, _, col, mk, _ in named]
     h += [Line2D([], [], ls="", marker="o", color=MUTED, ms=4.5),
           Line2D([], [], ls="", marker="o", mfc="white", mec=MUTED, ms=4.5)]
-    b_.legend(h, ["Barkley (as in a)"] + [g[4] for g in named] + ["frequency ratio", "after Eq. (5)"], loc="upper right",
+    b_.legend(h, ["Barkley (colors as in a)"] + [g[4] for g in named] + ["frequency ratio", "after Eq. (5)"], loc="upper right",
               fontsize=7, ncol=1, handletextpad=0.2, labelspacing=0.25, borderaxespad=0.3)
     b_.set(xlabel=r"ring diameter $2R_m/\lambda$", ylabel="predicted / observed frequency", ylim=(0.9, 1.65), xlim=(0, 2.6))
     for a_, s in zip(ax, "ab"):
