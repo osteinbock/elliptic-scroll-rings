@@ -411,13 +411,25 @@ def fig3():
     low_t = [c + t0 for c in ms if np.interp(c, r["t"], RLm) > 3.0]
     print(f"fig3(c): simulation  ln(R0/R) {np.round(sim, 3).tolist()} at t {np.round(sim_t, 2).tolist()}")
     print(f"         lowest-order ln(R0/R) {np.round(low, 3).tolist()} at t {np.round(low_t, 2).tolist()}")
-    for xx, kw in ((low, dict(marker="o", mfc="white", mec=MUTED, ms=6.5, mew=1.0)),
-                   (sim, dict(marker="o", color=INK, ms=4.2))):
+    # planar moments (zeros of the saddle amplitude): each one sits half a step after the switch before it
+    ps = [c for c in C.crossings(t, S["z2c"]) if c > t0 and np.interp(c, t, RL) > 3.0]
+    pm = [c for c in C.crossings(r["t"], r["z2c"]) if 0.5 < c < tvalid and np.interp(c, r["t"], RLm) > 3.0]
+    sim_p = [np.log(R0 / np.interp(c, t, RL)) for c in ps]
+    low_p = [np.log(RLm[0] / np.interp(c, r["t"], RLm)) for c in pm]
+    ms_in = [c for c in ms if np.interp(c, r["t"], RLm) > 3.0]
+    y_sim_p = [sum(s < c for s in sim_t) + 0.5 for c in ps]
+    y_low_p = [sum(s < c for s in ms_in) + 0.5 for c in pm]
+    print(f"         planar: simulation {np.round(sim_p, 3).tolist()} at y {y_sim_p}; lowest-order {np.round(low_p, 3).tolist()} at y {y_low_p}")
+    for xx, kw, xp, yp, kp in ((low, dict(marker="o", mfc="white", mec=MUTED, ms=6.5, mew=1.0), low_p, y_low_p,
+                                dict(marker="D", mfc="white", mec=MUTED, ms=5.0, mew=1.0)),
+                               (sim, dict(marker="o", color=INK, ms=4.2), sim_p, y_sim_p, dict(marker="D", color=INK, ms=3.4))):
         a2.plot(xx, np.arange(1, len(xx) + 1), ls="", zorder=3, **kw)
+        a2.plot(xp, yp, ls="", zorder=3, **kp)
     h = [Line2D([], [], ls="", marker="o", color=INK, ms=4.2),
-         Line2D([], [], ls="", marker="o", mfc="white", mec=MUTED, ms=6.5, mew=1.0)]
-    a2.legend(h, ["simulation", "lowest-order law"], loc="upper left", fontsize=7, handletextpad=0.2, borderaxespad=0.2)
-    a2.set(xlabel=r"$\ln(R_0/\bar R)$", ylabel="switch number", xlim=(0, 1.1), ylim=(0.4, 4.4), yticks=[1, 2, 3, 4])
+         Line2D([], [], ls="", marker="o", mfc="white", mec=MUTED, ms=6.5, mew=1.0),
+         Line2D([], [], ls="", marker="D", color=MUTED, ms=3.6)]
+    a2.legend(h, ["simulation", "lowest-order law", "planar moment"], loc="upper left", fontsize=7, handletextpad=0.2, borderaxespad=0.2)
+    a2.set(xlabel=r"$\ln(R_0/\bar R)$", ylabel="switch number", xlim=(0, 1.1), ylim=(0.4, 4.9), yticks=[1, 2, 3, 4])
     for a_, s in zip((a0, a1, a2), "abc"):
         grid(a_)
         label(a_, s, x=-0.25)
