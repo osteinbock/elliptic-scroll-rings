@@ -558,16 +558,18 @@ def fig5():
         x = [2 * r["Rbar"] / run_lambda(r) for r in rr]
         b_.scatter(x, [r["ratio_c"] for r in rr], s=16, marker=mk, color=col, edgecolor="white", lw=0.4, zorder=3)
         res = np.array([r["residual"] for r in rr])
-        alt = np.array([r["ratio_c"] / r["eq5_global"] for r in rr])
-        lo, hi = np.minimum(res, alt), np.maximum(res, alt)
-        b_.vlines(x, lo, hi, color=col, lw=0.7, zorder=1)
-        b_.scatter(x, res, s=16, marker=mk, facecolor="white", edgecolor=col, lw=0.8, zorder=2)
+        b_.scatter(x, res, s=26, marker=mk, facecolor="none", edgecolor=col, lw=0.8, zorder=2)
+    # large weakly deformed Barkley ring, m = 2 mode fit (SI tables): beta_zeta/beta_c = 0.888, beta_r/beta_c = 0.650,
+    # Eq. (5) gives beta_r/beta_c = 0.72, R_m = 12.11, lambda = 12.0 at b = 0.17
+    xl, fl = 2 * 12.11 / 12.0, 1 / np.sqrt(0.888 * 0.650)
+    b_.scatter([xl], [fl], s=16, marker="s", color=ORANGE, edgecolor="white", lw=0.4, zorder=3)
+    b_.scatter([xl], [fl * np.sqrt(0.72)], s=26, marker="s", facecolor="none", edgecolor=ORANGE, lw=0.8, zorder=2)
     named = [g for g in groups if g[4]]
     h = [Line2D([], [], ls="", marker="o", color=MUTED, ms=4.5)] + \
         [Line2D([], [], ls="", marker=mk, color=col, ms=4.5) for _, _, col, mk, _ in named]
     h += [Line2D([], [], ls="", marker="o", color=MUTED, ms=4.5),
-          Line2D([], [], ls="", marker="o", mfc="white", mec=MUTED, ms=4.5)]
-    b_.legend(h, ["Barkley (colors as in a)"] + [g[4] for g in named] + ["frequency ratio", "after Eq. (5)"], loc="upper right",
+          Line2D([], [], ls="", marker="o", mfc="none", mec=MUTED, ms=5.1)]
+    b_.legend(h, ["Barkley (colors as in a)"] + [g[4] for g in named] + ["filled: frequency ratio", "open: after Eq. (5)"], loc="upper right",
               fontsize=7, ncol=1, handletextpad=0.2, labelspacing=0.25, borderaxespad=0.3)
     b_.set(xlabel=r"ring diameter $2R_m/\lambda$", ylabel="predicted / observed frequency", ylim=(0.9, 1.65), xlim=(0, 2.6))
     for a_, s in zip(ax, "ab"):
