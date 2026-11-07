@@ -35,7 +35,7 @@ All models use explicit Euler time stepping and a seven-point Laplacian (Numba-p
 - `halfcycle.py`, `halfcycle_tables.py`: half-cycles and circular-ring coefficients of both supplementary models
 - `halfcycle_uniform.py`: one half-cycle analysis for all three models, with the circular-ring baseline, the
   curvature-only local law (Eq. 5), the ring's own drift, and the literal ratio of durations (Fig. 5,
-  Tables S1–S2, S12, S14)
+  Tables S1–S2, S13, S15)
 - `period_baselines.py`, `local_law_halfcycles.py`: both baselines for the Barkley half-cycles; the
   curvature-only law at finite amplitude
 - `oreg2d.py`, `oreg_ring.py`, `oreg_ring_weak.py`: Oregonator
@@ -48,7 +48,7 @@ All models use explicit Euler time stepping and a seven-point Laplacian (Numba-p
   `mode_summary.py` collects the couplings and diagonal rates with their ranges, relative to the drift
   coefficient of circular rings of the same radius
 - `mode_wavenumber.py`: dependence of the out-of-plane coupling on the wavenumber, on large rings at
-  b = 0.17 and on shrinking rings at b = 0.15 and 0.16 (Fig. 6b, Table S11)
+  b = 0.17 and on shrinking rings at b = 0.15 and 0.16 (Figs. 6b and S3, Table S11)
 - `twist_run.py`, `diffrot_check.py`: filament twist
 - `controls_check.py`: controls of the revision runs (domain size, time step, seed orientation, straight
   filaments at b = 0.15 and 0.16)
@@ -97,7 +97,7 @@ these files are not part of the repository.
    subfolders named in their headers).
 2. `sh build_all.sh v2 v2b v5r v6 [archive_dir]` then marks invalid frames (`mask_frames.py`), runs
    every analysis in order, compares the grids (`refine_compare.py`), writes Figs. 1–6 and
-   Figs. S1–S4 (`make_figs.py`) and the tables of the supplementary material (`si_tables.py`),
+   Figs. S1–S5 (`make_figs.py`) and the tables of the supplementary material (`si_tables.py`),
    recomputes all quoted numbers (`paper_numbers.py`, which exits with an error and keeps the
    previous result if any part fails), and optionally writes the data archive (`export_data.py`,
    which only reads its input folders).
@@ -120,7 +120,7 @@ Git Bash). The results in `data/` were produced with Python 3.12, NumPy 2.3.3, S
 ## Figures
 
 `figures/` contains the figures of the main text (`fig1`–`fig6`), of the supplementary material
-(`figS1`–`figS4`), and the multimedia file of Fig. 1.
+(`figS1`–`figS5`), and the multimedia file of Fig. 1.
 
 ## License
 

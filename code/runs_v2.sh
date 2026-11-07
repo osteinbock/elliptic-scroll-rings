@@ -4,13 +4,13 @@
 # Run from the code directory:
 #   mkdir -p v2 && grep -v '^#' runs_v2.sh | grep . | NUMBA_NUM_THREADS=4 xargs -P 5 -I{} sh -c '{}'
 #
-# Atri Ca2+ model, P = 0.1 uM, c* = 0.52 (Table S3, S4, Fig. S2), and the dx = 2 um check
+# Atri Ca2+ model, P = 0.1 uM, c* = 0.52 (Tables S14, S15, Fig. S5), and the dx = 2 um check
 cd v2 && ATRI_DX=2.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 100 60 600 280 1800 aell_dx2_P0.1_100x60.npz $(seq 50 50 1800) > aell_dx2.log 2>&1
 cd v2 && ATRI_DX=2.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 100 100 520 280 900 acirc_dx2_P0.1.npz > acirc_dx2.log 2>&1
 cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 100 60 600 280 1800 aell2_P0.1_100x60.npz $(seq 50 50 1800) > aell2_P0.1_small.log 2>&1
 cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 130 80 660 280 1800 aell2_P0.1_130x80.npz $(seq 50 50 1800) > aell2_P0.1.log 2>&1
 cd v2 && ATRI_DX=3.0 ATRI_CSTAR=0.52 python -u ../atri_ring.py 0.1 0.7535 100 100 520 280 900 acirc4_P0.1_c052.npz > acirc4.log 2>&1
-# Panfilov-Rudenko kinetics B: elliptic rings (Table S2, Fig. S1)
+# Panfilov-Rudenko kinetics B: elliptic rings (Table S13, Fig. S4)
 cd v2 && PAN_DX=0.3 python -u ../pan_ring.py 0.8 0.372 24 15 76 40 1000 pellXR_gf0.8_24x15.npz > pellXR.log 2>&1
 cd v2 && PAN_DX=0.4 python -u ../pan_ring.py 0.8 0.372 24 15 88 50 1100 pellHR_gf0.8_24x15.npz $(seq 20 20 1100) > pellHR.log 2>&1
 cd v2 && python -u ../pan_ring.py 0.8 0.372 24 15 120 80 1100 pellBIG_gf0.8_24x15.npz > pellBIG.log 2>&1

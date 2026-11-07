@@ -1,4 +1,4 @@
-"""Tables S2 and S4 (and Figs. S1c, S2c): half-cycles of the Panfilov and Atri elliptic rings.
+"""Tables S13 and S15 (and Figs. S4c, S5c): half-cycles of the Panfilov and Atri elliptic rings.
 
 Circular rings give alpha and beta (pan_alpha.windows, atri_alpha.fit; single-curve frames);
 halfcycle.half_cycles gives the observed and predicted half-periods. Writes

@@ -1,4 +1,4 @@
-"""Fig. S2: elliptic rings of the Atri Ca2+ model (P = 0.1 uM).
+"""Earlier version of Fig. S5 (now drawn by make_figs.py): elliptic rings of the Atri Ca2+ model (P = 0.1 uM).
 (a) half-widths and (b) saddle amplitude of the 100 x 60 um ring (period-smoothed,
 single-curve frames) vs the filament equation with |beta| of circular rings, started at the
 first planar moment and following the measured growth of the ring (halfcycle.model_series_grown);
@@ -19,7 +19,7 @@ from halfcycle_tables import ATRI_PERIOD
 
 INK, MUTED, C1, C2 = "#1f1f1e", "#6b6a63", "#2a78d6", "#eb6834"
 D = sys.argv[1] if len(sys.argv) > 1 else "v2"
-out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(D, "figS2.png")
+out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(D, "atri_figure.png")
 allrows = H.read_csv(os.path.join(D, "halfcycles_atri.csv"))
 rows = [r for r in allrows if r["dx"] == 3.0]
 pan = [r["ratio"] for r in H.read_csv(os.path.join(D, "halfcycles_panfilov.csv"))]

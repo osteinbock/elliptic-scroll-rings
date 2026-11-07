@@ -53,7 +53,7 @@ python "$HERE/halfcycle_uniform.py" "$REVISION/uniform_halfcycles.csv"
 )
 
 # figures and tables of the paper
-(cd "$BARKLEY" && mkdir -p figs && FIG_OUT=figs python "$HERE/make_figs.py")   # figs/fig1.pdf ... figS4.pdf
+(cd "$BARKLEY" && mkdir -p figs && FIG_OUT=figs python "$HERE/make_figs.py")   # figs/fig1.pdf ... figS5.pdf
 python "$HERE/si_tables.py" "$BARKLEY/tables"                                  # tables/tab_*.tex (SI)
 
 # numbers quoted in the manuscript and SI

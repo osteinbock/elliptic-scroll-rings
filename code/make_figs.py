@@ -1,6 +1,6 @@
 """Figures of the elliptic-scroll-ring paper (Chaos, AIP).
 
-Writes fig1.pdf ... fig6.pdf (main text) and figS1.pdf ... figS4.pdf (supplementary material) as vector
+Writes fig1.pdf ... fig6.pdf (main text) and figS1.pdf ... figS5.pdf (supplementary material) as vector
 PDFs: single column 3.37 in, double column 6.69 in, all text >= 8 pt, panel letters, no internal titles.
 Run in the BARKLEY folder (runs_barkley_v2.sh outputs and their analysis products); the supplementary
 models and the revision runs are read from SUPP and REVISION (folders.py). FIG_OUT sets the output
@@ -588,61 +588,81 @@ def mode_ranges():
     return mode_summary.modes()
 
 
-def fig6():
+def wavenumber_panel(b_, full):
+    """Absolute beta_zeta versus wavenumber at b = 0.17, with beta_c(K = k), straight filaments, and the undulating
+    large ring. full = True adds the rings at b = 0.15 and 0.16 and the straight filaments at b = 0.15 (Fig. S3)."""
     import mode_summary
     import mode_wavenumber as MWN
     rows = mode_ranges() + mode_summary.large_modes()
-    for r in rows:
-        print(f"fig6: {r['ring']:6s} m={r['m']} k={r['k']:.3f}  bz/bd {r['bz']:.3f} [{r['bz_rng'][0]:.3f}, {r['bz_rng'][1]:.3f}]"
-              f"  br/bd {r['br']:.3f} [{r['br_rng'][0]:.3f}, {r['br_rng'][1]:.3f}]  sqrt(bz br) {r['W']:.3f}")
     tl = np.load("new_tests.npz")["tilt"]
     sl = np.load("sf2/sf2_linear.npy")
     bk = np.load("sf2/buckle.npz")["fits"]
-    ctl = json.load(open(os.path.join(FD.REVISION, "controls.json")))["straight"]
-    s15 = [c for c in ctl if c["label"].startswith("b=0.15")]
-    win = [w for w in json.load(open(os.path.join(FD.REVISION, "mode_wavenumber.json")))["windows"] if w["used"]]
-    fig, ax = plt.subplots(2, 1, figsize=(W1, 4.5), gridspec_kw=dict(height_ratios=[1, 1.25]))
-    a = ax[0]
-    a.axhline(1, color=MUTED, lw=0.6)
     cal = HU.barkley_calibration(0.17)
-    a.scatter([1 / tl[0]], [tl[4] / tl[5]], marker="o", s=26, facecolor="white", edgecolor=MUTED, lw=1.0, zorder=4)
-    a.text(1 / tl[0] + 0.015, tl[4] / tl[5] + 0.05, "tilt ($m=1$)", fontsize=7, color=MUTED, va="bottom")
     mk = {2: "s", 3: "D", 4: "v"}
-    for r in rows:
-        filled = r["ring"] == "R*"
-        a.plot([r["k"] - 0.022, r["k"] + 0.022], [r["br_loc"]] * 2, color=ORANGE, lw=1.0, ls=(0, (2, 1)), zorder=3)   # Eq. (5)
-        for col, key, dk in ((BLUE, "bz", -0.006), (ORANGE, "br", 0.006)):
-            lo, hi = r[key + "_rng"]
-            a.errorbar([r["k"] + dk], [r[key]], yerr=[[r[key] - lo], [hi - r[key]]], fmt=mk[r["m"]], ms=5, color=col,
-                       mfc=col if filled else "white", mec=col, mew=1.1, elinewidth=0.8, capsize=2, zorder=4)
-    a.text(0.66, 0.37, r"$\beta_\zeta$", color=BLUE, fontsize=9, ha="center")
-    a.text(0.66, 0.86, r"$\beta_r$", color=ORANGE, fontsize=9, ha="center")
-    a.set(xlabel=r"wavenumber $k = m/R_m$", ylabel=r"coupling $/\,\beta_\mathrm{c}$", xlim=(0.13, 0.88), ylim=(0.0, 1.3))
-    b_ = ax[1]
     Kc, Kx = np.linspace(0.13, cal.Krange[1], 40), np.linspace(cal.Krange[1], 0.88, 40)
     b_.plot(Kc, MWN.beta_log(Kc), color=INK, lw=1.0, zorder=2)
     b_.plot(Kx, MWN.beta_log(Kx), color=INK, lw=1.0, ls=(0, (4, 2)), zorder=2)
     b_.errorbar(sl[:, 0], sl[:, 3], yerr=sl[:, 4], fmt="o-", color=BLUE, ms=4.5, lw=1.0)
-    b_.plot([c["k"] for c in s15], [c["beta"] for c in s15], marker="o", mfc="none", mec=MUTED, ms=6.5, mew=1.1, ls=":", color=MUTED, lw=1.1,
-            zorder=5)                                 # on top: at k = 0.45 and 0.6 it coincides with b = 0.17
+    if full:
+        ctl = json.load(open(os.path.join(FD.REVISION, "controls.json")))["straight"]
+        s15 = [c for c in ctl if c["label"].startswith("b=0.15")]
+        b_.plot([c["k"] for c in s15], [c["beta"] for c in s15], marker="o", mfc="none", mec=MUTED, ms=6.5, mew=1.1, ls=":", color=MUTED, lw=1.1,
+                zorder=5)                             # on top: at k = 0.45 and 0.6 it coincides with b = 0.17
     b_.scatter(bk[:, 2], bk[:, 6], marker="^", s=30, color=AQUA, zorder=4)
-    for w in win:
-        col = MUTED if w["b"] == 0.15 else YELLOW
-        b_.scatter([w["k"]], [w["bz"]], marker=mk[w["m"]], s=15, facecolor="white", edgecolor=col, linewidth=0.9, zorder=5)
+    if full:
+        win = [w for w in json.load(open(os.path.join(FD.REVISION, "mode_wavenumber.json")))["windows"] if w["used"]]
+        for w in win:
+            col = MUTED if w["b"] == 0.15 else YELLOW
+            b_.scatter([w["k"]], [w["bz"]], marker=mk[w["m"]], s=15, facecolor="white", edgecolor=col, linewidth=0.9, zorder=5)
     b_.scatter([1 / tl[0]], [float(cal.beta(tl[0])) * tl[4] / tl[5]], marker="o", s=26, facecolor="white", edgecolor=MUTED, lw=1.0, zorder=6)
     for r in rows:
         c = float(cal.beta(r["R"]))
         b_.errorbar([r["k"]], [r["bz"] * c], yerr=[[(r["bz"] - r["bz_rng"][0]) * c], [(r["bz_rng"][1] - r["bz"]) * c]], fmt=mk[r["m"]],
                     ms=5, color=INK, mfc=INK if r["ring"] == "R*" else "white", mec=INK, mew=1.1, elinewidth=0.8, capsize=1.5, zorder=6)
     b_.text(0.785, 1.14, "straight\nfilament", color=BLUE, fontsize=7, ha="center", va="bottom")
-    b_.text(0.40, 1.74, r"straight, $b=0.15$", color=MUTED, fontsize=7, ha="left")
     b_.text(0.60, 1.42, r"$\bar R \approx 34$", color=AQUA, fontsize=7, ha="left")
     b_.text(0.46, 0.93, r"$\beta_\mathrm{c}(K = k)$", color=INK, fontsize=7, ha="left")
-    b_.legend(handles=[Line2D([], [], marker="s", ls="", ms=4.5, mfc=INK, mec=INK, label=r"rings, $b = 0.17$"),
-                       Line2D([], [], marker="s", ls="", ms=3.5, mfc="white", mec=YELLOW, mew=0.9, label=r"rings, $b = 0.16$"),
-                       Line2D([], [], marker="s", ls="", ms=3.5, mfc="white", mec=MUTED, mew=0.9, label=r"rings, $b = 0.15$")],
-              loc="upper right", fontsize=7, handletextpad=0.3)
+    if full:
+        b_.text(0.40, 1.74, r"straight, $b=0.15$", color=MUTED, fontsize=7, ha="left")
+        b_.legend(handles=[Line2D([], [], marker="s", ls="", ms=4.5, mfc=INK, mec=INK, label=r"rings, $b = 0.17$"),
+                           Line2D([], [], marker="s", ls="", ms=3.5, mfc="white", mec=YELLOW, mew=0.9, label=r"rings, $b = 0.16$"),
+                           Line2D([], [], marker="s", ls="", ms=3.5, mfc="white", mec=MUTED, mew=0.9, label=r"rings, $b = 0.15$")],
+                  loc="upper right", fontsize=7, handletextpad=0.3)
+    else:
+        b_.legend(handles=[Line2D([], [], marker="s", ls="", ms=4.5, mfc=INK, mec=INK, label=r"$m = 2$"),
+                           Line2D([], [], marker="D", ls="", ms=4.0, mfc=INK, mec=INK, label=r"$m = 3$"),
+                           Line2D([], [], marker="v", ls="", ms=4.5, mfc=INK, mec=INK, label=r"$m = 4$"),
+                           Line2D([], [], marker="s", ls="", ms=4.5, mfc=INK, mec=INK, label=r"filled: ring at $R^\ast$"),
+                           Line2D([], [], marker="s", ls="", ms=4.5, mfc="white", mec=INK, mew=1.0, label="open: larger rings")],
+                  loc="upper right", fontsize=7, handletextpad=0.3)
     b_.set(xlabel=r"wavenumber $k$", ylabel=r"$\beta_\zeta$ or binormal coefficient", xlim=(0.13, 0.88), ylim=(0.6, 2.6))
+
+
+def fig6():
+    import mode_summary
+    rows = mode_ranges() + mode_summary.large_modes()
+    for r in rows:
+        print(f"fig6: {r['ring']:6s} m={r['m']} k={r['k']:.3f}  bz/bd {r['bz']:.3f} [{r['bz_rng'][0]:.3f}, {r['bz_rng'][1]:.3f}]"
+              f"  br/bd {r['br']:.3f} [{r['br_rng'][0]:.3f}, {r['br_rng'][1]:.3f}]  sqrt(bz br) {r['W']:.3f}")
+    tl = np.load("new_tests.npz")["tilt"]
+    fig, ax = plt.subplots(2, 1, figsize=(W1, 4.5), gridspec_kw=dict(height_ratios=[1, 1.25]))
+    a = ax[0]
+    a.axhline(1, color=MUTED, lw=0.6)
+    a.scatter([1 / tl[0]], [tl[4] / tl[5]], marker="o", s=26, facecolor="white", edgecolor=MUTED, lw=1.0, zorder=4)
+    a.text(1 / tl[0] + 0.015, tl[4] / tl[5] + 0.05, "tilt ($m=1$)", fontsize=7, color=MUTED, va="bottom")
+    mk = {2: "s", 3: "D", 4: "v"}
+    for r in rows:
+        filled = r["ring"] == "R*"
+        for col, key, dk in ((BLUE, "bz", -0.006), (ORANGE, "br", 0.006)):
+            a.plot([r["k"] + dk], [r[key]], ls="", marker=mk[r["m"]], ms=5, mfc=col if filled else "none", mec=col, mew=1.1, zorder=4)
+    a.axhspan(min(r["br_loc"] for r in rows), max(r["br_loc"] for r in rows), color=ORANGE, alpha=0.14, lw=0, zorder=1)   # Eq. (5)
+    a.text(0.505, 0.70, r"$\beta_r$, Eq. (5)", color=ORANGE, fontsize=7, ha="center", va="center")
+    a.text(0.40, 1.03, r"$\beta_\zeta$, curvature-only law", color=MUTED, fontsize=7, ha="left", va="bottom")
+    a.legend(handles=[Line2D([], [], ls="", marker="s", ms=5, color=BLUE, label=r"$\beta_\zeta$"),
+                      Line2D([], [], ls="", marker="s", ms=5, color=ORANGE, label=r"$\beta_r$")],
+             loc="lower left", ncol=2, fontsize=8, handletextpad=0.2, columnspacing=0.9)
+    a.set(xlabel=r"wavenumber $k = m/R_m$", ylabel=r"coupling $/\,\beta_\mathrm{c}$", xlim=(0.13, 0.88), ylim=(0.0, 1.3))
+    wavenumber_panel(ax[1], full=False)
     for a_, s_ in zip(ax, "ab"):
         grid(a_)
         label(a_, s_, x=-0.22, y=1.08)
@@ -719,7 +739,17 @@ def figS2():
     plt.close(fig)
 
 
-# ----------------------------------------------------------------------------- Figs. S3, S4: the other two models
+# ----------------------------------------------------------------------------- Fig. S3: complete version of Fig. 6(b)
+def figS3():
+    fig, b_ = plt.subplots(figsize=(W1, 2.7))
+    wavenumber_panel(b_, full=True)
+    grid(b_)
+    fig.tight_layout()
+    fig.savefig(f"{OUT}/figS3.pdf")
+    plt.close(fig)
+
+
+# ----------------------------------------------------------------------------- Figs. S4, S5: the other two models
 
 def _stacked_halfwidths(ax, path, period, beta, lab, unit=""):
     S = H.smoothed(path, period)
@@ -733,7 +763,7 @@ def _stacked_halfwidths(ax, path, period, beta, lab, unit=""):
     return S, M
 
 
-def figS3():
+def figS4():
     pan = H.read_csv(os.path.join(FD.SUPP, "halfcycles_panfilov.csv"))
     rows = [r for r in read_csv(os.path.join(FD.REVISION, "uniform_halfcycles.csv")) if r["model"] == "panfilov" and r["radius"] == "Rm"]
     import pan_alpha
@@ -770,11 +800,11 @@ def figS3():
         grid(a_)
         label(a_, s_, x=-0.14 if a_ is not a2 else -0.42, y=1.06)
     fig.subplots_adjust(left=0.08, right=0.98, top=0.93, bottom=0.17)
-    fig.savefig(f"{OUT}/figS3.pdf")
+    fig.savefig(f"{OUT}/figS4.pdf")
     plt.close(fig)
 
 
-def figS4():
+def figS5():
     import halfcycle_tables as HT
     allrows = H.read_csv(os.path.join(FD.SUPP, "halfcycles_atri.csv"))
     rows = [r for r in read_csv(os.path.join(FD.REVISION, "uniform_halfcycles.csv")) if r["model"] == "atri" and r["radius"] == "Rm"]
@@ -813,12 +843,12 @@ def figS4():
         grid(a_)
         label(a_, s_, x=-0.14 if a_ is not a2 else -0.42, y=1.06)
     fig.subplots_adjust(left=0.08, right=0.98, top=0.93, bottom=0.14)
-    fig.savefig(f"{OUT}/figS4.pdf")
+    fig.savefig(f"{OUT}/figS5.pdf")
     plt.close(fig)
 
 
 ALL = {"1": fig1, "2": fig2, "3": fig3, "4": fig4, "5": fig5, "6": fig6,
-       "S1": figS1, "S2": figS2, "S3": figS3, "S4": figS4}
+       "S1": figS1, "S2": figS2, "S3": figS3, "S4": figS4, "S5": figS5}
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)

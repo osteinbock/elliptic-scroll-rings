@@ -1,4 +1,4 @@
-"""Fig. S1: elliptic rings of the Panfilov-Rudenko model (kinetics B).
+"""Earlier version of Fig. S4 (now drawn by make_figs.py): elliptic rings of the Panfilov-Rudenko model (kinetics B).
 (a) g_f = 0.775 (zero tension) and (b) g_f = 0.8: half-widths, RD (period-smoothed,
 single-curve frames) vs the filament equation with |beta| of circular rings, following the
 measured size change and started at the first planar moment; (c) observed / predicted half-period of every
@@ -16,7 +16,7 @@ import pan_alpha as PA
 
 INK, MUTED, C1, C2 = "#1f1f1e", "#6b6a63", "#2a78d6", "#eb6834"
 D = sys.argv[1] if len(sys.argv) > 1 else "v2"
-out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(D, "figS1.png")
+out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(D, "pan_figure.png")
 rows = H.read_csv(os.path.join(D, "halfcycles_panfilov.csv"))
 # Barkley reference: mean ratio of Fig. 5 (rigid spirals), from that analysis's table
 BARKLEY = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(os.path.abspath(D)), "v2b", "period_table_r2.csv")

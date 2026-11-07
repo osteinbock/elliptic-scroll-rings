@@ -1,4 +1,4 @@
-"""Dependence of the out-of-plane coupling beta_zeta on the wavenumber k = m/R (Fig. 6b, Table S11).
+"""Dependence of the out-of-plane coupling beta_zeta on the wavenumber k = m/R (Figs. 6b and S3, Table S11).
 
 1. Large rings at b = 0.17 (m = 2, 3, 4; R about 11 to 15), with the fits in tau of the larger ring in
    mode_refit.py: the whole interval and its halves.

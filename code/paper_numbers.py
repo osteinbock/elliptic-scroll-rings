@@ -268,6 +268,7 @@ def supp():
     put("panfilov.ratio.mean_sd_n", [round(q.mean(), 3), round(q.std(ddof=1), 3), len(q)])
     for fn in dict.fromkeys(r["file"] for r in P):
         x = np.array([r["ratio"] for r in P if r["file"] == fn])
+        # Table S13 (keys "tableS2.*" keep an early draft's name, as do "tableS3.*" for S14 and "tableS4.*" for S15)
         put(f"tableS2.{fn}", [round(x.mean(), 3), round(x.std(), 3) if len(x) > 1 else None, len(x)])
     A = H.read_csv(os.path.join(S, "halfcycles_atri.csv"))
     a3 = [r for r in A if r["dx"] == 3.0]
@@ -294,7 +295,7 @@ def supp():
                           round(r["aspect"], 2), round(r["T_obs"]), round(r["ratio"], 3)] for r in A])
     co = H.read_csv(os.path.join(S, "coefficients_circles.csv"))
     put("circles.used_for_tables", [[r["model"], r["file"], round(r["alpha"], 4), round(r["beta"], 4)] for r in co])
-    # Table S1 (S11 of the SI): pooled over the seeds 14 and 22 and, for g_f = 0.775 and 0.8, 18 (REVISION)
+    # Table S12 (keys "tableS1.*" keep an early draft's name): pooled over the seeds 14 and 22 and, for g_f = 0.775 and 0.8, 18 (REVISION)
     import pan_alpha as PA
     for gf in (0.775, 0.8, 0.825, 0.85, 0.9):
         paths = [os.path.join(S, f"pcirc_gf{gf}_R{R}.npz") for R in (14, 22)]
@@ -303,7 +304,7 @@ def supp():
         w = np.vstack([PA.windows(p, single=True)[1] for p in paths])
         put(f"tableS1.gf{gf}", [round(w[:, 1].min()), round(w[:, 1].max()), round(w[:, 2].mean(), 3),
                                  round(w[:, 2].std(), 3), round(abs(w[:, 3].mean()), 2), round(w[:, 3].std(), 2)])
-    # Table S3 and Atri controls
+    # Table S14 and Atri controls
     import atri_alpha as AA
     for lab, files, per in (("0.085", ["acirc3_P0.085.npz"], 20.0), ("0.095", ["acirc2_R80.npz", "acirc2_R130.npz"], 17.5),
                             ("0.100", ["acirc4_P0.1_c052.npz"], 16.58), ("0.100.dx2", ["acirc_dx2_P0.1.npz"], 16.58),
