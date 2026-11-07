@@ -341,6 +341,8 @@ def fig2():
     X0 = measured_shape(t, S, t0)
     M = follow_size(t, S, t0, X0, cal)
     print(f"fig2: start t0 = {t0}, L/2pi = {np.interp(t0, t, S['length']) / (2 * np.pi):.3f}, beta_c(start) = {M['bref']:.3f}")
+    for k in ("hx", "hy", "z2c"):                   # same rotation-period average as the simulation curves
+        M[k] = C.smooth(M["t"], M[k], per)
     fig, ax = plt.subplots(2, 1, figsize=(W1, 3.0), sharex=True)
     for k, col in (("hx", BLUE), ("hy", ORANGE)):
         ax[0].plot(t, S[k], color=col, lw=1.4)
