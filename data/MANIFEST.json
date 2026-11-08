@@ -1,6 +1,6 @@
 {
- "git_head_at_export": "7b8264a015d03a1748a6451caa15b46151c78a60",
- "source_tree_sha256": "f0aa4e969f94850c5089a71872545c93f346f54da927caa911785c1233837af5",
+ "git_head_at_export": "e81e564df7b626110386afbeba4200b21a121fda",
+ "source_tree_sha256": "edd481f3e90ed7ef758331f91c90f46d03043d5ed7c86c03f4941e6962d23323",
  "source_tree_files": "all .py files of the code folder that ran the exporter; it describes the code of the commit that contains this manifest",
  "simulation_code_files": [
   "barkley3d.py",
@@ -1469,7 +1469,7 @@
    "file": "analysis/barkley/mode_refit.json",
    "group": "barkley",
    "command": "cd BARKLEY && python mode_refit.py",
-   "sha256": "b74ee02283b2435917a12714a2c941b049861ac36137ee049ba3687ce42bda0f"
+   "sha256": "485e991853aa71e09410cc0142cd828ab0e6565b79662b20d705c2ca30b57196"
   },
   {
    "file": "analysis/barkley/rigidity_test.json",
@@ -1487,7 +1487,7 @@
    "file": "analysis/barkley/paper_numbers.json",
    "group": "barkley",
    "command": "cd BARKLEY && python paper_numbers.py SUPP BARKLEY REFINE REVISION",
-   "sha256": "66cad1e8d403b2ff947201c8ca99970d1d8866e436908d49621c39f04b0e8ebe"
+   "sha256": "298607734ff351060efd42bf010f51c730eb4ac599f2f7ff4ad41e19eeb811cd"
   },
   {
    "file": "analysis/supp/halfcycles_panfilov.csv",
@@ -1529,19 +1529,19 @@
    "file": "analysis/refine/refine_compare.json",
    "group": "refine",
    "command": "cd REFINE && python refine_compare.py BARKLEY REFINE",
-   "sha256": "31157eb1728733a7a287bd40e537d0821015334d03f198c155d760d389ab9307"
+   "sha256": "57f6440247ab9c50e5635d03d3a40fa985a29b7f1c2a402108ffb3f2320da59a"
   },
   {
    "file": "analysis/revision/uniform_halfcycles.csv",
    "group": "revision",
    "command": "cd REVISION && python halfcycle_uniform.py uniform_halfcycles.csv",
-   "sha256": "68e5f4b74bb0642a6485a36e39ef7df1639c1744dc273c46ccf67b00db5ed242"
+   "sha256": "9fd8adc4fe6e884c5a40e0b8d7c591afec810d08ac0e22dec3223e6fe153746e"
   },
   {
    "file": "analysis/revision/mode_definitions.json",
    "group": "revision",
    "command": "cd REVISION && python mode_definitions.py",
-   "sha256": "55466885b0b19cb0422dbb54e55e99aaf5efc909865e9cae13a260f7262500a3"
+   "sha256": "00b476a31347cd86a99eecb52c51d29af5dbbd5f80b4e1f00adec37327c60153"
   },
   {
    "file": "analysis/revision/mode_wavenumber.json",

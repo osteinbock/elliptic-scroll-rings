@@ -514,15 +514,15 @@
   5
  ],
  "rev.b017.ratio_c.mean_sd_n": [
-  1.435,
-  0.015,
+  1.45,
+  0.018,
   13
  ],
  "rev.b017.ratio_c.range": [
-  1.4,
-  1.46
+  1.41,
+  1.49
  ],
- "rev.b017.ratio_c.percent_longer": 44,
+ "rev.b017.ratio_c.percent_longer": 45,
  "rev.b017.Rbar.range": [
   4.6,
   8.0
@@ -532,8 +532,8 @@
   0.007
  ],
  "rev.b017.residual.mean_sd": [
-  1.137,
-  0.014
+  1.149,
+  0.015
  ],
  "rev.b017.beta_r_over_beta_at_Rbar.range": [
   0.62,
@@ -544,10 +544,10 @@
   0.64
  ],
  "rev.b017.ratio_own.mean_sd": [
-  1.31,
+  1.33,
   0.07
  ],
- "rev.b017.drift_per_switch_over_Rbar": 1.19,
+ "rev.b017.drift_per_switch_over_Rbar": 1.2,
  "rev.own_drift_deficit_percent.b017.range": [
   1.0,
   14.0
@@ -561,8 +561,8 @@
   18.0
  ],
  "rev.b015_b016.ratio_c.range": [
-  1.19,
-  1.4
+  1.2,
+  1.43
  ],
  "rev.b018.ratio_c": [
   1.47
@@ -572,13 +572,13 @@
   1.17
  ],
  "rev.b015_b016.Rbar_ge_3.6.residual.range": [
-  1.14,
-  1.23
+  1.15,
+  1.24
  ],
  "rev.b015_b016.smallest.residual_and_Rbar": [
   [
-   1.41,
-   1.48
+   1.43,
+   1.54
   ],
   [
    3.3,
@@ -598,63 +598,63 @@
  "rev.fig5a.max_amplitude_correction_percent": 2.1,
  "rev.fig5a.max_tension_correction_percent": 0.158,
  "rev.b017.all.z2.Rm.ratio_c.mean_sd_n": [
-  1.432,
+  1.449,
   0.039,
   23
  ],
  "rev.b017.weak_modes.z2.Rm.ratio_c.mean_sd_n": [
-  1.459,
-  0.031,
+  1.476,
+  0.028,
   12
  ],
  "rev.b017.elliptic.z2.Rm.ratio_c.mean_sd_n": [
-  1.403,
-  0.023,
+  1.42,
+  0.027,
   11
  ],
  "rev.b017.all.z2.L.ratio_c.mean_sd_n": [
-  1.446,
-  0.029,
+  1.463,
+  0.027,
   23
  ],
  "rev.b017.weak_modes.z2.L.ratio_c.mean_sd_n": [
-  1.46,
-  0.031,
+  1.476,
+  0.028,
   12
  ],
  "rev.b017.elliptic.z2.L.ratio_c.mean_sd_n": [
-  1.43,
-  0.017,
+  1.448,
+  0.019,
   11
  ],
  "rev.panfilov.gf0.775.ratio_c.mean_sd_n_runs": [
-  0.967,
+  0.971,
   0.006,
   3,
   1
  ],
  "rev.panfilov.gf0.775.eq5_factor.mean": 0.97,
- "rev.panfilov.gf0.775.residual.mean": 0.997,
+ "rev.panfilov.gf0.775.residual.mean": 1.001,
  "rev.panfilov.gf0.8.ratio_c.mean_sd_n_runs": [
-  1.003,
-  0.015,
+  1.007,
+  0.014,
   7,
   4
  ],
  "rev.panfilov.gf0.8.eq5_factor.mean": 0.99,
- "rev.panfilov.gf0.8.residual.mean": 1.014,
+ "rev.panfilov.gf0.8.residual.mean": 1.018,
  "rev.panfilov.L_vs_Rm_ratio_change_percent.range": [
   -5.1,
   -0.8
  ],
  "rev.atri.excess_percent.mean_sd_n_runs": [
-  5.3,
+  5.7,
   1.2,
   13,
   5
  ],
  "rev.atri.aspect_below_1.3.excess_percent.mean_sd_n": [
-  4.2,
+  4.5,
   0.8,
   5
  ],
@@ -664,7 +664,7 @@
  ],
  "rev.atri.ratio_at_smallest_and_largest_Rbar": [
   1.07,
-  1.03
+  1.04
  ],
  "rev.atri.L_vs_Rm.max_change_percent.eccentric_and_aspect_below_1.3": [
   12.0,
@@ -674,8 +674,8 @@
  "rev.atri.dx2_vs_dx3.ratio_change_percent": -0.4,
  "rev.atri.dx3.clearance_ge_260.n_mean_vs_others_mean": [
   6,
-  1.047,
-  1.058
+  1.052,
+  1.061
  ],
  "rev.atri.min_clearance_um": 192,
  "rev.atri.switch_interval_min_for_R_95_145_um": [
@@ -852,34 +852,34 @@
  "rev.modes.Rstar.m2.bz_over_drift.main_range": [
   0.73,
   0.7,
-  0.75
+  0.74
  ],
  "rev.modes.Rstar.m2.br_over_drift.main_range": [
   0.64,
   0.57,
-  0.67
+  0.66
  ],
  "rev.modes.Rstar.m3.k": 0.61,
  "rev.modes.Rstar.m3.bz_over_drift.main_range": [
   0.6,
   0.56,
-  0.66
+  0.61
  ],
  "rev.modes.Rstar.m3.br_over_drift.main_range": [
   0.61,
   0.56,
-  0.72
+  0.67
  ],
  "rev.modes.Rstar.m4.k": 0.8,
  "rev.modes.Rstar.m4.bz_over_drift.main_range": [
   0.41,
-  0.37,
-  0.42
+  0.38,
+  0.41
  ],
  "rev.modes.Rstar.m4.br_over_drift.main_range": [
   0.7,
   0.67,
-  0.74
+  0.75
  ],
  "rev.modes.larger.m2.k": 0.28,
  "rev.modes.larger.m2.bz_over_drift.main_range": [
@@ -1081,20 +1081,20 @@
  "rev.straight.b016.k045.gamma_over_k2": 0.008,
  "rev.controls.mode_bigbox.max_relative_change": 8e-06,
  "rev.controls.dt_half_and_rot45.ratio_c_change_percent.range": [
-  -3.4,
-  2.1
+  -2.5,
+  1.8
  ],
  "rev.controls.dt_half_and_rot45.ratio_c_mean_change_percent": [
-  -0.37,
-  -0.69
+  -0.28,
+  -0.41
  ],
  "rev.controls.dt_half_and_rot45.ratio_own_change_percent.range": [
-  -2.2,
-  3.5
+  -1.3,
+  3.1
  ],
  "rev.controls.dt_half_and_rot45.ratio_own_mean_change_percent": [
-  0.63,
-  -0.64
+  0.72,
+  -0.37
  ],
  "rev.controls.dt_half_and_rot45.halfperiod_change_percent.range": [
   -5.1,
@@ -1103,13 +1103,13 @@
  "rev.controls.ellipse_bigbox.max_switch_time_change": 0.0,
  "rev.controls.dx0.1.mean_ratio_change_percent.own_and_c_and_n": [
   0.04,
-  -2.24,
+  -2.11,
   6,
   6
  ],
  "rev.controls.dx0.15.mean_ratio_change_percent.own_and_c_and_n": [
   -0.76,
-  -2.53,
+  -2.09,
   2,
   2
  ],
@@ -1214,8 +1214,8 @@
   ]
  ],
  "round2.duration_ratio_smaller_percent.b015_b016": [
-  2.6,
-  6.2
+  2.7,
+  6.5
  ],
  "round2.duration_ratio_smaller_percent.b017": [
   -0.0,
@@ -1226,21 +1226,21 @@
   1.27
  ],
  "round2.b017.strong.residual_linear_local_and_global.range": [
-  1.08,
-  1.16
+  1.09,
+  1.2
  ],
  "round2.b017.weak.ratio_eq5_residual": [
-  1.459,
+  1.476,
   1.264,
-  1.154
+  1.167
  ],
- "round2.b017.8x5.z2_Rm.ratio_mean": 1.417,
- "round2.b017.8x5.z2_L.ratio_mean": 1.428,
- "round2.b017.12x7.5.z2_Rm.ratio_mean": 1.392,
- "round2.b017.12x7.5.z2_L.ratio_mean": 1.432,
+ "round2.b017.8x5.z2_Rm.ratio_mean": 1.439,
+ "round2.b017.8x5.z2_L.ratio_mean": 1.45,
+ "round2.b017.12x7.5.z2_Rm.ratio_mean": 1.405,
+ "round2.b017.12x7.5.z2_L.ratio_mean": 1.446,
  "round2.b017.strong_below_weak_percent.range": [
-  1.9,
-  4.6
+  1.8,
+  4.8
  ],
  "round2.b017.finite_amplitude_eq5.strong_and_weak.range": [
   [
@@ -1253,11 +1253,11 @@
   ]
  ],
  "round2.b017.finite_amplitude_residual.strong.range_n": [
-  1.13,
-  1.21,
+  1.14,
+  1.23,
   22
  ],
- "round2.b017.weak.z2_L.ratio_mean": 1.46,
+ "round2.b017.weak.z2_L.ratio_mean": 1.476,
  "round2.siIID.halfwidth_ellipse_L_minus_ring_L_percent.strong_and_weak": [
   [
    -3.2,
@@ -1312,11 +1312,11 @@
  "round2.modes.Rstar.m2.bz_rng_br_rng": [
   [
    0.7,
-   0.75
+   0.74
   ],
   [
    0.57,
-   0.67
+   0.66
   ]
  ],
  "round2.modes.Rstar.m2.az_ar_arloc": [
@@ -1347,11 +1347,11 @@
  "round2.modes.Rstar.m3.bz_rng_br_rng": [
   [
    0.56,
-   0.66
+   0.61
   ],
   [
    0.56,
-   0.72
+   0.67
   ]
  ],
  "round2.modes.Rstar.m3.az_ar_arloc": [
@@ -1381,12 +1381,12 @@
  ],
  "round2.modes.Rstar.m4.bz_rng_br_rng": [
   [
-   0.37,
-   0.42
+   0.38,
+   0.41
   ],
   [
    0.67,
-   0.74
+   0.75
   ]
  ],
  "round2.modes.Rstar.m4.az_ar_arloc": [
