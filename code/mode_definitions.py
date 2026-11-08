@@ -123,7 +123,8 @@ def main():
         ar, az = diag_rates(4, r["R"], r["omega"], r["gamma"], np.radians(r["dphase"]))
         out["m4_windows"].append(dict(t0=t0, t1=t1, bz_over_drift=float(r["bz"] / r["bdrift"]),
                                      br_over_drift=float(r["br"] / r["bdrift"]), dphase_deg=float(r["dphase"]),
-                                     alpha_r=float(ar), alpha_zeta=float(az), R=float(r["R"]), ok=bool(r["ok"])))
+                                     alpha_r=float(ar), alpha_zeta=float(az), R=float(r["R"]), ok=bool(r["ok"]),
+                                     bz=float(r["bz"]), br=float(r["br"]), bdrift=float(r["bdrift"])))
         print(f"m=4 window {t0:g}-{t1:g}: bz/bd={r['bz'] / r['bdrift']:.3f} br/bd={r['br'] / r['bdrift']:.3f} (ok {r['ok']})")
     json.dump(out, open("mode_definitions.json", "w"), indent=1)
     print("wrote mode_definitions.json")

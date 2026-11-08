@@ -38,8 +38,8 @@ def modes():
         br = [r["br"] / r["beta_c"] for r in main]
         out.append(dict(m=m, ring="R*", R=float(R), k=float(np.mean([r["k"] for r in main])),
                         bz=float(np.mean(bz)), br=float(np.mean(br)),
-                        bz_rng=_span(bz + [x * to_c for x in rng["bz_range"]] + [r["bz"] / float(cal.beta(r["R"])) for r in defs]),
-                        br_rng=_span(br + [x * to_c for x in rng["br_range"]] + [r["br"] / float(cal.beta(r["R"])) for r in defs]),
+                        bz_rng=_span(bz + rng["bz_c_range"] + [r["bz"] / float(cal.beta(r["R"])) for r in defs]),
+                        br_rng=_span(br + rng["br_c_range"] + [r["br"] / float(cal.beta(r["R"])) for r in defs]),
                         az=float(np.mean([r["alpha_zeta"] for r in main])), ar=float(np.mean([r["alpha_r"] for r in main])),
                         az_rng=_span([r["alpha_zeta"] for r in main + defs]), ar_rng=_span([r["alpha_r"] for r in main + defs]),
                         br_loc=law["beta_r_loc"] / law["beta_c"], ar_loc=law["alpha_r_loc"], ac=law["alpha_c"],
@@ -53,8 +53,8 @@ def modes():
     win4 = MD["m4_windows"]
     out.append(dict(m=4, ring="R*", R=float(std4["R"]), k=4 / std4["R"],
                     bz=std4["bz"] / law4["beta_c"], br=std4["br"] / law4["beta_c"],
-                    bz_rng=_span([r["bz"] / float(cal.beta(r["R"])) for r in defs4] + [w["bz_over_drift"] * to_c4 for w in win4]),
-                    br_rng=_span([r["br"] / float(cal.beta(r["R"])) for r in defs4] + [w["br_over_drift"] * to_c4 for w in win4]),
+                    bz_rng=_span([r["bz"] / float(cal.beta(r["R"])) for r in defs4] + [w["bz"] / float(cal.beta(w["R"])) for w in win4]),
+                    br_rng=_span([r["br"] / float(cal.beta(r["R"])) for r in defs4] + [w["br"] / float(cal.beta(w["R"])) for w in win4]),
                     az=std4["alpha_zeta"], ar=std4["alpha_r"],
                     az_rng=_span([r["alpha_zeta"] for r in defs4] + [w["alpha_zeta"] for w in win4]),
                     ar_rng=_span([r["alpha_r"] for r in defs4] + [w["alpha_r"] for w in win4]),

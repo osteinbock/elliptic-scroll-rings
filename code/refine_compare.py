@@ -38,7 +38,8 @@ def modes(folder):
                           beta_drift=np.mean([r["bdrift"] for r in main]), R=np.mean([r["R"] for r in main]),
                           alpha_r=[float(v) for v in ar], alpha_zeta=[float(v) for v in az],
                           dphase_deg=[float(r["dphase"]) for r in main],
-                          bz_over_drift_range=[a[:, 0].min(), a[:, 0].max()], br_over_drift_range=[a[:, 1].min(), a[:, 1].max()])
+                          bz_over_drift_range=[a[:, 0].min(), a[:, 0].max()], br_over_drift_range=[a[:, 1].min(), a[:, 1].max()],
+                          fits=[[float(x) for x in row[2:]] for row in a])          # per fit: beta_zeta, beta_r, beta_drift, R
         return out
     finally:
         os.chdir(cwd)

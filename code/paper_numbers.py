@@ -721,7 +721,8 @@ def rev_controls():
         for a, b in zip(x[:-1], x[1:]):
             m = (t >= a) & (t <= b) & np.isfinite(R) & np.isfinite(z)
             eps = np.max(np.abs(y[m]) / R[m]); f = float(np.interp(eps, fac[:, 0], fac[:, 1]))
-            row = HU.predictions(t[m], R[m], z[m], f, cal)
+            Ra, Rb_ = HU.at_crossings(t, R, a, b)
+            row = HU.predictions(t[m], R[m], z[m], f, cal, ends=(a, Ra, b, Rb_))
             out.append((row["ratio_own"], row["ratio_c"]))
         return np.array(out)
     ref = halfcycles(os.path.join(B, "rerun_r2", "ell_a1.1_b0.17_8x5.npz"), "r2c")

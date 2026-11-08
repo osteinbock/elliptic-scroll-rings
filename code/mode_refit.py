@@ -116,21 +116,26 @@ def main():
     ranges = {}
     ref = json.load(open(os.path.join(FD.REFINE, "refine_compare.json")))["modes"]
     for m in (2, 3):
-        vals = []
+        vals, valc = [], []
         for amp in (0.08, 0.15):
             for fr in (0.6, 0.8, 1.0):
                 for sm in (1, 2):
                     r = MD.analyze(m, amp, MD.T1[m] * fr, sm)
                     if r["ok"]:
                         vals.append((r["bz"] / r["bdrift"], r["br"] / r["bdrift"]))
+                        c = float(cal.beta(r["R"]))                 # each fit relative to beta_c at its own radius
+                        valc.append((r["bz"] / c, r["br"] / c))
         vals = np.array(vals)
         fine = ref[f"m{m}"]["dx0.15"]
+        valc = np.array(valc + [(bz / float(cal.beta(R)), br / float(cal.beta(R))) for bz, br, bd, R in fine["fits"]])
         lo_z, hi_z = min(vals[:, 0].min(), fine["bz_over_drift_range"][0]), max(vals[:, 0].max(), fine["bz_over_drift_range"][1])
         lo_r, hi_r = min(vals[:, 1].min(), fine["br_over_drift_range"][0]), max(vals[:, 1].max(), fine["br_over_drift_range"][1])
         main_z = np.mean([r["bz"] / r["bdrift"] for r in rstar if r["m"] == m])
         main_r = np.mean([r["br"] / r["bdrift"] for r in rstar if r["m"] == m])
         ranges[m] = dict(bz_main=float(main_z), bz_range=[float(lo_z), float(hi_z)], br_main=float(main_r),
-                         br_range=[float(lo_r), float(hi_r)], n_fits=len(vals))
+                         br_range=[float(lo_r), float(hi_r)], n_fits=len(vals),
+                         bz_c_range=[float(valc[:, 0].min()), float(valc[:, 0].max())],
+                         br_c_range=[float(valc[:, 1].min()), float(valc[:, 1].max())], n_fits_c=len(valc))
         print(f"m={m}: beta_zeta/beta_drift {main_z:.3f} [{lo_z:.3f}, {hi_z:.3f}]   beta_r/beta_drift {main_r:.3f} [{lo_r:.3f}, {hi_r:.3f}]"
               f"   ({len(vals)} dx = 0.2 fits + dx = 0.15 range)")
     out["rstar_ranges"] = {str(k): v for k, v in ranges.items()}

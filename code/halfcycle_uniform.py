@@ -156,27 +156,37 @@ def own_coefficients(t, R, z):
     return abs(np.polyfit(s, z, 1)[0]), -0.5 * np.polyfit(t, R ** 2, 1)[0]
 
 
-def predictions(t, R, z, f, calib):
-    """Ratios of observed to predicted half-period for one half-cycle (samples t, R(t), z(t))."""
+def at_crossings(t, y, a, b):
+    """y interpolated at the crossing times a and b from its finite samples (neighbours outside [a, b] included)."""
+    ok = np.isfinite(y)
+    return float(np.interp(a, t[ok], y[ok])), float(np.interp(b, t[ok], y[ok]))
+
+
+def predictions(t, R, z, f, calib, ends=None):
+    """Ratios of observed to predicted half-period for one half-cycle (samples t, R(t), z(t) inside it).
+    ends = (a, R(a), b, R(b)): the two crossings and the radius there. The phase integrals then run from
+    crossing to crossing, so that they cover the same interval as the observed half-period; without ends
+    they run from the first to the last sample. Fits (own coefficients) and Rbar use the samples."""
+    te, Re = (t, R) if ends is None else (np.r_[ends[0], t, ends[2]], np.r_[ends[1], R, ends[3]])
     bown, aown = own_coefficients(t, R, z)
     Rb = R.mean()
     row = dict(Rbar=Rb, R_end_over_start=R[-1] / R[0], beta_own=bown, alpha_own=aown, factor=f)
-    row["ratio_own"] = phase(t, R, bown, aown) / (np.pi * f)
+    row["ratio_own"] = phase(te, Re, bown, aown) / (np.pi * f)
     if calib is not None:
-        bc, ac = calib.beta(R), calib.alpha(R)
-        Pc = phase(t, R, bc, ac)
-        Ploc = phase(t, R, bc * np.sqrt(np.clip(calib.ratio_r(R), 1e-6, None)), ac)
+        bc, ac = calib.beta(Re), calib.alpha(Re)
+        Pc = phase(te, Re, bc, ac)
+        Ploc = phase(te, Re, bc * np.sqrt(np.clip(calib.ratio_r(Re), 1e-6, None)), ac)
         disc = 48 * float(calib.beta(Rb)) ** 2 - float(calib.alpha(Rb)) ** 2
         row.update(beta_c=float(calib.beta(Rb)), alpha_c=float(calib.alpha(Rb)), own_over_c=bown / float(calib.beta(Rb)),
-                   ratio_c=Pc / (np.pi * f), ratio_c_avg=(t[-1] - t[0]) / (f * 2 * np.pi * Rb ** 2 / np.sqrt(disc)),
+                   ratio_c=Pc / (np.pi * f), ratio_c_avg=(te[-1] - te[0]) / (f * 2 * np.pi * Rb ** 2 / np.sqrt(disc)),
                    eq5_factor=Pc / Ploc, eq5_global=1 / np.sqrt(float(calib.beta_r_over_beta(Rb))),
                    residual=Ploc / (np.pi * f), calib_inside=float(calib.inside(Rb)))
         # ratio_c is a ratio of mean frequencies; the literal ratio of durations uses the time at which the
         # predicted phase reaches pi f (held at the last frequency if that lies beyond the half-cycle)
-        w = np.sqrt(np.maximum(48 * bc ** 2 - ac ** 2, 0)) / (2 * R ** 2)
-        cum = np.concatenate([[0], np.cumsum(0.5 * (w[1:] + w[:-1]) * np.diff(t))])
-        tp = np.interp(np.pi * f, cum, t) if cum[-1] >= np.pi * f else t[-1] + (np.pi * f - cum[-1]) / w[-1]
-        row["ratio_c_duration"] = (t[-1] - t[0]) / (tp - t[0])
+        w = np.sqrt(np.maximum(48 * bc ** 2 - ac ** 2, 0)) / (2 * Re ** 2)
+        cum = np.concatenate([[0], np.cumsum(0.5 * (w[1:] + w[:-1]) * np.diff(te))])
+        tp = np.interp(np.pi * f, cum, te) if cum[-1] >= np.pi * f else te[-1] + (np.pi * f - cum[-1]) / w[-1]
+        row["ratio_c_duration"] = (te[-1] - te[0]) / (tp - te[0])
     return row
 
 
@@ -201,10 +211,12 @@ def z2_half_cycles(path, period, calib, model, run, t_contact=np.inf, radii=("Rm
             sc = np.sqrt(hx0 * hy0) / 5.0                       # f depends on the shape only; solve at R ~ 5
             f = H.model_factor(hx0 / sc, hy0 / sc, 1.0, radius=rad)
             # own drift from the centre height against int dt / (L / 2 pi), as period_analysis_r2.py
-            row = predictions(t[m], R[m], S["z"][m], f, calib)
+            Ra, Rb_ = at_crossings(t, R, a, b)
+            row = predictions(t[m], R[m], S["z"][m], f, calib, ends=(a, Ra, b, Rb_))
             if rad == "Rm":                                     # own coefficients always from L / 2 pi
                 bo, ao = own_coefficients(t[m], S["RL"][m], S["z"][m])
-                row.update(beta_own=bo, alpha_own=ao, ratio_own=phase(t[m], R[m], bo, ao) / (np.pi * f))
+                row.update(beta_own=bo, alpha_own=ao,
+                           ratio_own=phase(np.r_[a, t[m], b], np.r_[Ra, R[m], Rb_], bo, ao) / (np.pi * f))
                 if calib is not None:
                     row["own_over_c"] = bo / row["beta_c"]
             row.update(model=model, run=run, event="z2", radius=rad, t_start=a, t_end=b, T_obs=b - a,
@@ -228,7 +240,8 @@ def r2_half_cycles(path, period, calib, model, run):
     for r in P2.intervals_r2(path, period):
         m = (t >= r["t0"]) & (t <= r["t1"]) & np.isfinite(RL) & np.isfinite(z)
         f = float(np.interp(r["eps"], fac[:, 0], fac[:, 1]))
-        row = predictions(t[m], RL[m], z[m], f, calib)
+        Ra, Rb_ = at_crossings(t, RL, r["t0"], r["t1"])
+        row = predictions(t[m], RL[m], z[m], f, calib, ends=(r["t0"], Ra, r["t1"], Rb_))
         row.update(model=model, run=run, event="r2", radius="L", t_start=r["t0"], t_end=r["t1"], T_obs=r["Th"],
                    eps=r["eps"], max_gap=r["max_gap"])
         rows.append(row)
